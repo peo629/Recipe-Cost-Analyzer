@@ -51,7 +51,7 @@ A professional kitchen recipe costing tool for chefs and food business owners.
   - Recipe tags and allergen tags
   - Live tabbed preview (Recipe Card + Cost Breakdown)
   - Save to database
-- **Ingredient Library** (`/ingredients`): Full CRUD for ingredients with unit cost calculation
+- **Ingredient Library** (`/ingredients`): Full CRUD for ingredients with unit cost calculation; supplier filter buttons (All / Woolworths / Coles); 141 pre-seeded products from Woolworths and Coles with live-verified Australian pricing
 - **Preview Tabs**:
   - Tab 1: Recipe card (30/70 column layout, tags, allergens, author footnote)
   - Tab 2: Cost breakdown (summary table + ingredient detail table)
@@ -98,7 +98,7 @@ Tables:
 ### `artifacts/api-server` (`@workspace/api-server`)
 
 Express 5 API server. Routes:
-- `GET/POST /api/ingredients` — list (with ?search) and create
+- `GET/POST /api/ingredients` — list (with ?search, ?supplier) and create
 - `GET/PATCH/DELETE /api/ingredients/:id` — get, update, delete
 - `GET /api/recipes/stats/summary` — dashboard stats
 - `GET/POST /api/recipes` — list (with ?search, ?tag) and create

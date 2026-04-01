@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { ilike, or } from "drizzle-orm";
+import { ilike, or, and, eq } from "drizzle-orm";
 import { db, ingredientsTable } from "@workspace/db";
 import {
   ListIngredientsQueryParams,
@@ -50,19 +50,24 @@ router.get("/ingredients", async (req, res): Promise<void> => {
     return;
   }
 
-  let rows;
+  const conditions = [];
+
   if (query.data.search) {
-    rows = await db
-      .select()
-      .from(ingredientsTable)
-      .where(or(
-        ilike(ingredientsTable.name, `%${query.data.search}%`),
-        ilike(ingredientsTable.category, `%${query.data.search}%`),
-      ))
-      .orderBy(ingredientsTable.name);
-  } else {
-    rows = await db.select().from(ingredientsTable).orderBy(ingredientsTable.name);
+    conditions.push(or(
+      ilike(ingredientsTable.name, `%${query.data.search}%`),
+      ilike(ingredientsTable.category, `%${query.data.search}%`),
+    ));
   }
+
+  if (query.data.supplier) {
+    conditions.push(eq(ingredientsTable.supplier, query.data.supplier));
+  }
+
+  const rows = await db
+    .select()
+    .from(ingredientsTable)
+    .where(conditions.length > 0 ? and(...conditions) : undefined)
+    .orderBy(ingredientsTable.name);
 
   res.json(rows.map(formatIngredient));
 });

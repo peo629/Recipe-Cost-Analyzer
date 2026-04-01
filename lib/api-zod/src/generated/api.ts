@@ -22,7 +22,11 @@ export const ListIngredientsQueryParams = zod.object({
   search: zod.coerce
     .string()
     .optional()
-    .describe("Search term to filter ingredients"),
+    .describe("Search term to filter ingredients by name or category"),
+  supplier: zod.coerce
+    .string()
+    .optional()
+    .describe('Filter by supplier name (e.g. \"Woolworths\", \"Coles\")'),
 });
 
 export const ListIngredientsResponseItem = zod.object({

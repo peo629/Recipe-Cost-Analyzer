@@ -38,7 +38,12 @@ paths:
           in: query
           schema:
             type: string
-          description: Search term to filter ingredients
+          description: Search term to filter ingredients by name or category
+        - name: supplier
+          in: query
+          schema:
+            type: string
+          description: Filter by supplier name (e.g. "Woolworths", "Coles")
       responses:
         "200":
           description: List of ingredients
