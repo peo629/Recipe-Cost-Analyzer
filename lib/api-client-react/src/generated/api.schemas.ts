@@ -178,9 +178,13 @@ export interface RecipeStats {
 
 export type ListIngredientsParams = {
   /**
-   * Search term to filter ingredients
+   * Search term to filter ingredients by name or category
    */
   search?: string;
+  /**
+   * Filter by supplier name (e.g. "Woolworths", "Coles")
+   */
+  supplier?: string;
 };
 
 export type ListRecipesParams = {

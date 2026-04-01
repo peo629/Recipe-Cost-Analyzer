@@ -27,17 +27,26 @@ const ingredientSchema = z.object({
 
 type IngredientFormValues = z.infer<typeof ingredientSchema>;
 
+const SUPPLIER_FILTERS = [
+  { label: "All", value: "" },
+  { label: "Woolworths", value: "Woolworths" },
+  { label: "Coles", value: "Coles" },
+];
+
 export default function Ingredients() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 300);
+  const [supplierFilter, setSupplierFilter] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
 
   const queryClient = useQueryClient();
 
+  const listParams = { search: debouncedSearch || undefined, supplier: supplierFilter || undefined };
+
   const { data: ingredients, isLoading } = useListIngredients(
-    { search: debouncedSearch },
-    { query: { queryKey: getListIngredientsQueryKey({ search: debouncedSearch }) } }
+    listParams,
+    { query: { queryKey: getListIngredientsQueryKey(listParams) } }
   );
 
   const createMutation = useCreateIngredient({
@@ -135,8 +144,8 @@ export default function Ingredients() {
       </div>
 
       <div className="bg-card border rounded-xl overflow-hidden shadow-sm">
-        <div className="p-4 border-b bg-muted/20 flex gap-4">
-          <div className="relative flex-1 max-w-md">
+        <div className="p-4 border-b bg-muted/20 flex flex-wrap gap-3 items-center">
+          <div className="relative flex-1 max-w-md min-w-[200px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search ingredients..."
@@ -145,6 +154,22 @@ export default function Ingredients() {
               className="pl-9 bg-background"
               data-testid="input-search-ingredients"
             />
+          </div>
+          <div className="flex items-center gap-1.5 border border-border rounded-lg p-1 bg-background">
+            {SUPPLIER_FILTERS.map(({ label, value }) => (
+              <button
+                key={value}
+                onClick={() => setSupplierFilter(value)}
+                className={[
+                  "px-3 py-1 text-sm rounded-md font-medium transition-colors",
+                  supplierFilter === value
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                ].join(" ")}
+              >
+                {label}
+              </button>
+            ))}
           </div>
         </div>
 
