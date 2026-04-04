@@ -1,5 +1,5 @@
 import { Router, type IRouter } from "express";
-import { ilike, or, sql, desc } from "drizzle-orm";
+import { ilike, or, sql, desc, inArray } from "drizzle-orm";
 import { db, recipesTable, ingredientsTable } from "@workspace/db";
 import {
   ListRecipesQueryParams,
@@ -33,7 +33,7 @@ async function buildRecipeIngredients(ingredientInputs: StoredIngredientInput[])
   const dbIngredients = await db
     .select()
     .from(ingredientsTable)
-    .where(sql`${ingredientsTable.id} = ANY(${ids})`);
+    .where(inArray(ingredientsTable.id, ids));
 
   const ingredientMap = new Map(dbIngredients.map((i) => [i.id, i]));
 
