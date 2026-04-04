@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -27,22 +28,61 @@ const ingredientSchema = z.object({
 
 type IngredientFormValues = z.infer<typeof ingredientSchema>;
 
-const SUPPLIER_FILTERS = [
-  { label: "All", value: "" },
+const SUPPLIERS = [
+  "Woolworths",
+  "Coles",
+  "HOLCO",
+  "PFD",
+  "CLAMMS Seafood",
+  "Seafood Store",
+  "Chefs Pantry",
+  "Game Keepers",
+  "Delica Meats",
+  "Top Cut",
+  "5ways",
+  "Superfoods",
+  "Hudsons",
+  "Angelika Bros",
+  "Specialty",
+];
+
+const ALL_SUPPLIERS_VALUE = "__all__";
+
+const SUPPLIER_FILTER_OPTIONS = [
+  { label: "All Suppliers", value: ALL_SUPPLIERS_VALUE },
+  { label: "Supermarket", value: "__group_supermarket__", disabled: true },
   { label: "Woolworths", value: "Woolworths" },
   { label: "Coles", value: "Coles" },
+  { label: "Seafood", value: "__group_seafood__", disabled: true },
+  { label: "CLAMMS Seafood", value: "CLAMMS Seafood" },
+  { label: "Seafood Store", value: "Seafood Store" },
+  { label: "Meat & Game", value: "__group_meat__", disabled: true },
+  { label: "HOLCO", value: "HOLCO" },
+  { label: "Top Cut", value: "Top Cut" },
+  { label: "Game Keepers", value: "Game Keepers" },
+  { label: "Delica Meats", value: "Delica Meats" },
+  { label: "Hudsons", value: "Hudsons" },
+  { label: "Produce & Specialty", value: "__group_produce__", disabled: true },
+  { label: "5ways", value: "5ways" },
+  { label: "Superfoods", value: "Superfoods" },
+  { label: "Angelika Bros", value: "Angelika Bros" },
+  { label: "Pantry & Broadline", value: "__group_pantry__", disabled: true },
+  { label: "PFD", value: "PFD" },
+  { label: "Chefs Pantry", value: "Chefs Pantry" },
+  { label: "Specialty", value: "Specialty" },
 ];
 
 export default function Ingredients() {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebounce(search, 300);
-  const [supplierFilter, setSupplierFilter] = useState("");
+  const [supplierFilter, setSupplierFilter] = useState(ALL_SUPPLIERS_VALUE);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
 
   const queryClient = useQueryClient();
 
-  const listParams = { search: debouncedSearch || undefined, supplier: supplierFilter || undefined };
+  const activeSupplier = supplierFilter === ALL_SUPPLIERS_VALUE ? undefined : supplierFilter;
+  const listParams = { search: debouncedSearch || undefined, supplier: activeSupplier };
 
   const { data: ingredients, isLoading } = useListIngredients(
     listParams,
@@ -155,22 +195,24 @@ export default function Ingredients() {
               data-testid="input-search-ingredients"
             />
           </div>
-          <div className="flex items-center gap-1.5 border border-border rounded-lg p-1 bg-background">
-            {SUPPLIER_FILTERS.map(({ label, value }) => (
-              <button
-                key={value}
-                onClick={() => setSupplierFilter(value)}
-                className={[
-                  "px-3 py-1 text-sm rounded-md font-medium transition-colors",
-                  supplierFilter === value
-                    ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                ].join(" ")}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+          <Select value={supplierFilter} onValueChange={setSupplierFilter}>
+            <SelectTrigger className="w-[200px] bg-background">
+              <SelectValue placeholder="All Suppliers" />
+            </SelectTrigger>
+            <SelectContent>
+              {SUPPLIER_FILTER_OPTIONS.map(({ label, value, disabled }) =>
+                disabled ? (
+                  <div key={value} className="px-2 pt-3 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground/60">
+                    {label}
+                  </div>
+                ) : (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                )
+              )}
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="overflow-x-auto">
@@ -283,7 +325,12 @@ export default function Ingredients() {
                 <FormField control={form.control} name="supplier" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Supplier</FormLabel>
-                    <FormControl><Input {...field} value={field.value || ""} placeholder="e.g. Sysco" /></FormControl>
+                    <FormControl>
+                      <Input {...field} value={field.value || ""} placeholder="Select or type supplier" list="supplier-datalist" />
+                    </FormControl>
+                    <datalist id="supplier-datalist">
+                      {SUPPLIERS.map(s => <option key={s} value={s} />)}
+                    </datalist>
                     <FormMessage />
                   </FormItem>
                 )} />
