@@ -51,7 +51,7 @@ A professional kitchen recipe costing tool for chefs and food business owners.
   - Recipe tags and allergen tags
   - Live tabbed preview (Recipe Card + Cost Breakdown)
   - Save to database
-- **Ingredient Library** (`/ingredients`): Full CRUD for ingredients with unit cost calculation; supplier filter buttons (All / Woolworths / Coles); 141 pre-seeded products from Woolworths and Coles with live-verified Australian pricing
+- **Ingredient Library** (`/ingredients`): Full CRUD for ingredients with unit cost calculation; supplier dropdown filter (grouped by category) covering 15 suppliers; 342+ pre-seeded products with live-verified Australian pricing
 - **Preview Tabs**:
   - Tab 1: Recipe card (30/70 column layout, tags, allergens, author footnote)
   - Tab 2: Cost breakdown (summary table + ingredient detail table)
