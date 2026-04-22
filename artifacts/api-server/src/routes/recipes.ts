@@ -131,7 +131,12 @@ async function formatRecipe(row: typeof recipesTable.$inferSelect) {
   };
 }
 
-function formatRecipeSummary(row: typeof recipesTable.$inferSelect, costPerPortion: number, recommendedSalePrice: number) {
+function formatRecipeSummary(
+  row: typeof recipesTable.$inferSelect,
+  costPerPortion: number,
+  recommendedSalePrice: number,
+  ingredientNames: string[] = [],
+) {
   return {
     id: row.id,
     title: row.title,
@@ -139,6 +144,7 @@ function formatRecipeSummary(row: typeof recipesTable.$inferSelect, costPerPorti
     servings: row.servings,
     tags: row.tags ?? [],
     allergens: row.allergens ?? [],
+    ingredientNames,
     costPerPortion,
     recommendedSalePrice,
     createdAt: row.createdAt,
@@ -157,7 +163,12 @@ router.get("/recipes/stats/summary", async (req, res): Promise<void> => {
       const ingInputs = (row.ingredients as StoredIngredientInput[]) ?? [];
       const recipeIngs = await buildRecipeIngredients(ingInputs);
       const costSummary = calcCostSummary(recipeIngs, row.servings, row.wastagePercent, row.foodCostPercent);
-      return formatRecipeSummary(row, costSummary.costPerPortion, costSummary.recommendedSalePrice);
+      return formatRecipeSummary(
+        row,
+        costSummary.costPerPortion,
+        costSummary.recommendedSalePrice,
+        recipeIngs.map((i) => i.ingredientName),
+      );
     }),
   );
 
@@ -210,7 +221,12 @@ router.get("/recipes", async (req, res): Promise<void> => {
       const ingInputs = (row.ingredients as StoredIngredientInput[]) ?? [];
       const recipeIngs = await buildRecipeIngredients(ingInputs);
       const costSummary = calcCostSummary(recipeIngs, row.servings, row.wastagePercent, row.foodCostPercent);
-      return formatRecipeSummary(row, costSummary.costPerPortion, costSummary.recommendedSalePrice);
+      return formatRecipeSummary(
+        row,
+        costSummary.costPerPortion,
+        costSummary.recommendedSalePrice,
+        recipeIngs.map((i) => i.ingredientName),
+      );
     }),
   );
 

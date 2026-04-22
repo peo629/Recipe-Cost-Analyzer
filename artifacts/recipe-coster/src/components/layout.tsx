@@ -46,6 +46,7 @@ const NAV: NavEntry[] = [
     icon: UtensilsCrossed,
     children: [
       { href: "/menu-development/recipe-coster", label: "Recipe Coster" },
+      { href: "/menu-development/recipe-library", label: "Recipe Library" },
       { href: "/menu-development/menus", label: "Menus" },
       { href: "/menu-development/recipe-generator", label: "Recipe Generator" },
     ],

@@ -14,6 +14,7 @@ export interface RecipeSummary {
   servings: number;
   tags: string[];
   allergens: string[];
+  ingredientNames: string[];
   costPerPortion: number;
   recommendedSalePrice: number;
   createdAt: Date;

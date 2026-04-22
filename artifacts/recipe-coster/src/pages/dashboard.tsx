@@ -92,7 +92,14 @@ export default function Dashboard() {
       </div>
 
       <div>
-        <h2 className="text-xl font-bold mb-4">Recent Recipes</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Recent Recipes</h2>
+          <Link href="/menu-development/recipe-library">
+            <Button variant="outline" size="sm" data-testid="button-view-library">
+              View Library
+            </Button>
+          </Link>
+        </div>
         {stats.recentRecipes.length === 0 ? (
           <div className="bg-muted/30 border border-dashed rounded-xl p-12 text-center">
             <ChefHat className="h-12 w-12 text-muted-foreground mx-auto mb-4 opacity-50" />

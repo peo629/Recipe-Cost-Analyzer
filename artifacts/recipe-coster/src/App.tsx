@@ -6,6 +6,7 @@ import { Layout } from "@/components/layout";
 import Dashboard from "@/pages/dashboard";
 import Ingredients from "@/pages/ingredients";
 import RecipeBuilder from "@/pages/recipe-builder";
+import RecipeLibrary from "@/pages/recipe-library";
 import NotFound from "@/pages/not-found";
 import { makeStub } from "@/pages/stub";
 
@@ -16,7 +17,14 @@ function Router() {
     <Layout>
       <Switch>
         {/* Home */}
-        <Route path="/" component={Dashboard} />
+        <Route
+          path="/"
+          component={makeStub(
+            "Welcome",
+            "Home",
+            "Open the menu to navigate to your workspace areas. The Recipe Coster lives under Menu Development.",
+          )}
+        />
 
         {/* Search */}
         <Route path="/search" component={makeStub("Search", "Global")} />
@@ -28,6 +36,7 @@ function Router() {
 
         {/* Menu Development */}
         <Route path="/menu-development/recipe-coster" component={Dashboard} />
+        <Route path="/menu-development/recipe-library" component={RecipeLibrary} />
         <Route path="/menu-development/menus" component={makeStub("Menus", "Menu Development")} />
         <Route path="/menu-development/recipe-generator" component={makeStub("Recipe Generator", "Menu Development")} />
 
