@@ -13,7 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, ArrowUp, ArrowDown, Check, Loader2, Save, Tags as TagsIcon, ChefHat, Calculator } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Check, Loader2, Save, Tags as TagsIcon, ChefHat, Calculator, Printer, Eye } from "lucide-react";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import type { MethodBlock, MethodBlockType, RecipeIngredientInput, RecipeIngredient } from "@workspace/api-client-react";
@@ -264,25 +265,73 @@ export default function RecipeBuilder() {
 
   const isPending = createMutation.isPending || updateMutation.isPending;
 
+  const [previewOpen, setPreviewOpen] = useState(false);
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  const previewContent = (
+    <PreviewContent
+      title={title}
+      description={description}
+      servings={servings}
+      ingredients={ingredients}
+      method={method}
+      allergens={allergens}
+      tags={tags}
+      authorName={authorName}
+      wastagePercent={wastagePercent}
+      foodCostPercent={foodCostPercent}
+      calculatedStats={calculatedStats}
+      onPrint={handlePrint}
+    />
+  );
+
   return (
-    <div className="flex h-full min-h-screen">
+    <div className="flex flex-col lg:flex-row h-full min-h-[calc(100vh-3.5rem)]">
       {/* LEFT PANEL: Editor */}
-      <div className="w-full lg:w-[55%] border-r border-border bg-background flex flex-col h-full overflow-hidden">
-        <div className="p-4 border-b border-border bg-card flex justify-between items-center shrink-0 shadow-sm z-10">
-          <div className="flex items-center gap-3">
-            <div className="bg-primary/10 p-2 rounded-md">
+      <div className="w-full lg:w-[55%] lg:border-r border-border bg-background flex flex-col h-full overflow-hidden no-print">
+        <div className="p-3 sm:p-4 border-b border-border bg-card flex flex-wrap gap-2 justify-between items-center shrink-0 shadow-sm z-10">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="bg-primary/10 p-2 rounded-md shrink-0">
               <ChefHat className="h-5 w-5 text-primary" />
             </div>
-            <div>
-              <h1 className="font-bold text-lg leading-tight">{isEditing ? "Edit Recipe" : "New Recipe"}</h1>
-              <p className="text-xs text-muted-foreground">Kitchen precision tool</p>
+            <div className="min-w-0">
+              <h1 className="font-bold text-base sm:text-lg leading-tight truncate">{isEditing ? "Edit Recipe" : "New Recipe"}</h1>
+              <p className="text-xs text-muted-foreground hidden sm:block">Kitchen precision tool</p>
             </div>
           </div>
-          <Button onClick={handleSave} disabled={isPending} className="shadow-sm">
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            <Save className="mr-2 h-4 w-4" />
-            Save Recipe
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* View Card button - visible on mobile/tablet only */}
+            <Sheet open={previewOpen} onOpenChange={setPreviewOpen}>
+              <SheetTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="lg:hidden shadow-sm"
+                  data-testid="button-view-card"
+                >
+                  <Eye className="mr-2 h-4 w-4" />
+                  <span className="hidden xs:inline">View Card</span>
+                  <span className="xs:hidden">View</span>
+                </Button>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="w-full sm:max-w-2xl p-0 overflow-y-auto bg-muted/30"
+              >
+                <SheetTitle className="sr-only">Recipe preview</SheetTitle>
+                {previewContent}
+              </SheetContent>
+            </Sheet>
+            <Button onClick={handleSave} disabled={isPending} size="sm" className="shadow-sm">
+              {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <Save className="mr-2 h-4 w-4" />
+              <span className="hidden xs:inline">Save Recipe</span>
+              <span className="xs:hidden">Save</span>
+            </Button>
+          </div>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-8 pb-20">
@@ -534,23 +583,65 @@ export default function RecipeBuilder() {
         </div>
       </div>
 
-      {/* RIGHT PANEL: Preview */}
-      <div className="hidden lg:flex w-[45%] bg-muted/30 flex-col h-full overflow-hidden border-l border-border shadow-inner">
-        <Tabs defaultValue="card" className="flex flex-col h-full w-full">
-          <div className="px-6 pt-4 pb-0 bg-card border-b shrink-0 flex justify-between items-end">
-            <TabsList className="bg-transparent space-x-2">
-              <TabsTrigger value="card" className="data-[state=active]:bg-muted/50 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-4 pb-2 pt-2">
-                Recipe Card
-              </TabsTrigger>
-              <TabsTrigger value="costing" className="data-[state=active]:bg-muted/50 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-4 pb-2 pt-2">
-                Cost Breakdown
-              </TabsTrigger>
-            </TabsList>
-          </div>
+      {/* RIGHT PANEL: Preview (desktop only - mobile/tablet uses the View Card sheet) */}
+      <div className="hidden lg:flex w-[45%] bg-muted/30 flex-col h-full overflow-hidden border-l border-border shadow-inner no-print">
+        {previewContent}
+      </div>
+    </div>
+  );
+}
 
-          <div className="flex-1 overflow-y-auto p-6">
-            <TabsContent value="card" className="m-0 h-full">
-              <div className="bg-white text-black p-8 shadow-xl max-w-2xl mx-auto rounded-md border min-h-[800px] flex flex-col">
+function PreviewContent(props: {
+  title: string;
+  description: string;
+  servings: number;
+  ingredients: BuilderIngredient[];
+  method: BuilderMethod[];
+  allergens: string[];
+  tags: string[];
+  authorName: string;
+  wastagePercent: number;
+  foodCostPercent: number;
+  calculatedStats: {
+    totalIngredientCost: number;
+    costPerPortion: number;
+    wastageCost: number;
+    totalCostWithWastage: number;
+    costPerPortionWithWastage: number;
+    recommendedSalePrice: number;
+  };
+  onPrint: () => void;
+}) {
+  const {
+    title, description, servings, ingredients, method, allergens, tags,
+    authorName, wastagePercent, foodCostPercent, calculatedStats, onPrint,
+  } = props;
+  return (
+    <Tabs defaultValue="card" className="flex flex-col h-full w-full">
+      <div className="no-print px-3 sm:px-6 pt-4 pb-0 bg-card border-b shrink-0 flex flex-wrap gap-2 justify-between items-end">
+        <TabsList className="bg-transparent space-x-2">
+          <TabsTrigger value="card" className="data-[state=active]:bg-muted/50 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-3 sm:px-4 pb-2 pt-2 text-xs sm:text-sm">
+            Recipe Card
+          </TabsTrigger>
+          <TabsTrigger value="costing" className="data-[state=active]:bg-muted/50 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-3 sm:px-4 pb-2 pt-2 text-xs sm:text-sm">
+            Cost Breakdown
+          </TabsTrigger>
+        </TabsList>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onPrint}
+          className="mb-2 shadow-sm"
+          data-testid="button-print-recipe"
+        >
+          <Printer className="mr-2 h-4 w-4" />
+          Print
+        </Button>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 print:p-0 print:overflow-visible">
+        <TabsContent value="card" className="m-0 h-full print:m-0">
+          <div className="printable-card bg-white text-black p-6 sm:p-8 shadow-xl max-w-2xl mx-auto rounded-md border min-h-[800px] flex flex-col print:shadow-none print:border-0 print:rounded-none print:max-w-none print:min-h-0 print:p-0">
                 <div className="border-b-2 border-black pb-4 mb-6">
                   <h1 className="font-serif text-4xl font-bold mb-2">{title || "Untitled Recipe"}</h1>
                   <div className="flex justify-between items-end">
@@ -694,7 +785,5 @@ export default function RecipeBuilder() {
             </TabsContent>
           </div>
         </Tabs>
-      </div>
-    </div>
   );
 }
