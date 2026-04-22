@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, ArrowUp, ArrowDown, Check, Loader2, Save, Tags as TagsIcon, ChefHat, Calculator, Printer, Eye } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Check, Loader2, Save, Tags as TagsIcon, ChefHat, Calculator, Printer, Eye, Copy } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -271,6 +271,41 @@ export default function RecipeBuilder() {
     window.print();
   };
 
+  const handleDuplicate = () => {
+    if (!isEditing) return;
+    const payload = {
+      title: `${title} (Copy)`,
+      description: description || null,
+      servings,
+      wastagePercent,
+      foodCostPercent,
+      authorName: authorName || null,
+      tags,
+      allergens,
+      ingredients: ingredients.map((i) => ({
+        ingredientId: i.ingredientId,
+        quantity: i.quantity,
+        unit: i.unit,
+      })),
+      method: method.map((m, idx) => ({
+        type: m.type,
+        content: m.content,
+        order: idx,
+      })),
+    };
+    createMutation.mutate(
+      { data: payload },
+      {
+        onSuccess: (data) => {
+          queryClient.invalidateQueries({ queryKey: getListRecipesQueryKey() });
+          toast.success("Recipe duplicated");
+          setLocation(`/recipes/${data.id}`);
+        },
+        onError: () => toast.error("Failed to duplicate recipe"),
+      },
+    );
+  };
+
   const previewContent = (
     <PreviewContent
       title={title}
@@ -325,6 +360,20 @@ export default function RecipeBuilder() {
                 {previewContent}
               </SheetContent>
             </Sheet>
+            {isEditing && (
+              <Button
+                onClick={handleDuplicate}
+                disabled={isPending}
+                variant="outline"
+                size="sm"
+                className="shadow-sm"
+                data-testid="button-duplicate-recipe"
+                title="Create a copy of this recipe"
+              >
+                <Copy className="mr-2 h-4 w-4" />
+                <span className="hidden xs:inline">Duplicate</span>
+              </Button>
+            )}
             <Button onClick={handleSave} disabled={isPending} size="sm" className="shadow-sm">
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" />
