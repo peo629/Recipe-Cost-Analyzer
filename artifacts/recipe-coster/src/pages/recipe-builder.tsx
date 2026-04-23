@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, ArrowUp, ArrowDown, Check, Loader2, Save, Tags as TagsIcon, ChefHat, Calculator, Printer, Eye, Copy } from "lucide-react";
+import { Plus, Trash2, ArrowUp, ArrowDown, Check, Loader2, Save, Tags as TagsIcon, ChefHat, Calculator, Printer, Eye, Copy, TrendingDown, Sparkles } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
@@ -109,6 +109,98 @@ export default function RecipeBuilder() {
     { search: debouncedSearch },
     { query: { enabled: searchOpen, queryKey: getListIngredientsQueryKey({ search: debouncedSearch }) } }
   );
+
+  // Full catalog for cross-supplier price suggestions
+  const { data: catalog } = useListIngredients({}, {
+    query: { queryKey: getListIngredientsQueryKey({}) },
+  });
+
+  const normalizeName = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+
+  const cheapestByName = useMemo(() => {
+    const map = new Map<string, NonNullable<typeof catalog>[number]>();
+    (catalog ?? []).forEach((item) => {
+      const k = normalizeName(item.name);
+      const existing = map.get(k);
+      if (!existing || item.recipeUnitCost < existing.recipeUnitCost) {
+        map.set(k, item);
+      }
+    });
+    return map;
+  }, [catalog]);
+
+  type Suggestion = {
+    cheaper: NonNullable<typeof catalog>[number];
+    savingsPerRecipe: number;
+    savingsPercent: number;
+  };
+
+  const suggestionFor = (ing: BuilderIngredient): Suggestion | null => {
+    const cheaper = cheapestByName.get(normalizeName(ing.name));
+    if (!cheaper) return null;
+    if (cheaper.id === ing.ingredientId) return null;
+    if (cheaper.recipeUnit !== ing.unit) return null; // apples-to-apples only
+    if (cheaper.recipeUnitCost >= ing.recipeUnitCost) return null;
+    const savingsPerRecipe = (ing.recipeUnitCost - cheaper.recipeUnitCost) * ing.quantity;
+    if (savingsPerRecipe <= 0) return null;
+    const savingsPercent =
+      ing.recipeUnitCost > 0 ? ((ing.recipeUnitCost - cheaper.recipeUnitCost) / ing.recipeUnitCost) * 100 : 0;
+    return { cheaper, savingsPerRecipe, savingsPercent };
+  };
+
+  const switchSupplier = (tempId: string, target: NonNullable<typeof catalog>[number]) => {
+    setIngredients((prev) =>
+      prev.map((i) =>
+        i._tempId === tempId
+          ? {
+              ...i,
+              ingredientId: target.id,
+              name: target.name,
+              recipeUnitCost: target.recipeUnitCost,
+              purchaseCost: target.purchaseCost,
+              purchaseUnitSize: target.purchaseUnitSize,
+              purchaseUnit: target.purchaseUnit,
+              unit: target.recipeUnit,
+            }
+          : i,
+      ),
+    );
+    toast.success(`Switched to ${target.supplier || "cheaper supplier"}`);
+  };
+
+  const totalPotentialSavings = useMemo(() => {
+    let total = 0;
+    ingredients.forEach((i) => {
+      const s = suggestionFor(i);
+      if (s) total += s.savingsPerRecipe;
+    });
+    return total;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ingredients, cheapestByName]);
+
+  const applyAllSuggestions = () => {
+    let applied = 0;
+    setIngredients((prev) =>
+      prev.map((i) => {
+        const s = suggestionFor(i);
+        if (!s) return i;
+        applied++;
+        const target = s.cheaper;
+        return {
+          ...i,
+          ingredientId: target.id,
+          name: target.name,
+          recipeUnitCost: target.recipeUnitCost,
+          purchaseCost: target.purchaseCost,
+          purchaseUnitSize: target.purchaseUnitSize,
+          purchaseUnit: target.purchaseUnit,
+          unit: target.recipeUnit,
+        };
+      }),
+    );
+    if (applied === 0) toast.info("No supplier switches available");
+    else toast.success(`Switched ${applied} ingredient${applied === 1 ? "" : "s"} to cheaper suppliers`);
+  };
 
   // Calculations
   const calculatedStats = useMemo(() => {
@@ -494,39 +586,89 @@ export default function RecipeBuilder() {
               </Popover>
             </div>
 
+            {totalPotentialSavings > 0 && (
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/20 px-3 py-2 no-print">
+                <div className="flex items-center gap-2 text-sm">
+                  <Sparkles className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
+                  <span className="text-emerald-900 dark:text-emerald-200">
+                    Switching suppliers could save{" "}
+                    <span className="font-bold">${totalPotentialSavings.toFixed(2)}</span> on this recipe.
+                  </span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-100/60 dark:hover:bg-emerald-900/30"
+                  onClick={applyAllSuggestions}
+                  data-testid="button-apply-all-switches"
+                >
+                  <TrendingDown className="mr-2 h-3.5 w-3.5" />
+                  Apply all switches
+                </Button>
+              </div>
+            )}
             <div className="space-y-2">
               <AnimatePresence>
-                {ingredients.map((ing) => (
+                {ingredients.map((ing) => {
+                  const suggestion = suggestionFor(ing);
+                  return (
                   <motion.div 
                     key={ing._tempId}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto' }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="flex gap-3 items-center bg-card p-3 rounded-lg border shadow-sm group"
+                    className="bg-card rounded-lg border shadow-sm group"
                   >
-                    <div className="w-[200px] truncate font-medium text-sm">{ing.name}</div>
-                    <div className="flex-1 flex gap-2">
-                      <Input 
-                        type="number" 
-                        min="0" step="0.01" 
-                        value={ing.quantity} 
-                        onChange={e => updateIngredient(ing._tempId, 'quantity', Number(e.target.value))}
-                        className="w-20 h-8 text-sm"
-                      />
-                      <Input 
-                        value={ing.unit} 
-                        onChange={e => updateIngredient(ing._tempId, 'unit', e.target.value)}
-                        className="w-24 h-8 text-sm"
-                      />
+                    <div className="flex gap-3 items-center p-3">
+                      <div className="w-[200px] truncate font-medium text-sm">{ing.name}</div>
+                      <div className="flex-1 flex gap-2">
+                        <Input 
+                          type="number" 
+                          min="0" step="0.01" 
+                          value={ing.quantity} 
+                          onChange={e => updateIngredient(ing._tempId, 'quantity', Number(e.target.value))}
+                          className="w-20 h-8 text-sm"
+                        />
+                        <Input 
+                          value={ing.unit} 
+                          onChange={e => updateIngredient(ing._tempId, 'unit', e.target.value)}
+                          className="w-24 h-8 text-sm"
+                        />
+                      </div>
+                      <div className="w-24 text-right text-sm font-medium tabular-nums shrink-0">
+                        ${(ing.quantity * ing.recipeUnitCost).toFixed(2)}
+                      </div>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeIngredient(ing._tempId)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                    <div className="w-24 text-right text-sm font-medium tabular-nums shrink-0">
-                      ${(ing.quantity * ing.recipeUnitCost).toFixed(2)}
-                    </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeIngredient(ing._tempId)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {suggestion && (
+                      <div className="flex flex-wrap items-center justify-between gap-2 px-3 pb-3 -mt-1 no-print">
+                        <div className="flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300">
+                          <TrendingDown className="h-3.5 w-3.5" />
+                          <span>
+                            Switch to <span className="font-semibold">{suggestion.cheaper.supplier || "cheaper option"}</span>{" "}
+                            <span className="text-muted-foreground">
+                              (${suggestion.cheaper.recipeUnitCost.toFixed(4)}/{suggestion.cheaper.recipeUnit})
+                            </span>{" "}
+                            — save <span className="font-semibold">${suggestion.savingsPerRecipe.toFixed(2)}</span>{" "}
+                            <span className="text-muted-foreground">({suggestion.savingsPercent.toFixed(0)}% cheaper)</span>
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-xs text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                          onClick={() => switchSupplier(ing._tempId, suggestion.cheaper)}
+                          data-testid={`button-switch-${ing._tempId}`}
+                        >
+                          Switch
+                        </Button>
+                      </div>
+                    )}
                   </motion.div>
-                ))}
+                  );
+                })}
               </AnimatePresence>
               {ingredients.length === 0 && (
                 <div className="text-center p-8 border border-dashed rounded-lg text-muted-foreground text-sm">
