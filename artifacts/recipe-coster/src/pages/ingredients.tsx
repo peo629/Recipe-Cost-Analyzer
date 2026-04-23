@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useListIngredients, useCreateIngredient, useUpdateIngredient, useDeleteIngredient, getListIngredientsQueryKey } from "@workspace/api-client-react";
+import { useRef, useState } from "react";
+import { useListIngredients, useCreateIngredient, useUpdateIngredient, useDeleteIngredient, getListIngredientsQueryKey, listIngredients, createIngredient } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/use-debounce";
 import { Input } from "@/components/ui/input";
@@ -11,10 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-import { Search, Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, Loader2, Download, Upload, FileText } from "lucide-react";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import type { Ingredient } from "@workspace/api-client-react";
+import Papa from "papaparse";
 
 const ingredientSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -78,6 +79,9 @@ export default function Ingredients() {
   const [supplierFilter, setSupplierFilter] = useState(ALL_SUPPLIERS_VALUE);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingIngredient, setEditingIngredient] = useState<Ingredient | null>(null);
+  const [importBusy, setImportBusy] = useState(false);
+  const [exportBusy, setExportBusy] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -162,6 +166,102 @@ export default function Ingredients() {
     setIsModalOpen(true);
   };
 
+  const CSV_HEADERS = ["name", "category", "supplier", "purchaseUnitSize", "purchaseUnit", "purchaseCost", "recipeUnit"] as const;
+
+  const downloadCsv = (filename: string, csvText: string) => {
+    const blob = new Blob([csvText], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadTemplate = () => {
+    const example = {
+      name: "Atlantic Salmon Fillet",
+      category: "Seafood",
+      supplier: "Angelika Bros",
+      purchaseUnitSize: 1,
+      purchaseUnit: "kg",
+      purchaseCost: 42.50,
+      recipeUnit: "g",
+    };
+    const csv = Papa.unparse({ fields: [...CSV_HEADERS], data: [CSV_HEADERS.map(h => (example as any)[h])] });
+    downloadCsv("ingredients-template.csv", csv);
+  };
+
+  const handleExport = async () => {
+    setExportBusy(true);
+    try {
+      const all = await listIngredients({});
+      const rows = all.map((i) => CSV_HEADERS.map((h) => (i as any)[h] ?? ""));
+      const csv = Papa.unparse({ fields: [...CSV_HEADERS], data: rows });
+      const stamp = new Date().toISOString().slice(0, 10);
+      downloadCsv(`ingredients-${stamp}.csv`, csv);
+      toast.success(`Exported ${all.length} ingredient${all.length === 1 ? "" : "s"}`);
+    } catch {
+      toast.error("Export failed");
+    } finally {
+      setExportBusy(false);
+    }
+  };
+
+  const handleImportFile = async (file: File) => {
+    setImportBusy(true);
+    Papa.parse<Record<string, string>>(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (result) => {
+        const rows = result.data;
+        let ok = 0;
+        let failed = 0;
+        const errors: string[] = [];
+        for (let idx = 0; idx < rows.length; idx++) {
+          const raw = rows[idx];
+          const candidate = {
+            name: (raw.name ?? "").trim(),
+            category: (raw.category ?? "").trim() || null,
+            supplier: (raw.supplier ?? "").trim() || null,
+            purchaseUnit: (raw.purchaseUnit ?? "").trim(),
+            purchaseUnitSize: Number(raw.purchaseUnitSize),
+            purchaseCost: Number(raw.purchaseCost),
+            recipeUnit: (raw.recipeUnit ?? "").trim(),
+          };
+          const parsed = ingredientSchema.safeParse(candidate);
+          if (!parsed.success) {
+            failed++;
+            if (errors.length < 3) errors.push(`Row ${idx + 2}: ${parsed.error.issues[0]?.message ?? "invalid"}`);
+            continue;
+          }
+          try {
+            await createIngredient(parsed.data as any);
+            ok++;
+          } catch {
+            failed++;
+            if (errors.length < 3) errors.push(`Row ${idx + 2}: server rejected`);
+          }
+        }
+        queryClient.invalidateQueries({ queryKey: getListIngredientsQueryKey() });
+        setImportBusy(false);
+        if (failed === 0) {
+          toast.success(`Imported ${ok} ingredient${ok === 1 ? "" : "s"}`);
+        } else {
+          toast.error(`Imported ${ok}, skipped ${failed}. ${errors.join(" | ")}`);
+        }
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      },
+      error: (err) => {
+        setImportBusy(false);
+        toast.error(`CSV parse failed: ${err.message}`);
+        if (fileInputRef.current) fileInputRef.current.value = "";
+      },
+    });
+  };
+
   const onSubmit = (data: IngredientFormValues) => {
     if (editingIngredient) {
       updateMutation.mutate({ id: editingIngredient.id, data });
@@ -177,10 +277,35 @@ export default function Ingredients() {
           <h1 className="text-3xl font-bold tracking-tight">Ingredient Library</h1>
           <p className="text-muted-foreground mt-1">Manage your pantry, units, and costs.</p>
         </div>
-        <Button onClick={handleOpenCreate} data-testid="button-add-ingredient">
-          <Plus className="mr-2 h-4 w-4" />
-          Add Ingredient
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".csv,text/csv"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImportFile(file);
+            }}
+            data-testid="input-import-csv"
+          />
+          <Button variant="outline" onClick={handleDownloadTemplate} data-testid="button-template-csv">
+            <FileText className="mr-2 h-4 w-4" />
+            Template
+          </Button>
+          <Button variant="outline" onClick={handleExport} disabled={exportBusy} data-testid="button-export-csv">
+            {exportBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            Export CSV
+          </Button>
+          <Button variant="outline" onClick={() => fileInputRef.current?.click()} disabled={importBusy} data-testid="button-import-csv">
+            {importBusy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+            Import CSV
+          </Button>
+          <Button onClick={handleOpenCreate} data-testid="button-add-ingredient">
+            <Plus className="mr-2 h-4 w-4" />
+            Add Ingredient
+          </Button>
+        </div>
       </div>
 
       <div className="bg-card border rounded-xl overflow-hidden shadow-sm">
