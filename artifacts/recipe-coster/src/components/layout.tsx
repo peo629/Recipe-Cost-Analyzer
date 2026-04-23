@@ -56,6 +56,7 @@ const NAV: NavEntry[] = [
     label: "Inventory",
     icon: Boxes,
     children: [
+      { href: "/inventory/product-search", label: "Product Search" },
       { href: "/inventory/suppliers", label: "Suppliers" },
       { href: "/inventory/ordering", label: "Ordering" },
       { href: "/inventory/stocktake", label: "Stocktake" },
