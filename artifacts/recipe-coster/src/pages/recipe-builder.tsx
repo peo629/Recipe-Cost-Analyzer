@@ -24,7 +24,7 @@ import { Badge } from "@/components/ui/badge";
 // Known allergens
 const COMMON_ALLERGENS = ["Gluten", "Dairy", "Eggs", "Nuts", "Peanuts", "Shellfish", "Fish", "Soy", "Sesame"];
 
-interface BuilderIngredient extends RecipeIngredientInput {
+export interface BuilderIngredient extends RecipeIngredientInput {
   _tempId: string;
   name: string;
   recipeUnitCost: number;
@@ -33,7 +33,7 @@ interface BuilderIngredient extends RecipeIngredientInput {
   purchaseUnit: string;
 }
 
-interface BuilderMethod extends MethodBlock {
+export interface BuilderMethod extends MethodBlock {
   _tempId: string;
 }
 
@@ -782,7 +782,7 @@ export default function RecipeBuilder() {
   );
 }
 
-function PreviewContent(props: {
+export function PreviewContent(props: {
   title: string;
   description: string;
   servings: number;

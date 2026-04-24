@@ -360,3 +360,32 @@ export const GetRecipeStatsResponse = zod.object({
     }),
   ),
 });
+
+/**
+ * Given selected ingredients, dietary tags and a prompt, produce a draft recipe (title, description, method).
+ * @summary Generate a recipe using AI
+ */
+export const GenerateRecipeBody = zod.object({
+  prompt: zod.string(),
+  servings: zod.number(),
+  dietaryTags: zod.array(zod.string()),
+  ingredients: zod.array(
+    zod.object({
+      name: zod.string(),
+      quantity: zod.number(),
+      unit: zod.string(),
+    }),
+  ),
+});
+
+export const GenerateRecipeResponse = zod.object({
+  title: zod.string(),
+  description: zod.string(),
+  method: zod.array(
+    zod.object({
+      type: zod.enum(["header", "numbered", "text", "subinstruction"]),
+      content: zod.string(),
+      order: zod.number(),
+    }),
+  ),
+});

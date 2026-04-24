@@ -20,6 +20,8 @@ import type {
   CreateIngredientBody,
   CreateRecipeBody,
   ErrorResponse,
+  GenerateRecipeRequest,
+  GenerateRecipeResponse,
   HealthStatus,
   Ingredient,
   ListIngredientsParams,
@@ -1064,3 +1066,90 @@ export function useGetRecipeStats<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * Given selected ingredients, dietary tags and a prompt, produce a draft recipe (title, description, method).
+ * @summary Generate a recipe using AI
+ */
+export const getGenerateRecipeUrl = () => {
+  return `/api/openai/generate-recipe`;
+};
+
+export const generateRecipe = async (
+  generateRecipeRequest: GenerateRecipeRequest,
+  options?: RequestInit,
+): Promise<GenerateRecipeResponse> => {
+  return customFetch<GenerateRecipeResponse>(getGenerateRecipeUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(generateRecipeRequest),
+  });
+};
+
+export const getGenerateRecipeMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateRecipe>>,
+    TError,
+    { data: BodyType<GenerateRecipeRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof generateRecipe>>,
+  TError,
+  { data: BodyType<GenerateRecipeRequest> },
+  TContext
+> => {
+  const mutationKey = ["generateRecipe"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof generateRecipe>>,
+    { data: BodyType<GenerateRecipeRequest> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return generateRecipe(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type GenerateRecipeMutationResult = NonNullable<
+  Awaited<ReturnType<typeof generateRecipe>>
+>;
+export type GenerateRecipeMutationBody = BodyType<GenerateRecipeRequest>;
+export type GenerateRecipeMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Generate a recipe using AI
+ */
+export const useGenerateRecipe = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof generateRecipe>>,
+    TError,
+    { data: BodyType<GenerateRecipeRequest> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof generateRecipe>>,
+  TError,
+  { data: BodyType<GenerateRecipeRequest> },
+  TContext
+> => {
+  return useMutation(getGenerateRecipeMutationOptions(options));
+};

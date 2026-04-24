@@ -10,6 +10,7 @@ import {
   UserPlus,
   Menu,
   ChevronDown,
+  Sparkles,
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -114,6 +115,15 @@ export function Layout({ children }: { children: ReactNode }) {
 
   const NavList = () => (
     <nav className="px-3 pb-6">
+      <Link
+        href="/menu-development/recipe-generator"
+        onClick={close}
+        className="mb-3 flex items-center justify-center gap-2 px-3 py-2.5 rounded-md text-sm font-semibold bg-primary text-primary-foreground hover:bg-primary/90 transition-colors shadow-sm"
+        data-testid="nav-generate-recipe-cta"
+      >
+        <Sparkles className="h-4 w-4" />
+        Generate Recipe
+      </Link>
       <Accordion
         type="single"
         collapsible

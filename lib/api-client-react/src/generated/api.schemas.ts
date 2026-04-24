@@ -177,6 +177,25 @@ export interface RecipeStats {
   recentRecipes: RecipeSummary[];
 }
 
+export interface GenerateRecipeIngredient {
+  name: string;
+  quantity: number;
+  unit: string;
+}
+
+export interface GenerateRecipeRequest {
+  prompt: string;
+  servings: number;
+  dietaryTags: string[];
+  ingredients: GenerateRecipeIngredient[];
+}
+
+export interface GenerateRecipeResponse {
+  title: string;
+  description: string;
+  method: MethodBlock[];
+}
+
 export type ListIngredientsParams = {
   /**
    * Search term to filter ingredients by name or category

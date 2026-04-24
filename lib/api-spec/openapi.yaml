@@ -13,6 +13,8 @@ tags:
     description: Ingredient/product management
   - name: recipes
     description: Recipe management
+  - name: openai
+    description: AI-assisted generation
 paths:
   /healthz:
     get:
@@ -260,6 +262,26 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RecipeStats"
+
+  /openai/generate-recipe:
+    post:
+      operationId: generateRecipe
+      tags: [openai]
+      summary: Generate a recipe using AI
+      description: Given selected ingredients, dietary tags and a prompt, produce a draft recipe (title, description, method).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GenerateRecipeRequest"
+      responses:
+        "200":
+          description: Generated recipe draft
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GenerateRecipeResponse"
 
 components:
   schemas:
@@ -654,3 +676,54 @@ components:
         - avgCostPerPortion
         - avgRecommendedSalePrice
         - recentRecipes
+
+    GenerateRecipeRequest:
+      type: object
+      properties:
+        prompt:
+          type: string
+        servings:
+          type: integer
+        dietaryTags:
+          type: array
+          items:
+            type: string
+        ingredients:
+          type: array
+          items:
+            $ref: "#/components/schemas/GenerateRecipeIngredient"
+      required:
+        - prompt
+        - servings
+        - ingredients
+        - dietaryTags
+
+    GenerateRecipeIngredient:
+      type: object
+      properties:
+        name:
+          type: string
+        quantity:
+          type: number
+        unit:
+          type: string
+      required:
+        - name
+        - quantity
+        - unit
+
+    GenerateRecipeResponse:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        method:
+          type: array
+          items:
+            $ref: "#/components/schemas/MethodBlock"
+      required:
+        - title
+        - description
+        - method

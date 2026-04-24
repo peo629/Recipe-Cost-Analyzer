@@ -9,6 +9,7 @@ import RecipeBuilder from "@/pages/recipe-builder";
 import RecipeLibrary from "@/pages/recipe-library";
 import ProductSearch from "@/pages/product-search";
 import PriceComparison from "@/pages/price-comparison";
+import RecipeGenerator from "@/pages/recipe-generator";
 import NotFound from "@/pages/not-found";
 import { makeStub } from "@/pages/stub";
 
@@ -40,7 +41,7 @@ function Router() {
         <Route path="/menu-development/recipe-coster" component={Dashboard} />
         <Route path="/menu-development/recipe-library" component={RecipeLibrary} />
         <Route path="/menu-development/menus" component={makeStub("Menus", "Menu Development")} />
-        <Route path="/menu-development/recipe-generator" component={makeStub("Recipe Generator", "Menu Development")} />
+        <Route path="/menu-development/recipe-generator" component={RecipeGenerator} />
 
         {/* Inventory */}
         <Route path="/inventory/product-search" component={ProductSearch} />
