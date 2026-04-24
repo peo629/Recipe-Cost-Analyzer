@@ -17,6 +17,7 @@ import { Slider } from "@/components/ui/slider";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Plus,
   Trash2,
@@ -28,8 +29,11 @@ import {
   Lock,
   Eye,
   Wand2,
-  ChefHat,
+  Calculator,
+  Tags as TagsIcon,
+  Check,
 } from "lucide-react";
+import type { MethodBlockType } from "@workspace/api-client-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
 import { PreviewContent, type BuilderIngredient, type BuilderMethod } from "./recipe-builder";
@@ -55,6 +59,17 @@ export default function RecipeGenerator() {
   const [description, setDescription] = useState("");
 
   const [hasGenerated, setHasGenerated] = useState(false);
+  const [tagInput, setTagInput] = useState("");
+
+  const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" || e.key === ",") {
+      e.preventDefault();
+      const newTag = tagInput.trim().toLowerCase();
+      if (newTag && !tags.includes(newTag)) setTags([...tags, newTag]);
+      setTagInput("");
+    }
+  };
+  const removeTag = (tagToRemove: string) => setTags(tags.filter((t) => t !== tagToRemove));
 
   // Ingredient search
   const [searchOpen, setSearchOpen] = useState(false);
@@ -212,7 +227,7 @@ export default function RecipeGenerator() {
   const isGenerating = generateMutation.isPending;
 
   const InputsPanel = (
-    <div className="p-4 sm:p-6 space-y-6 overflow-y-auto h-full">
+    <div className="p-4 sm:p-6 space-y-8 overflow-y-auto h-full">
       {/* Generate CTA */}
       <div className="rounded-xl border border-primary/20 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4 space-y-3">
         <div className="flex items-center gap-2">
@@ -241,262 +256,360 @@ export default function RecipeGenerator() {
         </Button>
       </div>
 
-      {/* Title (locked until generated) */}
-      <div className="space-y-2">
-        <Label className="flex items-center gap-2">
-          Title
-          {!hasGenerated && <Lock className="h-3 w-3 text-muted-foreground" />}
-        </Label>
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          disabled={!hasGenerated}
-          placeholder={hasGenerated ? "Recipe title" : "Will be written by AI"}
-          data-testid="input-title"
-        />
-      </div>
-
-      {/* Prompt / description */}
-      <div className="space-y-2">
-        <Label>Description / AI Prompt</Label>
-        <Textarea
-          value={hasGenerated ? description : prompt}
-          onChange={(e) => (hasGenerated ? setDescription(e.target.value) : setPrompt(e.target.value))}
-          placeholder={
-            hasGenerated
-              ? "Recipe description (edit freely)"
-              : "Describe the dish, technique, style, occasion…"
-          }
-          rows={4}
-          data-testid="input-prompt"
-        />
-        {!hasGenerated && (
-          <p className="text-xs text-muted-foreground">Used as the brief for the AI. Be specific.</p>
-        )}
-      </div>
-
-      {/* Servings */}
-      <div className="space-y-2">
-        <Label>Servings: {servings}</Label>
-        <Slider
-          min={1}
-          max={20}
-          step={1}
-          value={[servings]}
-          onValueChange={(v) => setServings(v[0])}
-          data-testid="slider-servings"
-        />
-      </div>
-
-      {/* Dietary tags */}
-      <div className="space-y-2">
-        <Label>Dietary Tags</Label>
-        <div className="flex flex-wrap gap-2">
-          {DIETARY_TAGS.map((t) => {
-            const on = dietary.includes(t);
-            return (
-              <button
-                key={t}
-                type="button"
-                onClick={() => toggle(dietary, t, setDietary)}
-                className={`text-xs px-2.5 py-1 rounded-full border transition-colors ${
-                  on
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-background hover:bg-muted border-border"
-                }`}
-                data-testid={`chip-dietary-${t.toLowerCase().replace(/\s+/g, "-")}`}
-              >
-                {t}
-              </button>
-            );
-          })}
+      {/* Header info: Title (locked) + Description/Prompt + Yield */}
+      <div className="space-y-4">
+        <div>
+          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-2">
+            Title
+            {!hasGenerated && <Lock className="h-3 w-3" />}
+          </Label>
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            disabled={!hasGenerated}
+            placeholder={hasGenerated ? "Recipe title" : "Will be written by AI"}
+            data-testid="input-title"
+          />
+        </div>
+        <div>
+          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+            Description / AI Prompt
+          </Label>
+          <Textarea
+            value={hasGenerated ? description : prompt}
+            onChange={(e) =>
+              hasGenerated ? setDescription(e.target.value) : setPrompt(e.target.value)
+            }
+            placeholder={
+              hasGenerated
+                ? "Recipe description (edit freely)"
+                : "Describe the dish, technique, style, occasion…"
+            }
+            className="resize-y"
+            data-testid="input-prompt"
+          />
+          {!hasGenerated && (
+            <p className="text-xs text-muted-foreground mt-1">
+              Used as the brief for the AI. Be specific.
+            </p>
+          )}
+        </div>
+        <div>
+          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+            Yield (Servings)
+          </Label>
+          <Input
+            type="number"
+            min="1"
+            value={servings}
+            onChange={(e) => setServings(Number(e.target.value) || 1)}
+            data-testid="input-servings"
+          />
         </div>
       </div>
 
-      {/* Allergens */}
-      <div className="space-y-2">
-        <Label>Contains (Allergens)</Label>
-        <div className="flex flex-wrap gap-2">
-          {COMMON_ALLERGENS.map((a) => {
-            const on = allergens.includes(a);
-            return (
-              <button
-                key={a}
-                type="button"
-                onClick={() => toggle(allergens, a, setAllergens)}
-                className={`text-xs px-2.5 py-1 rounded-full border ${
-                  on
-                    ? "bg-destructive text-destructive-foreground border-destructive"
-                    : "bg-background hover:bg-muted border-border"
-                }`}
-              >
-                {a}
-              </button>
-            );
-          })}
+      {/* Cost Metrics — original styling, ABOVE ingredients */}
+      <div className="space-y-6 bg-accent/5 p-5 rounded-xl border border-accent/20">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-accent flex items-center gap-2">
+          <Calculator className="h-4 w-4" />
+          Target Metrics
+        </h3>
+        <div className="grid grid-cols-2 gap-8">
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <Label>Wastage Buffer</Label>
+              <span className="text-sm font-bold text-accent">{wastagePercent}%</span>
+            </div>
+            <Slider
+              value={[wastagePercent]}
+              onValueChange={(v) => setWastagePercent(v[0])}
+              max={50}
+              step={1}
+              className="[&_[role=slider]]:bg-accent"
+            />
+          </div>
+          <div className="space-y-3">
+            <div className="flex justify-between">
+              <Label>Target Food Cost</Label>
+              <span className="text-sm font-bold text-primary">{foodCostPercent}%</span>
+            </div>
+            <Slider
+              value={[foodCostPercent]}
+              onValueChange={(v) => setFoodCostPercent(v[0])}
+              min={5}
+              max={50}
+              step={1}
+            />
+          </div>
         </div>
       </div>
 
       {/* Ingredients */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label>Ingredients ({ingredients.length})</Label>
+      <div className="space-y-4">
+        <div className="flex justify-between items-center">
+          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+            Ingredients List
+          </Label>
           <Popover open={searchOpen} onOpenChange={setSearchOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" data-testid="button-add-ingredient">
-                <Plus className="h-4 w-4 mr-1" /> Add
+              <Button variant="outline" size="sm" className="h-8" data-testid="button-add-ingredient">
+                <Plus className="mr-2 h-3 w-3" /> Add Ingredient
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="p-0 w-80" align="end">
+            <PopoverContent className="w-[300px] p-0" align="end">
               <div className="p-2 border-b">
                 <Input
-                  autoFocus
-                  placeholder="Search ingredients…"
+                  placeholder="Search ingredients..."
                   value={ingredientSearch}
                   onChange={(e) => setIngredientSearch(e.target.value)}
+                  autoFocus
                 />
               </div>
-              <div className="max-h-72 overflow-y-auto">
-                {isSearchLoading && (
-                  <div className="p-4 text-center text-sm text-muted-foreground">Loading…</div>
-                )}
-                {!isSearchLoading && (searchResults ?? []).length === 0 && (
-                  <div className="p-4 text-center text-sm text-muted-foreground">No matches</div>
-                )}
-                {(searchResults ?? []).map((r: any) => (
-                  <button
-                    key={r.id}
-                    type="button"
-                    onClick={() => handleAddIngredient(r)}
-                    className="w-full text-left px-3 py-2 hover:bg-muted text-sm border-b last:border-b-0"
-                  >
-                    <div className="font-medium">{r.name}</div>
-                    <div className="text-xs text-muted-foreground flex justify-between">
-                      <span>{r.supplier}</span>
-                      <span>${Number(r.recipeUnitCost).toFixed(4)}/{r.recipeUnit}</span>
+              <div className="max-h-[300px] overflow-y-auto">
+                {isSearchLoading ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">Searching...</div>
+                ) : (searchResults ?? []).length === 0 ? (
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    No ingredients found.
+                  </div>
+                ) : (
+                  (searchResults ?? []).map((item: any) => (
+                    <div
+                      key={item.id}
+                      className="px-3 py-2 hover:bg-muted cursor-pointer flex justify-between items-center"
+                      onClick={() => handleAddIngredient(item)}
+                    >
+                      <div>
+                        <p className="text-sm font-medium">{item.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          ${Number(item.recipeUnitCost).toFixed(4)} / {item.recipeUnit}
+                        </p>
+                      </div>
+                      <Plus className="h-4 w-4 text-muted-foreground" />
                     </div>
-                  </button>
-                ))}
+                  ))
+                )}
               </div>
             </PopoverContent>
           </Popover>
         </div>
 
         <div className="space-y-2">
-          <AnimatePresence initial={false}>
+          <AnimatePresence>
             {ingredients.map((ing) => (
               <motion.div
                 key={ing._tempId}
-                layout
-                initial={{ opacity: 0, y: -4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                className="flex items-center gap-2 p-2 rounded-md border bg-card"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="bg-card rounded-lg border shadow-sm group"
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{ing.name}</p>
-                  <p className="text-xs text-muted-foreground truncate">
-                    ${(ing.quantity * ing.recipeUnitCost).toFixed(2)} · ${ing.recipeUnitCost.toFixed(4)}/
-                    {ing.unit}
-                  </p>
+                <div className="flex gap-3 items-center p-3">
+                  <div className="w-[200px] truncate font-medium text-sm">{ing.name}</div>
+                  <div className="flex-1 flex gap-2">
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={ing.quantity}
+                      onChange={(e) =>
+                        updateIngredient(ing._tempId, "quantity", Number(e.target.value))
+                      }
+                      className="w-20 h-8 text-sm"
+                    />
+                    <Input
+                      value={ing.unit}
+                      onChange={(e) => updateIngredient(ing._tempId, "unit", e.target.value)}
+                      className="w-24 h-8 text-sm"
+                    />
+                  </div>
+                  <div className="w-24 text-right text-sm font-medium tabular-nums shrink-0">
+                    ${(ing.quantity * ing.recipeUnitCost).toFixed(2)}
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => removeIngredient(ing._tempId)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  value={ing.quantity}
-                  onChange={(e) => updateIngredient(ing._tempId, "quantity", parseFloat(e.target.value) || 0)}
-                  className="w-20 h-8 text-sm"
-                />
-                <span className="text-xs text-muted-foreground w-10">{ing.unit}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8 text-destructive"
-                  onClick={() => removeIngredient(ing._tempId)}
-                >
-                  <Trash2 className="h-3.5 w-3.5" />
-                </Button>
               </motion.div>
             ))}
           </AnimatePresence>
           {ingredients.length === 0 && (
-            <p className="text-sm text-muted-foreground italic text-center py-4 border border-dashed rounded-md">
-              Add ingredients before generating
-            </p>
+            <div className="text-center p-8 border border-dashed rounded-lg text-muted-foreground text-sm">
+              No ingredients added yet. Search and add ingredients above.
+            </div>
           )}
         </div>
-      </div>
-
-      {/* Cost dials */}
-      <div className="space-y-2">
-        <Label>Wastage: {wastagePercent}%</Label>
-        <Slider min={0} max={50} step={1} value={[wastagePercent]} onValueChange={(v) => setWastagePercent(v[0])} />
-      </div>
-      <div className="space-y-2">
-        <Label>Target Food Cost: {foodCostPercent}%</Label>
-        <Slider min={10} max={60} step={1} value={[foodCostPercent]} onValueChange={(v) => setFoodCostPercent(v[0])} />
       </div>
 
       {/* Method (locked until generated) */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="flex items-center gap-2">
+      <div className="space-y-4 pt-4 border-t border-border">
+        <div className="flex justify-between items-center">
+          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
             Method
-            {!hasGenerated && <Lock className="h-3 w-3 text-muted-foreground" />}
+            {!hasGenerated && <Lock className="h-3 w-3" />}
           </Label>
           {hasGenerated && (
-            <Button variant="outline" size="sm" onClick={addMethodBlock}>
-              <Plus className="h-4 w-4 mr-1" /> Block
+            <Button variant="outline" size="sm" className="h-8" onClick={addMethodBlock}>
+              <Plus className="mr-2 h-3 w-3" /> Add Block
             </Button>
           )}
         </div>
+
         {!hasGenerated && (
-          <p className="text-xs text-muted-foreground italic border border-dashed rounded-md p-4 text-center">
+          <div className="text-center p-8 border border-dashed rounded-lg text-muted-foreground text-sm italic">
             Method will be written by AI
-          </p>
+          </div>
         )}
+
         {hasGenerated && (
           <div className="space-y-2">
-            {method.map((m, idx) => (
-              <div key={m._tempId} className="border rounded-md p-2 bg-card space-y-1">
-                <div className="flex gap-1">
-                  <select
-                    value={m.type}
-                    onChange={(e) => updateMethodBlock(m._tempId, "type", e.target.value)}
-                    className="text-xs border rounded px-1 bg-background"
+            {method.map((block, idx) => (
+              <div
+                key={block._tempId}
+                className="flex gap-2 items-start bg-card p-3 rounded-lg border shadow-sm"
+              >
+                <div className="flex flex-col gap-1 shrink-0 mt-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => moveMethodBlock(idx, -1)}
+                    disabled={idx === 0}
                   >
-                    <option value="header">Header</option>
-                    <option value="numbered">Step</option>
-                    <option value="subinstruction">Sub-step</option>
-                    <option value="text">Note</option>
-                  </select>
-                  <div className="flex-1" />
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => moveMethodBlock(idx, -1)}>
                     <ArrowUp className="h-3 w-3" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => moveMethodBlock(idx, 1)}>
-                    <ArrowDown className="h-3 w-3" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 text-destructive"
-                    onClick={() => removeMethodBlock(m._tempId)}
+                    className="h-6 w-6"
+                    onClick={() => moveMethodBlock(idx, 1)}
+                    disabled={idx === method.length - 1}
                   >
-                    <Trash2 className="h-3 w-3" />
+                    <ArrowDown className="h-3 w-3" />
                   </Button>
                 </div>
-                <Textarea
-                  value={m.content}
-                  onChange={(e) => updateMethodBlock(m._tempId, "content", e.target.value)}
-                  rows={2}
-                  className="text-sm"
+
+                <Select
+                  value={block.type}
+                  onValueChange={(val: MethodBlockType) =>
+                    updateMethodBlock(block._tempId, "type", val)
+                  }
+                >
+                  <SelectTrigger className="w-[140px] h-9">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="header">Header</SelectItem>
+                    <SelectItem value="numbered">Step</SelectItem>
+                    <SelectItem value="subinstruction">Sub-step</SelectItem>
+                    <SelectItem value="text">Note</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Input
+                  value={block.content}
+                  onChange={(e) => updateMethodBlock(block._tempId, "content", e.target.value)}
+                  className={`flex-1 h-9 ${block.type === "header" ? "font-bold" : ""}`}
+                  placeholder={block.type === "header" ? "Section title..." : "Instruction..."}
                 />
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 text-destructive"
+                  onClick={() => removeMethodBlock(block._tempId)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
               </div>
             ))}
           </div>
         )}
+      </div>
+
+      {/* Allergens, Dietary tags & custom tags — BELOW ingredients/method */}
+      <div className="space-y-6 pt-4 border-t border-border">
+        <div>
+          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 block">
+            Allergens
+          </Label>
+          <div className="flex flex-wrap gap-2">
+            {COMMON_ALLERGENS.map((allergen) => {
+              const isActive = allergens.includes(allergen);
+              return (
+                <Badge
+                  key={allergen}
+                  variant={isActive ? "default" : "outline"}
+                  className={`cursor-pointer transition-colors ${
+                    isActive
+                      ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                      : ""
+                  }`}
+                  onClick={() => toggle(allergens, allergen, setAllergens)}
+                >
+                  {isActive && <Check className="mr-1 h-3 w-3" />}
+                  {allergen}
+                </Badge>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 block">
+            Dietary
+          </Label>
+          <div className="flex flex-wrap gap-2">
+            {DIETARY_TAGS.map((d) => {
+              const isActive = dietary.includes(d);
+              return (
+                <Badge
+                  key={d}
+                  variant={isActive ? "default" : "outline"}
+                  className={`cursor-pointer transition-colors ${
+                    isActive ? "bg-primary hover:bg-primary/90 text-primary-foreground" : ""
+                  }`}
+                  onClick={() => toggle(dietary, d, setDietary)}
+                  data-testid={`chip-dietary-${d.toLowerCase().replace(/\s+/g, "-")}`}
+                >
+                  {isActive && <Check className="mr-1 h-3 w-3" />}
+                  {d}
+                </Badge>
+              );
+            })}
+          </div>
+        </div>
+
+        <div>
+          <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 block flex items-center gap-1">
+            <TagsIcon className="h-3 w-3" /> Tags
+          </Label>
+          <div className="flex flex-wrap gap-2 mb-2">
+            {tags.map((tag) => (
+              <Badge key={tag} variant="secondary" className="pl-2 pr-1 py-1">
+                {tag}
+                <div
+                  className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5 cursor-pointer"
+                  onClick={() => removeTag(tag)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </div>
+              </Badge>
+            ))}
+          </div>
+          <Input
+            placeholder="Type tag and press enter..."
+            value={tagInput}
+            onChange={(e) => setTagInput(e.target.value)}
+            onKeyDown={handleTagKeyDown}
+            className="max-w-xs h-9"
+          />
+        </div>
       </div>
 
       {/* Save */}
@@ -525,7 +638,6 @@ export default function RecipeGenerator() {
       {/* Mobile preview toggle */}
       <div className="lg:hidden no-print sticky top-0 z-10 flex items-center justify-between p-2 border-b bg-card">
         <div className="flex items-center gap-2 px-2">
-          <ChefHat className="h-4 w-4 text-primary" />
           <span className="font-semibold text-sm">Recipe Generator</span>
         </div>
         <Sheet>
