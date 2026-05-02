@@ -587,10 +587,10 @@ export default function RecipeBuilder() {
             </div>
 
             {totalPotentialSavings > 0 && (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50/60 dark:bg-emerald-950/20 px-3 py-2 no-print">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-success/30 bg-success/10 px-3 py-2 no-print">
                 <div className="flex items-center gap-2 text-sm">
-                  <Sparkles className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
-                  <span className="text-emerald-900 dark:text-emerald-200">
+                  <Sparkles className="h-4 w-4 text-success" />
+                  <span className="text-success-foreground">
                     Switching suppliers could save{" "}
                     <span className="font-bold">${totalPotentialSavings.toFixed(2)}</span> on this recipe.
                   </span>
@@ -598,7 +598,7 @@ export default function RecipeBuilder() {
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-200 hover:bg-emerald-100/60 dark:hover:bg-emerald-900/30"
+                  className="border-success/40 text-success-foreground hover:bg-success/20"
                   onClick={applyAllSuggestions}
                   data-testid="button-apply-all-switches"
                 >
@@ -644,7 +644,7 @@ export default function RecipeBuilder() {
                     </div>
                     {suggestion && (
                       <div className="flex flex-wrap items-center justify-between gap-2 px-3 pb-3 -mt-1 no-print">
-                        <div className="flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300">
+                        <div className="flex items-center gap-2 text-xs text-success-foreground">
                           <TrendingDown className="h-3.5 w-3.5" />
                           <span>
                             Switch to <span className="font-semibold">{suggestion.cheaper.supplier || "cheaper option"}</span>{" "}
@@ -658,7 +658,7 @@ export default function RecipeBuilder() {
                         <Button
                           size="sm"
                           variant="ghost"
-                          className="h-7 text-xs text-emerald-700 dark:text-emerald-400 hover:text-emerald-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/30"
+                          className="h-7 text-xs text-success hover:text-success-foreground hover:bg-success/10"
                           onClick={() => switchSupplier(ing._tempId, suggestion.cheaper)}
                           data-testid={`button-switch-${ing._tempId}`}
                         >
@@ -836,9 +836,9 @@ export function PreviewContent(props: {
                 <div className="border-b-2 border-black pb-4 mb-6">
                   <h1 className="font-serif text-4xl font-bold mb-2">{title || "Untitled Recipe"}</h1>
                   <div className="flex justify-between items-end">
-                    {description && <p className="text-gray-600 italic text-sm max-w-md">{description}</p>}
+                    {description && <p className="text-ink-600 italic text-sm max-w-md">{description}</p>}
                     <div className="text-right">
-                      <p className="text-xs uppercase tracking-widest font-bold text-gray-500">Yield</p>
+                      <p className="text-xs uppercase tracking-widest font-bold text-ink-500">Yield</p>
                       <p className="font-medium text-lg">{servings} Servings</p>
                     </div>
                   </div>
@@ -847,25 +847,25 @@ export function PreviewContent(props: {
                 <div className="flex gap-8 flex-1">
                   {/* Ingredients Column */}
                   <div className="w-1/3">
-                    <h3 className="font-bold uppercase tracking-widest text-xs border-b border-gray-300 pb-1 mb-3">Ingredients</h3>
+                    <h3 className="font-bold uppercase tracking-widest text-xs border-b border-ink-300 pb-1 mb-3">Ingredients</h3>
                     <ul className="space-y-2 text-sm">
                       {ingredients.map(ing => (
-                        <li key={ing._tempId} className="flex justify-between border-b border-gray-100 pb-1">
+                        <li key={ing._tempId} className="flex justify-between border-b border-ink-100 pb-1">
                           <span className="font-medium">{ing.quantity} {ing.unit}</span>
-                          <span className="text-gray-600 ml-2">{ing.name}</span>
+                          <span className="text-ink-600 ml-2">{ing.name}</span>
                         </li>
                       ))}
-                      {ingredients.length === 0 && <li className="text-gray-400 italic">No ingredients</li>}
+                      {ingredients.length === 0 && <li className="text-ink-400 italic">No ingredients</li>}
                     </ul>
                   </div>
 
                   {/* Method Column */}
                   <div className="w-2/3">
-                    <h3 className="font-bold uppercase tracking-widest text-xs border-b border-gray-300 pb-1 mb-3">Method</h3>
+                    <h3 className="font-bold uppercase tracking-widest text-xs border-b border-ink-300 pb-1 mb-3">Method</h3>
                     <div className="space-y-3 text-sm">
                       {method.map((m, idx) => {
                         if (m.type === "header") {
-                          return <h4 key={m._tempId} className="font-bold text-base mt-4 border-b border-gray-200 pb-1">{m.content}</h4>;
+                          return <h4 key={m._tempId} className="font-bold text-base mt-4 border-b border-ink-200 pb-1">{m.content}</h4>;
                         }
                         if (m.type === "numbered") {
                           return (
@@ -877,21 +877,21 @@ export function PreviewContent(props: {
                         }
                         if (m.type === "subinstruction") {
                           return (
-                            <div key={m._tempId} className="flex gap-3 pl-6 text-gray-600">
+                            <div key={m._tempId} className="flex gap-3 pl-6 text-ink-600">
                               <span className="shrink-0">-</span>
                               <p>{m.content}</p>
                             </div>
                           );
                         }
                         // Text note
-                        return <p key={m._tempId} className="italic text-gray-500">{m.content}</p>;
+                        return <p key={m._tempId} className="italic text-ink-500">{m.content}</p>;
                       })}
-                      {method.length === 0 && <p className="text-gray-400 italic">No method blocks added</p>}
+                      {method.length === 0 && <p className="text-ink-400 italic">No method blocks added</p>}
                     </div>
                   </div>
                 </div>
 
-                <div className="mt-8 pt-4 border-t border-gray-200 text-xs text-gray-500 flex justify-between items-end">
+                <div className="mt-8 pt-4 border-t border-ink-200 text-xs text-ink-500 flex justify-between items-end">
                   <div className="space-y-2">
                     {allergens.length > 0 && (
                       <p><span className="font-bold uppercase tracking-wider text-black">Contains:</span> {allergens.join(", ")}</p>

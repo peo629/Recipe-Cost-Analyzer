@@ -18,6 +18,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type Leaf = { href: string; label: string };
 type Group = { id: string; label: string; icon: React.ComponentType<{ className?: string }>; children: Leaf[] };
@@ -218,6 +219,10 @@ export function Layout({ children }: { children: ReactNode }) {
           />
           <span className="font-bold tracking-tight truncate">Le Repertoire</span>
         </Link>
+
+        <div className="ml-auto flex items-center gap-1">
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="flex-1 overflow-auto bg-background">{children}</main>

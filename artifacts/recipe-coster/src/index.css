@@ -72,6 +72,45 @@
   --color-sidebar-accent-border:        var(--sidebar-accent-border);
   --color-sidebar-ring:                 hsl(var(--sidebar-ring));
 
+  /* Status semantics — Le Répertoire */
+  --color-success:              hsl(var(--success));
+  --color-success-foreground:   hsl(var(--success-foreground));
+  --color-warning:              hsl(var(--warning));
+  --color-warning-foreground:   hsl(var(--warning-foreground));
+  --color-info:                 hsl(var(--info));
+  --color-info-foreground:      hsl(var(--info-foreground));
+
+  /* Le Répertoire raw palette — for niche needs (e.g. printable surfaces) */
+  --color-ink-50:  var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-900: var(--ink-900);
+
+  --color-forest-50:  var(--forest-50);
+  --color-forest-100: var(--forest-100);
+  --color-forest-200: var(--forest-200);
+  --color-forest-300: var(--forest-300);
+  --color-forest-400: var(--forest-400);
+  --color-forest-500: var(--forest-500);
+  --color-forest-600: var(--forest-600);
+  --color-forest-700: var(--forest-700);
+  --color-forest-800: var(--forest-800);
+  --color-forest-900: var(--forest-900);
+
+  --color-copper-50:  var(--copper-50);
+  --color-copper-100: var(--copper-100);
+  --color-copper-200: var(--copper-200);
+  --color-copper-300: var(--copper-300);
+  --color-copper-400: var(--copper-400);
+  --color-copper-500: var(--copper-500);
+  --color-copper-600: var(--copper-600);
+
   --font-sans:  var(--app-font-sans);
   --font-serif: var(--app-font-serif);
   --font-mono:  var(--app-font-mono);
@@ -131,6 +170,14 @@
   /* Destructive */
   --destructive:         0 49% 46%;    /* danger-500 #b13d3d */
   --destructive-foreground: 0 0% 100%;
+
+  /* Status — Le Répertoire (light) */
+  --success:            145 41% 29%;   /* forest-500 / success-500 */
+  --success-foreground: 145 49% 18%;   /* forest-700 ish */
+  --warning:             37 71% 41%;   /* warning-500 #b58320 */
+  --warning-foreground:  37 76% 24%;
+  --info:               210 59% 45%;   /* info-500 #2f6fb8 */
+  --info-foreground:    211 65% 32%;
 
   /* Chart palette */
   --chart-1: 145 45% 23%;   /* forest-600 */
@@ -218,6 +265,14 @@
 
   --destructive:         0 52% 38%;   /* danger-600 #952f2f */
   --destructive-foreground: 0 0% 100%;
+
+  /* Status — Le Répertoire (dark) */
+  --success:            142 22% 54%;   /* forest-300 */
+  --success-foreground: 142 26% 71%;   /* forest-200 */
+  --warning:             37 65% 55%;
+  --warning-foreground:  37 65% 78%;
+  --info:               210 60% 65%;
+  --info-foreground:    210 60% 80%;
 
   --chart-1: 142 22% 54%;
   --chart-2:  24 55% 62%;

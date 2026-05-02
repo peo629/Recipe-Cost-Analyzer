@@ -198,14 +198,14 @@ export default function PriceComparison() {
                     {g.items.length} supplier{g.items.length === 1 ? "" : "s"}
                   </span>
                   {g.unitMismatch && (
-                    <span className="inline-flex items-center gap-1 text-xs text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 rounded px-2 py-0.5">
+                    <span className="inline-flex items-center gap-1 text-xs text-warning-foreground bg-warning/10 border border-warning/30 rounded px-2 py-0.5">
                       <AlertTriangle className="h-3 w-3" />
                       Mixed recipe units — comparison may be inaccurate
                     </span>
                   )}
                 </div>
                 {g.items.length >= 2 && g.savingsPercent > 0 && (
-                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900 rounded px-2 py-0.5">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-success-foreground bg-success/10 border border-success/30 rounded px-2 py-0.5">
                     Save up to {g.savingsPercent.toFixed(1)}%
                   </span>
                 )}
@@ -231,13 +231,13 @@ export default function PriceComparison() {
                       return (
                         <TableRow
                           key={p.id}
-                          className={isCheapest ? "bg-emerald-50/40 dark:bg-emerald-950/10 hover:bg-emerald-50/60 dark:hover:bg-emerald-950/20" : ""}
+                          className={isCheapest ? "bg-success/5 hover:bg-success/10" : ""}
                           data-testid={`row-comparison-${p.id}`}
                         >
                           <TableCell className="font-medium">
                             <div className="flex items-center gap-2">
                               {isCheapest && g.items.length >= 2 && (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-emerald-700 dark:text-emerald-400 bg-emerald-100 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-900 rounded px-1.5 py-0.5">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wide text-success-foreground bg-success/15 border border-success/30 rounded px-1.5 py-0.5">
                                   <Award className="h-3 w-3" /> Best
                                 </span>
                               )}
@@ -253,12 +253,12 @@ export default function PriceComparison() {
                           </TableCell>
                           <TableCell className="text-right">{p.purchaseUnitSize} {p.purchaseUnit}</TableCell>
                           <TableCell className="text-right">${p.purchaseCost.toFixed(2)}</TableCell>
-                          <TableCell className={`text-right border-l border-border/50 bg-primary/5 font-bold ${isCheapest ? "text-emerald-700 dark:text-emerald-400" : "text-primary"}`}>
+                          <TableCell className={`text-right border-l border-border/50 bg-primary/5 font-bold ${isCheapest ? "text-success" : "text-primary"}`}>
                             ${p.recipeUnitCost.toFixed(4)} <span className="text-xs font-normal text-muted-foreground">/ {p.recipeUnit}</span>
                           </TableCell>
                           <TableCell className="text-right">
                             {isCheapest ? (
-                              <span className="text-emerald-700 dark:text-emerald-400 font-semibold text-sm">cheapest</span>
+                              <span className="text-success font-semibold text-sm">cheapest</span>
                             ) : (
                               <span className="text-muted-foreground text-sm">+{diffPct.toFixed(1)}%</span>
                             )}
