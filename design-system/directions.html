@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Le Répertoire — Two Directions</title>
+<link rel="stylesheet" href="tokens/colors.css" />
+<link rel="stylesheet" href="tokens/typography.css" />
+<link rel="stylesheet" href="tokens/spacing.css" />
+<link rel="stylesheet" href="tokens/components.css" />
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<style>
+  body { margin: 0; background: #1a1f27; }
+
+  /* =========================================================
+     DIRECTION 1 — "Maison" · editorial calm, warm forest+copper
+     ========================================================= */
+  .dir-maison {
+    --m-bg:        #f5f1ea;
+    --m-canvas:    #fbf8f2;
+    --m-surface:   #ffffff;
+    --m-ink:       #1c2820;
+    --m-ink-2:     #4a5851;
+    --m-ink-3:     #8a948e;
+    --m-rule:      #e6dfd1;
+    --m-accent:    #1f4332;     /* deep forest */
+    --m-accent-2:  #b56c3a;     /* copper */
+    --m-soft:      #ecefe8;
+    --m-warn:      #b58320;
+
+    background: var(--m-bg);
+    color: var(--m-ink);
+    font-family: var(--font-body);
+    height: 100%;
+  }
+  .dir-maison .m-shell { display: grid; grid-template-columns: 240px 1fr; height: 100%; }
+  .dir-maison .m-side {
+    background: var(--m-canvas);
+    border-right: 1px solid var(--m-rule);
+    padding: 28px 22px;
+    display: flex; flex-direction: column;
+  }
+  .dir-maison .m-brand {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 32px;
+  }
+  .dir-maison .m-mark {
+    width: 32px; height: 32px; border-radius: 4px;
+    background: var(--m-accent); color: #f5f1ea;
+    display: grid; place-items: center;
+    font-family: var(--font-display); font-weight: 600; font-size: 18px;
+  }
+  .dir-maison .m-wordmark {
+    font-family: var(--font-display); font-size: 18px; font-weight: 500; letter-spacing: -0.01em;
+  }
+  .dir-maison .m-wordmark em { font-style: italic; color: var(--m-accent-2); font-weight: 500; }
+  .dir-maison .m-side h6 {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 13px; color: var(--m-ink-3); margin: 24px 0 10px; letter-spacing: 0;
+  }
+  .dir-maison .m-nav { display: flex; flex-direction: column; gap: 2px; }
+  .dir-maison .m-nav a {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 12px; border-radius: 6px;
+    font-size: 14px; color: var(--m-ink-2); text-decoration: none;
+    border-left: 2px solid transparent; padding-left: 10px;
+    transition: all 120ms ease;
+  }
+  .dir-maison .m-nav a:hover { background: var(--m-soft); color: var(--m-ink); }
+  .dir-maison .m-nav a.active {
+    color: var(--m-ink); font-weight: 500;
+    border-left-color: var(--m-accent-2);
+    background: transparent;
+  }
+  .dir-maison .m-nav .ct { font-family: var(--font-mono); font-size: 11px; color: var(--m-ink-3); }
+
+  .dir-maison .m-main { padding: 0; overflow: auto; }
+  .dir-maison .m-topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 22px 48px; border-bottom: 1px solid var(--m-rule);
+    background: var(--m-bg);
+  }
+  .dir-maison .m-topbar .crumbs { font-size: 13px; color: var(--m-ink-3); display: flex; gap: 8px; align-items: center; }
+  .dir-maison .m-topbar .crumbs strong { color: var(--m-ink); font-weight: 500; }
+  .dir-maison .m-topbar .actions { display: flex; gap: 10px; }
+  .dir-maison .m-btn {
+    height: 36px; padding: 0 16px;
+    border-radius: 4px; border: 1px solid var(--m-rule);
+    background: var(--m-surface); color: var(--m-ink);
+    font-size: 13px; font-weight: 500; cursor: pointer;
+    font-family: inherit;
+  }
+  .dir-maison .m-btn--primary { background: var(--m-accent); color: #f5f1ea; border-color: var(--m-accent); }
+  .dir-maison .m-btn--ghost { background: transparent; border-color: transparent; }
+
+  .dir-maison .m-hero {
+    padding: 56px 48px 36px;
+    border-bottom: 1px solid var(--m-rule);
+  }
+  .dir-maison .m-hero .greet-eyebrow {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    color: var(--m-accent-2); font-size: 15px; margin-bottom: 12px;
+  }
+  .dir-maison .m-hero h1 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: 56px; line-height: 1.05; letter-spacing: -0.025em;
+    margin: 0 0 18px; max-width: 22ch;
+  }
+  .dir-maison .m-hero h1 em { font-style: italic; color: var(--m-accent-2); font-weight: 500; }
+  .dir-maison .m-hero p { color: var(--m-ink-2); font-size: 16px; max-width: 56ch; margin: 0; line-height: 1.6; }
+
+  .dir-maison .m-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 0;
+    padding: 0 48px;
+  }
+  .dir-maison .m-col { padding: 36px 0 36px; }
+  .dir-maison .m-col + .m-col { border-left: 1px solid var(--m-rule); padding-left: 36px; }
+  .dir-maison .m-col:first-child { padding-right: 36px; }
+
+  .dir-maison .m-section-title {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 18px; color: var(--m-ink-2);
+    margin: 0 0 18px;
+  }
+
+  .dir-maison .m-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-top: 1px solid var(--m-rule); }
+  .dir-maison .m-stat {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--m-rule);
+  }
+  .dir-maison .m-stat + .m-stat { border-left: 1px solid var(--m-rule); padding-left: 22px; }
+  .dir-maison .m-stat:nth-child(odd) { padding-right: 22px; }
+  .dir-maison .m-stat .label { font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--m-ink-3); }
+  .dir-maison .m-stat .v { font-family: var(--font-display); font-size: 36px; font-weight: 500; letter-spacing: -0.02em; margin-top: 6px; }
+  .dir-maison .m-stat .d { font-size: 12px; color: var(--m-ink-3); margin-top: 2px; font-style: italic; font-family: var(--font-display); }
+
+  .dir-maison .m-roster .row {
+    display: grid; grid-template-columns: 32px 1fr auto; gap: 14px; align-items: center;
+    padding: 14px 0; border-bottom: 1px solid var(--m-rule);
+  }
+  .dir-maison .m-roster .row:last-child { border-bottom: none; }
+  .dir-maison .m-roster .num { font-family: var(--font-display); font-size: 14px; color: var(--m-ink-3); font-style: italic; }
+  .dir-maison .m-roster .nm { font-size: 14px; font-weight: 500; }
+  .dir-maison .m-roster .role { font-size: 12px; color: var(--m-ink-3); margin-top: 2px; }
+  .dir-maison .m-roster .time { font-family: var(--font-mono); font-size: 12px; color: var(--m-ink-2); }
+
+  .dir-maison .m-maestro {
+    background: var(--m-canvas);
+    border: 1px solid var(--m-rule);
+    border-radius: 4px;
+    padding: 24px;
+    position: relative;
+  }
+  .dir-maison .m-maestro::before {
+    content: ""; position: absolute; left: -1px; top: 18px; bottom: 18px; width: 2px; background: var(--m-accent-2);
+  }
+  .dir-maison .m-maestro .eyebrow {
+    font-family: var(--font-display); font-style: italic; color: var(--m-accent-2);
+    font-size: 13px; margin-bottom: 10px;
+  }
+  .dir-maison .m-maestro h3 {
+    font-family: var(--font-display); font-weight: 500;
+    font-size: 22px; line-height: 1.2; letter-spacing: -0.01em;
+    margin: 0 0 12px;
+  }
+  .dir-maison .m-maestro p { font-size: 14px; color: var(--m-ink-2); line-height: 1.55; margin: 0 0 18px; }
+  .dir-maison .m-maestro .acts { display: flex; gap: 8px; }
+
+  /* =========================================================
+     DIRECTION 2 — "Atelier" · operational dense, ink + lime
+     ========================================================= */
+  .dir-atelier {
+    --a-bg:       #0c1014;
+    --a-canvas:   #11161d;
+    --a-surface:  #161c25;
+    --a-surface-2:#1c232d;
+    --a-rule:     #232b37;
+    --a-rule-2:   #2e3641;
+    --a-ink:      #ecf0f5;
+    --a-ink-2:    #9aa4b1;
+    --a-ink-3:    #5d6675;
+    --a-accent:   #c4f25a;     /* signal lime */
+    --a-accent-ink:#0c1014;
+    --a-blue:     #5b9bf2;
+    --a-warn:     #f2b94d;
+    --a-bad:      #ef6f6f;
+    --a-good:     #6ed79a;
+
+    background: var(--a-bg);
+    color: var(--a-ink);
+    font-family: "Geist", -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    height: 100%;
+    font-feature-settings: "ss01", "cv11", "tnum";
+  }
+  .dir-atelier .a-shell { display: grid; grid-template-columns: 56px 1fr; height: 100%; }
+  .dir-atelier .a-rail {
+    background: var(--a-canvas); border-right: 1px solid var(--a-rule);
+    display: flex; flex-direction: column; align-items: center;
+    padding: 14px 0; gap: 6px;
+  }
+  .dir-atelier .a-rail .a-mark {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--a-accent); color: var(--a-accent-ink);
+    display: grid; place-items: center;
+    font-weight: 700; font-size: 16px; letter-spacing: -0.04em;
+    margin-bottom: 12px;
+  }
+  .dir-atelier .a-rail button {
+    width: 36px; height: 36px; border-radius: 8px;
+    background: transparent; border: none; color: var(--a-ink-2);
+    cursor: pointer; display: grid; place-items: center;
+    transition: all 120ms ease;
+  }
+  .dir-atelier .a-rail button:hover { background: var(--a-surface); color: var(--a-ink); }
+  .dir-atelier .a-rail button.active { background: var(--a-surface-2); color: var(--a-accent); position: relative; }
+  .dir-atelier .a-rail button.active::before {
+    content: ""; position: absolute; left: -10px; top: 8px; bottom: 8px; width: 2px; background: var(--a-accent); border-radius: 2px;
+  }
+  .dir-atelier .a-rail .spacer { flex: 1; }
+
+  .dir-atelier .a-main { display: grid; grid-template-rows: auto 1fr; min-height: 0; }
+  .dir-atelier .a-top {
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    padding: 12px 20px; border-bottom: 1px solid var(--a-rule);
+    background: var(--a-canvas);
+  }
+  .dir-atelier .a-top .left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .dir-atelier .a-top .crumb { font-size: 13px; color: var(--a-ink-2); display: flex; gap: 6px; align-items: center; }
+  .dir-atelier .a-top .crumb strong { color: var(--a-ink); font-weight: 500; }
+  .dir-atelier .a-top .pill {
+    height: 26px; padding: 0 10px; background: var(--a-surface); border: 1px solid var(--a-rule); border-radius: 6px;
+    display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--a-ink-2);
+  }
+  .dir-atelier .a-top .pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--a-good); box-shadow: 0 0 8px var(--a-good); }
+
+  .dir-atelier .a-top .right { display: flex; gap: 8px; align-items: center; }
+  .dir-atelier .a-btn {
+    height: 30px; padding: 0 12px; border-radius: 6px; border: 1px solid var(--a-rule);
+    background: var(--a-surface); color: var(--a-ink); font: inherit; font-size: 12px; font-weight: 500; cursor: pointer;
+  }
+  .dir-atelier .a-btn--primary { background: var(--a-accent); color: var(--a-accent-ink); border-color: var(--a-accent); }
+  .dir-atelier .a-btn--ghost { background: transparent; border-color: transparent; color: var(--a-ink-2); }
+
+  .dir-atelier .a-page {
+    padding: 16px 20px 24px;
+    overflow: auto;
+    display: grid;
+    gap: 14px;
+    grid-template-rows: auto auto 1fr;
+  }
+
+  .dir-atelier .a-kpis {
+    display: grid; grid-template-columns: repeat(6, 1fr); gap: 1px;
+    background: var(--a-rule);
+    border: 1px solid var(--a-rule);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .dir-atelier .a-kpi {
+    background: var(--a-canvas);
+    padding: 12px 14px;
+    display: grid; gap: 4px; align-content: start;
+  }
+  .dir-atelier .a-kpi .lbl { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--a-ink-3); display: flex; align-items: center; gap: 6px; }
+  .dir-atelier .a-kpi .v { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: var(--a-ink); }
+  .dir-atelier .a-kpi .v small { font-size: 12px; font-weight: 500; color: var(--a-ink-3); margin-left: 4px; }
+  .dir-atelier .a-kpi .d { font-size: 11px; color: var(--a-ink-2); display: flex; align-items: center; gap: 4px; }
+  .dir-atelier .a-kpi .d.up { color: var(--a-good); }
+  .dir-atelier .a-kpi .d.down { color: var(--a-bad); }
+
+  .dir-atelier .a-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--a-canvas); border: 1px solid var(--a-rule); border-radius: 8px;
+    padding: 8px 10px; gap: 8px; flex-wrap: wrap;
+  }
+  .dir-atelier .a-bar .group { display: inline-flex; gap: 4px; padding: 3px; background: var(--a-surface-2); border-radius: 6px; }
+  .dir-atelier .a-bar .group button { background: transparent; border: 0; padding: 5px 10px; border-radius: 4px; font: inherit; font-size: 11px; color: var(--a-ink-2); cursor: pointer; }
+  .dir-atelier .a-bar .group button.on { background: var(--a-canvas); color: var(--a-ink); box-shadow: 0 1px 0 rgba(0,0,0,.4); }
+  .dir-atelier .a-bar .search {
+    display: inline-flex; align-items: center; gap: 6px; padding: 0 10px;
+    height: 28px; border: 1px solid var(--a-rule); border-radius: 6px; background: var(--a-surface);
+    color: var(--a-ink-3); font-size: 12px; flex: 1; max-width: 280px;
+  }
+  .dir-atelier .a-bar .search input { background: transparent; border: 0; outline: none; color: var(--a-ink); font: inherit; flex: 1; }
+  .dir-atelier .a-bar .kbd { padding: 1px 6px; border: 1px solid var(--a-rule-2); border-radius: 4px; font: 10px var(--font-mono); color: var(--a-ink-3); }
+
+  .dir-atelier .a-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 14px; min-height: 0; }
+  .dir-atelier .a-panel {
+    background: var(--a-canvas); border: 1px solid var(--a-rule); border-radius: 8px;
+    display: flex; flex-direction: column; overflow: hidden;
+  }
+  .dir-atelier .a-panel-h {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; border-bottom: 1px solid var(--a-rule); background: var(--a-canvas);
+  }
+  .dir-atelier .a-panel-h h3 { margin: 0; font-size: 13px; font-weight: 600; letter-spacing: -0.01em; display: flex; align-items: center; gap: 8px; }
+  .dir-atelier .a-panel-h .meta { font-size: 11px; color: var(--a-ink-3); font-family: var(--font-mono); }
+  .dir-atelier .a-tag { padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+  .dir-atelier .a-tag--lime { background: rgba(196,242,90,.16); color: var(--a-accent); }
+  .dir-atelier .a-tag--good { background: rgba(110,215,154,.16); color: var(--a-good); }
+  .dir-atelier .a-tag--warn { background: rgba(242,185,77,.16); color: var(--a-warn); }
+  .dir-atelier .a-tag--bad  { background: rgba(239,111,111,.16); color: var(--a-bad); }
+  .dir-atelier .a-tag--mute { background: var(--a-surface-2); color: var(--a-ink-2); }
+
+  .dir-atelier table.a-tbl { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 12px; }
+  .dir-atelier table.a-tbl th {
+    text-align: left; font-weight: 500; font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--a-ink-3);
+    padding: 8px 14px; background: var(--a-canvas);
+    border-bottom: 1px solid var(--a-rule); position: sticky; top: 0;
+  }
+  .dir-atelier table.a-tbl td {
+    padding: 9px 14px; border-bottom: 1px solid var(--a-rule); vertical-align: middle;
+  }
+  .dir-atelier table.a-tbl tr:hover td { background: var(--a-surface); }
+  .dir-atelier table.a-tbl .num { font-family: var(--font-mono); text-align: right; }
+  .dir-atelier table.a-tbl .who { display: flex; align-items: center; gap: 8px; }
+  .dir-atelier table.a-tbl .ico {
+    width: 22px; height: 22px; border-radius: 5px; background: var(--a-surface-2);
+    color: var(--a-ink-2); display: grid; place-items: center; font-size: 10px; font-weight: 600;
+  }
+  .dir-atelier .a-staffrow .name { font-weight: 500; color: var(--a-ink); }
+  .dir-atelier .a-staffrow .sub { font-size: 10px; color: var(--a-ink-3); margin-top: 1px; }
+
+  /* tonight visual: timeline */
+  .dir-atelier .a-timeline { padding: 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+  .dir-atelier .a-track { display: grid; grid-template-columns: 70px 1fr; gap: 12px; align-items: center; }
+  .dir-atelier .a-track .lbl { font-size: 11px; color: var(--a-ink-2); }
+  .dir-atelier .a-bar2 { position: relative; height: 22px; background: var(--a-surface-2); border-radius: 4px; }
+  .dir-atelier .a-block {
+    position: absolute; top: 2px; bottom: 2px; border-radius: 3px;
+    display: flex; align-items: center; padding: 0 6px;
+    font-size: 10px; font-weight: 500; color: var(--a-accent-ink);
+    background: var(--a-accent);
+  }
+  .dir-atelier .a-block--mute { background: var(--a-surface); color: var(--a-ink-2); }
+  .dir-atelier .a-block--warn { background: var(--a-warn); color: var(--a-accent-ink); }
+  .dir-atelier .a-track .hours { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(8, 1fr); pointer-events: none; }
+  .dir-atelier .a-track .hours span { border-right: 1px solid var(--a-rule); }
+
+  .dir-atelier .a-maestro {
+    border-top: 1px solid var(--a-rule);
+    padding: 12px 14px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .dir-atelier .a-maestro .row {
+    display: grid; grid-template-columns: 22px 1fr auto; gap: 10px; align-items: flex-start;
+    padding: 8px; background: var(--a-surface); border: 1px solid var(--a-rule); border-radius: 6px;
+  }
+  .dir-atelier .a-maestro .ico-m {
+    width: 22px; height: 22px; border-radius: 5px; background: var(--a-accent); color: var(--a-accent-ink);
+    display: grid; place-items: center; font-weight: 700; font-size: 11px;
+  }
+  .dir-atelier .a-maestro .msg { font-size: 12px; line-height: 1.45; color: var(--a-ink); }
+  .dir-atelier .a-maestro .msg .h { font-weight: 600; color: var(--a-ink); }
+  .dir-atelier .a-maestro .msg .sub { color: var(--a-ink-2); font-size: 11px; }
+  .dir-atelier .a-maestro .acts { display: flex; gap: 4px; }
+
+  /* canvas overrides — make full-screen variations live */
+  .dc-artboard { padding: 0 !important; }
+
+  .ext-link {
+    position: fixed; top: 14px; left: 14px; z-index: 100;
+    padding: 8px 14px; background: rgba(255,255,255,.92); color: var(--ink-900);
+    border-radius: 999px; font: 500 12px var(--font-body); text-decoration: none;
+    box-shadow: 0 6px 18px rgba(0,0,0,.35); display: inline-flex; gap: 6px; align-items: center;
+  }
+  .ext-link:hover { background: #fff; }
+</style>
+</head>
+<body>
+<a class="ext-link" href="index.html">← Tokens &amp; components</a>
+<div id="root"></div>
+
+<script type="text/babel" src="design-canvas.jsx"></script>
+<script type="text/babel">
+const { useState } = React;
+
+/* ---------- icons ---------- */
+const Icon = ({ d, size = 16, stroke = 1.5 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={stroke} strokeLinecap="round" strokeLinejoin="round">
+    {Array.isArray(d) ? d.map((p, i) => <path key={i} d={p} />) : <path d={d} />}
+  </svg>
+);
+
+/* ============================================================
+   DIRECTION 1 — MAISON (editorial calm)
+   ============================================================ */
+function Maison() {
+  return (
+    <div className="dir-maison">
+      <div className="m-shell">
+        <aside className="m-side">
+          <div className="m-brand">
+            <div className="m-mark">L</div>
+            <div className="m-wordmark">Le <em>Répertoire</em></div>
+          </div>
+
+          <h6>Today</h6>
+          <nav className="m-nav">
+            <a className="active" href="#">Overview <span className="ct"></span></a>
+            <a href="#">Roster <span className="ct">42</span></a>
+            <a href="#">Timesheets <span className="ct">3</span></a>
+          </nav>
+
+          <h6>Manage</h6>
+          <nav className="m-nav">
+            <a href="#">Employees</a>
+            <a href="#">Payroll <span className="ct">due</span></a>
+            <a href="#">Compliance</a>
+            <a href="#">Venues</a>
+          </nav>
+
+          <h6>Maestro</h6>
+          <nav className="m-nav">
+            <a href="#">Daily brief</a>
+            <a href="#">Conversations</a>
+          </nav>
+
+          <div style={{flex: 1}} />
+          <div style={{display:'flex',alignItems:'center',gap:10,paddingTop:14,borderTop:'1px solid var(--m-rule)'}}>
+            <div style={{width:30,height:30,borderRadius:'50%',background:'var(--m-soft)',color:'var(--m-accent)',display:'grid',placeItems:'center',fontWeight:600,fontSize:12}}>ML</div>
+            <div style={{fontSize:12}}>
+              <div style={{fontWeight:500}}>Margaux Lefèvre</div>
+              <div style={{color:'var(--m-ink-3)'}}>Group manager</div>
+            </div>
+          </div>
+        </aside>
+
+        <main className="m-main">
+          <div className="m-topbar">
+            <div className="crumbs">Operations <span>/</span> <strong>Overview</strong> <span>/</span> Tuesday 28 April</div>
+            <div className="actions">
+              <button className="m-btn m-btn--ghost">This week</button>
+              <button className="m-btn">Export</button>
+              <button className="m-btn m-btn--primary">Run payroll</button>
+            </div>
+          </div>
+
+          <section className="m-hero">
+            <div className="greet-eyebrow">Tuesday afternoon · four venues</div>
+            <h1>Good afternoon, Margaux. Tonight is <em>quieter</em> than last week.</h1>
+            <p>One hundred forty-two covers across four rooms, and one expiring certification to settle before doors at five. Maestro has a small suggestion below.</p>
+          </section>
+
+          <div className="m-grid">
+            <div className="m-col">
+              <h2 className="m-section-title">This week, in numbers</h2>
+              <div className="m-stats">
+                <div className="m-stat"><div className="label">Hours</div><div className="v">1,402</div><div className="d">+4.2% vs last week</div></div>
+                <div className="m-stat"><div className="label">Wage cost</div><div className="v">$184k</div><div className="d">−1.1% vs forecast</div></div>
+                <div className="m-stat"><div className="label">Cost / cover</div><div className="v">$11.40</div><div className="d">in band</div></div>
+                <div className="m-stat"><div className="label">Compliance</div><div className="v" style={{color:'var(--m-warn)'}}>3</div><div className="d">2 expire this week</div></div>
+              </div>
+
+              <h2 className="m-section-title" style={{marginTop:36}}>Tonight, on the floor</h2>
+              <div className="m-roster">
+                {[
+                  ['01','Margaux Lefèvre','Sous chef · Maison Marais','17:00 – 23:30'],
+                  ['02','Jonah Tremaine','Bartender · Petit Quai','17:30 – 00:00'],
+                  ['03','Saoirse O\u2019Brien','Floor manager · Atelier 14','16:00 – 23:00'],
+                  ['04','Rohan Khanna','Server · Maison Marais','18:00 – 23:00'],
+                  ['05','Yuki Tanaka','Pastry · Maison Marais','15:00 – 21:00'],
+                ].map((r, i) => (
+                  <div className="row" key={i}>
+                    <div className="num">{r[0]}</div>
+                    <div><div className="nm">{r[1]}</div><div className="role">{r[2]}</div></div>
+                    <div className="time">{r[3]}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="m-col">
+              <h2 className="m-section-title">From Maestro</h2>
+              <div className="m-maestro">
+                <div className="eyebrow">Evening brief · 4:12pm</div>
+                <h3>Trim one back-of-house shift between two and five.</h3>
+                <p>Tuesday's roster is over by roughly nine hours against forecasted covers. The pastry station has slack. Saoirse and Rohan close.</p>
+                <div className="acts">
+                  <button className="m-btn m-btn--primary">Apply suggestion</button>
+                  <button className="m-btn m-btn--ghost">Read full brief</button>
+                </div>
+              </div>
+
+              <h2 className="m-section-title" style={{marginTop:32}}>Settling before doors</h2>
+              <div className="m-roster">
+                <div className="row"><div className="num" style={{color:'var(--m-accent-2)'}}>!</div><div><div className="nm">RSA expired</div><div className="role">Rohan Khanna · 24 Apr</div></div><div className="time">renew</div></div>
+                <div className="row"><div className="num">·</div><div><div className="nm">Allergen brief</div><div className="role">3 reservations · table 4, 7, 11</div></div><div className="time">5:00pm</div></div>
+                <div className="row"><div className="num">·</div><div><div className="nm">Line check</div><div className="role">Sign-off due before 5:00pm</div></div><div className="time">today</div></div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   DIRECTION 2 — ATELIER (operational dense, ink + lime)
+   ============================================================ */
+function Atelier() {
+  return (
+    <div className="dir-atelier">
+      <div className="a-shell">
+        <aside className="a-rail">
+          <div className="a-mark">L</div>
+          <button className="active" title="Overview"><Icon d="M3 12 12 3l9 9v8a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1Z" /></button>
+          <button title="Roster"><Icon d={["M4 5h16v15H4z","M4 9h16","M8 5V3","M16 5V3"]} /></button>
+          <button title="Timesheets"><Icon d={["M12 7v5l3 2","M12 21a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z"]} /></button>
+          <button title="Employees"><Icon d={["M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2","M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z","M22 21v-2a4 4 0 0 0-3-3.87","M18 4.13a4 4 0 0 1 0 7.75"]} /></button>
+          <button title="Payroll"><Icon d={["M3 5h18v14H3z","M3 9h18","M7 14h4"]} /></button>
+          <button title="Compliance"><Icon d={["M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z","m9 12 2 2 4-4"]} /></button>
+          <div className="spacer" />
+          <button title="Maestro AI"><Icon d={["M4 4h13l3 3v13H4z","M9 12h6","M9 16h6","M9 8h2"]} /></button>
+          <button title="Settings"><Icon d={["M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z","M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09c0 .67.39 1.27 1 1.51.58.27 1.27.13 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9c.24.61.84 1 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"]} /></button>
+        </aside>
+
+        <main className="a-main">
+          <div className="a-top">
+            <div className="left">
+              <div className="crumb"><strong>Overview</strong> <span>/</span> Maison Marais <span>/</span> Tue 28 Apr</div>
+              <span className="pill"><span className="dot"></span> Service active · 142 covers</span>
+            </div>
+            <div className="right">
+              <button className="a-btn a-btn--ghost">⌘K</button>
+              <button className="a-btn">This week</button>
+              <button className="a-btn a-btn--primary">Run payroll</button>
+            </div>
+          </div>
+
+          <div className="a-page">
+            <div className="a-kpis">
+              <div className="a-kpi"><div className="lbl">Covers · live</div><div className="v">142<small>/165</small></div><div className="d up">▲ on track</div></div>
+              <div className="a-kpi"><div className="lbl">Hours · wk</div><div className="v">1,402</div><div className="d up">▲ 4.2%</div></div>
+              <div className="a-kpi"><div className="lbl">Wage cost</div><div className="v">$184,302</div><div className="d down">▼ 1.1% vs fc</div></div>
+              <div className="a-kpi"><div className="lbl">$ / cover</div><div className="v">11.40</div><div className="d">band 10–13</div></div>
+              <div className="a-kpi"><div className="lbl">Anomalies</div><div className="v" style={{color:'var(--a-warn)'}}>3</div><div className="d">2 timesheets · 1 RSA</div></div>
+              <div className="a-kpi"><div className="lbl">Forecast</div><div className="v">tomorrow<br/><span style={{fontSize:13,color:'var(--a-ink-2)'}}>168 covers</span></div></div>
+            </div>
+
+            <div className="a-bar">
+              <div className="group">
+                <button className="on">All venues</button>
+                <button>Maison</button>
+                <button>Petit Quai</button>
+                <button>Atelier 14</button>
+                <button>Le Coin</button>
+              </div>
+              <div className="search">
+                <Icon d={["m21 21-4.3-4.3","M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16Z"]} size={14}/>
+                <input placeholder="Search employees, shifts, payslips…" />
+                <span className="kbd">⌘K</span>
+              </div>
+              <div className="group">
+                <button>Day</button>
+                <button className="on">Week</button>
+                <button>Month</button>
+              </div>
+            </div>
+
+            <div className="a-grid">
+              <div className="a-panel">
+                <div className="a-panel-h">
+                  <h3>Tonight on the floor <span className="a-tag a-tag--lime">live</span></h3>
+                  <span className="meta">17:00 — 01:00 · 8h window</span>
+                </div>
+
+                <div className="a-timeline">
+                  {[
+                    ['Pass',     'Margaux + 2', 5,  90, 'lime', 'Sous · 17–22:30'],
+                    ['Bar',      'Jonah',       8,  85, 'lime', 'Bar · 17:30–00'],
+                    ['Floor',    'Saoirse +4',  10, 80, 'warn', '+2 needed 19:30'],
+                    ['Pastry',   'Yuki',        0,  50, 'mute', 'Pastry · 15–21'],
+                    ['Late',     'Rohan',       55, 45, 'lime', 'Server · 21–01'],
+                  ].map(([lbl, who, left, w, kind, sub], i) => (
+                    <div className="a-track" key={i}>
+                      <div className="lbl">{lbl}</div>
+                      <div className="a-bar2">
+                        <div className="hours"><span/><span/><span/><span/><span/><span/><span/><span/></div>
+                        <div className={`a-block ${kind === 'mute' ? 'a-block--mute' : kind === 'warn' ? 'a-block--warn' : ''}`} style={{left: left+'%', width: w+'%'}}>{who}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div style={{borderTop:'1px solid var(--a-rule)'}}>
+                  <table className="a-tbl">
+                    <thead><tr><th>Employee</th><th>Venue</th><th>Role</th><th className="num">Hrs</th><th className="num">Gross</th><th>Status</th></tr></thead>
+                    <tbody>
+                      {[
+                        ['ML','Margaux Lefèvre','margaux@maison.fr','Maison','Sous chef','38.0','1,558.00','good','Approved'],
+                        ['JT','Jonah Tremaine','jonah@petit.fr','Petit Quai','Bartender','29.5','932.75','warn','Review'],
+                        ['SO','Saoirse O\u2019Brien','saoirse@atelier14.com','Atelier 14','Floor mgr','42.0','2,184.00','good','Approved'],
+                        ['RK','Rohan Khanna','rohan@maison.fr','Maison','Server','22.5','641.25','bad','RSA exp'],
+                        ['YT','Yuki Tanaka','yuki@maison.fr','Maison','Pastry','30.0','870.00','good','Approved'],
+                      ].map((r, i) => (
+                        <tr className="a-staffrow" key={i}>
+                          <td>
+                            <div className="who">
+                              <div className="ico">{r[0]}</div>
+                              <div><div className="name">{r[1]}</div><div className="sub">{r[2]}</div></div>
+                            </div>
+                          </td>
+                          <td>{r[3]}</td>
+                          <td>{r[4]}</td>
+                          <td className="num">{r[5]}</td>
+                          <td className="num">${r[6]}</td>
+                          <td><span className={`a-tag a-tag--${r[7]}`}>{r[8]}</span></td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div className="a-panel">
+                <div className="a-panel-h">
+                  <h3><span className="a-tag a-tag--lime" style={{fontSize:11,padding:'1px 6px'}}>M</span> Maestro</h3>
+                  <span className="meta">3 active</span>
+                </div>
+                <div className="a-maestro">
+                  <div className="row">
+                    <div className="ico-m">M</div>
+                    <div className="msg">
+                      <div className="h">Trim 1 BOH between 14:00–17:00</div>
+                      <div className="sub">Roster ~9h over forecast. Pastry has slack.</div>
+                    </div>
+                    <div className="acts"><button className="a-btn a-btn--primary" style={{height:24,padding:'0 8px'}}>Apply</button><button className="a-btn" style={{height:24,padding:'0 8px'}}>×</button></div>
+                  </div>
+                  <div className="row">
+                    <div className="ico-m" style={{background:'var(--a-warn)'}}>!</div>
+                    <div className="msg">
+                      <div className="h">RSA expired · Rohan Khanna</div>
+                      <div className="sub">24 Apr · cannot serve alcohol tonight</div>
+                    </div>
+                    <div className="acts"><button className="a-btn" style={{height:24,padding:'0 8px'}}>Renew</button></div>
+                  </div>
+                  <div className="row">
+                    <div className="ico-m" style={{background:'var(--a-blue)',color:'#fff'}}>i</div>
+                    <div className="msg">
+                      <div className="h">3 allergen flags tonight</div>
+                      <div className="sub">Tables 4, 7, 11 · brief at handover</div>
+                    </div>
+                    <div className="acts"><button className="a-btn" style={{height:24,padding:'0 8px'}}>Open</button></div>
+                  </div>
+                </div>
+
+                <div className="a-panel-h" style={{borderTop:'1px solid var(--a-rule)',borderBottom:0}}>
+                  <h3>Forecast vs roster <span className="a-tag a-tag--mute">7d</span></h3>
+                </div>
+                <div style={{padding:'10px 14px 14px'}}>
+                  <svg viewBox="0 0 280 90" width="100%" height="100" style={{display:'block'}}>
+                    <defs>
+                      <linearGradient id="ag" x1="0" x2="0" y1="0" y2="1">
+                        <stop offset="0" stopColor="var(--a-accent)" stopOpacity="0.4"/>
+                        <stop offset="1" stopColor="var(--a-accent)" stopOpacity="0"/>
+                      </linearGradient>
+                    </defs>
+                    {[10,30,50,70].map(y => <line key={y} x1="0" x2="280" y1={y} y2={y} stroke="var(--a-rule)" strokeDasharray="2 4"/>)}
+                    <path d="M0,55 L40,40 L80,48 L120,30 L160,22 L200,28 L240,18 L280,24 L280,90 L0,90 Z" fill="url(#ag)" />
+                    <path d="M0,55 L40,40 L80,48 L120,30 L160,22 L200,28 L240,18 L280,24" fill="none" stroke="var(--a-accent)" strokeWidth="1.8"/>
+                    <path d="M0,62 L40,55 L80,52 L120,42 L160,38 L200,42 L240,32 L280,36" fill="none" stroke="var(--a-ink-2)" strokeWidth="1.2" strokeDasharray="3 3"/>
+                  </svg>
+                  <div style={{display:'flex',justifyContent:'space-between',fontSize:10,fontFamily:'var(--font-mono)',color:'var(--a-ink-3)',marginTop:6}}>
+                    <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span><span>·</span>
+                  </div>
+                  <div style={{display:'flex',gap:14,marginTop:10,fontSize:11,color:'var(--a-ink-2)'}}>
+                    <span style={{display:'inline-flex',alignItems:'center',gap:6}}><span style={{width:10,height:2,background:'var(--a-accent)'}}/> Roster</span>
+                    <span style={{display:'inline-flex',alignItems:'center',gap:6}}><span style={{width:10,height:2,background:'var(--a-ink-2)',backgroundImage:'repeating-linear-gradient(90deg,var(--a-ink-2) 0 3px,transparent 3px 6px)'}}/> Forecast</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- canvas mount ---------- */
+const { DesignCanvas, DCSection, DCArtboard } = window;
+
+function App() {
+  return (
+    <DesignCanvas title="Le Répertoire — Two Directions" subtitle="Same tokens, two voices. Click any artboard to focus.">
+      <DCSection id="dirs" title="Directions" subtitle="Pick the voice; details follow.">
+        <DCArtboard id="maison" label="Direction 1 · Maison" subtitle="Editorial calm — serif display, warm ink, copper accents reserved for AI" width={1280} height={820}>
+          <Maison />
+        </DCArtboard>
+        <DCArtboard id="atelier" label="Direction 2 · Atelier" subtitle="Operational dense — dark, all-sans, signal lime, command-bar energy" width={1280} height={820}>
+          <Atelier />
+        </DCArtboard>
+      </DCSection>
+    </DesignCanvas>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>

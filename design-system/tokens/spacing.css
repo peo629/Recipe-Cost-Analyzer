@@ -1,0 +1,90 @@
+/* ============================================================
+   Le Répertoire — Spacing, Radius, Shadow, Motion, Layout
+   Three densities: comfortable (default), compact, cozy
+   ============================================================ */
+
+:root {
+  /* Spacing — 4px base */
+  --space-0:  0;
+  --space-1:  0.25rem;
+  --space-2:  0.5rem;
+  --space-3:  0.75rem;
+  --space-4:  1rem;
+  --space-5:  1.25rem;
+  --space-6:  1.5rem;
+  --space-8:  2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* Density: control heights */
+  --control-h-sm: 28px;
+  --control-h-md: 36px;
+  --control-h-lg: 44px;
+
+  /* Row heights for tables/lists */
+  --row-h: 48px;
+  --row-px: var(--space-4);
+  --row-py: var(--space-3);
+  --section-gap: var(--space-8);
+
+  /* Radius */
+  --radius-xs: 3px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 22px;
+  --radius-pill: 999px;
+
+  /* Shadows (light theme) */
+  --shadow-xs: 0 1px 0 rgba(17, 22, 29, 0.04);
+  --shadow-sm: 0 1px 2px rgba(17, 22, 29, 0.06), 0 1px 1px rgba(17, 22, 29, 0.04);
+  --shadow-md: 0 4px 12px -2px rgba(17, 22, 29, 0.08), 0 2px 4px -2px rgba(17, 22, 29, 0.05);
+  --shadow-lg: 0 12px 28px -8px rgba(17, 22, 29, 0.14), 0 4px 8px -4px rgba(17, 22, 29, 0.06);
+  --shadow-xl: 0 24px 48px -12px rgba(17, 22, 29, 0.22);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
+  /* Layout */
+  --sidebar-w: 256px;
+  --sidebar-w-collapsed: 64px;
+  --topbar-h: 56px;
+  --content-max: 1280px;
+}
+
+[data-theme="dark"] {
+  --shadow-xs: 0 1px 0 rgba(0, 0, 0, 0.5);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.6);
+  --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.7), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 28px -8px rgba(0, 0, 0, 0.8), 0 4px 8px -4px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.9);
+}
+
+[data-density="compact"] {
+  --control-h-sm: 24px;
+  --control-h-md: 30px;
+  --control-h-lg: 38px;
+  --row-h: 38px;
+  --row-px: var(--space-3);
+  --row-py: var(--space-2);
+  --section-gap: var(--space-6);
+}
+
+[data-density="cozy"] {
+  --control-h-sm: 32px;
+  --control-h-md: 42px;
+  --control-h-lg: 52px;
+  --row-h: 56px;
+  --row-px: var(--space-5);
+  --row-py: var(--space-4);
+  --section-gap: var(--space-10);
+}
