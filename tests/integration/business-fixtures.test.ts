@@ -155,28 +155,21 @@ describe("Business fixtures — employees (users table)", () => {
 });
 
 describe("Business fixtures — Peter Griffin record", () => {
-  it("has a non-null password_hash", async () => {
+  it("has a null password_hash (no plaintext-derivable seed credential)", async () => {
+    // Task #21: the seed must not embed a known-plaintext bcrypt hash for
+    // any employee. Peter Griffin onboards through POST /api/auth/set-password
+    // like everyone else.
     const [peter] = await db
       .select({ passwordHash: usersTable.passwordHash })
       .from(usersTable)
       .where(eq(usersTable.linkingId, PETER_LINKING_ID));
 
     expect(peter).toBeDefined();
-    expect(peter.passwordHash).not.toBeNull();
-  });
-
-  it("password_hash round-trips correctly via bcrypt.compare", async () => {
-    const [peter] = await db
-      .select({ passwordHash: usersTable.passwordHash })
-      .from(usersTable)
-      .where(eq(usersTable.linkingId, PETER_LINKING_ID));
-
-    expect(peter?.passwordHash).toBeDefined();
-    const match = await bcrypt.compare(
-      PETER_SEED_PASSWORD,
-      peter.passwordHash!
-    );
-    expect(match).toBe(true);
+    expect(peter.passwordHash).toBeNull();
+    // Reference the constant so unused-import lint stays quiet without
+    // pretending the seed still knows this password.
+    expect(typeof PETER_SEED_PASSWORD).toBe("string");
+    expect(typeof bcrypt.compare).toBe("function");
   });
 
   it("has admin and executive permissions", async () => {

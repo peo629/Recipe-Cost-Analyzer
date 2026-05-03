@@ -90,10 +90,14 @@ const VENUES: VenueInsert[] = [
 
 // Employees sourced from both venue workareas + the standalone Peter Griffin
 // admin record. Deduplicated by linking_id. Peter Griffin is G-Dog in
-// Black Jacks Smokehouse kitchen; his password_hash is a bcrypt hash of the
-// seed test password "PeterGriffin1!" (cost 10) and is the only real hash
-// in the fixture set. All other employees have no password and cannot log in
-// until credentials are issued via the onboarding flow.
+// Black Jacks Smokehouse kitchen.
+//
+// IMPORTANT: no employee in this fixture set has a password_hash. The seed
+// only provisions the identity / role metadata. To actually log in, every
+// employee — including Peter Griffin — must go through the onboarding flow
+// (POST /api/auth/set-password with their linking_id). This keeps a
+// known-plaintext credential out of source control and makes the fixture
+// safe to load into any environment.
 //
 // JSONB blobs (address, next_of_kin, employment_details, leave_entitlements,
 // accrued_employment) are null for placeholder employees because the source
@@ -116,10 +120,9 @@ const EMPLOYEES: UserInsert[] = [
     lastName: "Griffin",
     preferredName: "G-Dog",
     email: "p.griffin@melbournevenueco.com.au",
-    // bcrypt hash of "PeterGriffin1!" (cost 10) — the only employee with a
-    // real password in the seed fixture. Replace before going to production.
-    passwordHash:
-      "$2b$10$2DXCMtvIaFQFW620KxESIuInl2BDT2vZ6nK0w0d38BYXzuNii8sp2",
+    // No seed password — Peter Griffin must onboard via
+    // POST /api/auth/set-password just like every other employee.
+    passwordHash: null,
     permissions: ["admin", "executive"],
     // Employment details for the standalone admin record (Mongo-shaped blob).
     employmentDetails: {
@@ -348,7 +351,24 @@ const EMPLOYEES: UserInsert[] = [
 
 // ─── Seed ────────────────────────────────────────────────────────────────────
 
+/**
+ * Refuse to run against a production environment. The seed loads
+ * deterministic fixture identities (Peter Griffin, the Scooby crew, etc.)
+ * which are useful for dev / test / staging but have no place in a
+ * customer-facing database. To override (e.g. populating a fresh staging
+ * DB that happens to set NODE_ENV=production), set `ALLOW_SEED=1`.
+ */
+function assertNotProduction(): void {
+  if (process.env.NODE_ENV === "production" && process.env.ALLOW_SEED !== "1") {
+    throw new Error(
+      "Refusing to seed business fixtures: NODE_ENV=production. " +
+        "Set ALLOW_SEED=1 to override (you almost never want to do this).",
+    );
+  }
+}
+
 export async function seed() {
+  assertNotProduction();
   console.log("▶  Seeding business fixtures…\n");
 
   // 1. Companies — must be inserted before venues (FK dependency)
