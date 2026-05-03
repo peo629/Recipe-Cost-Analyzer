@@ -23,6 +23,16 @@ export interface Ingredient {
   recipeUnitCost: number;
   /** @nullable */
   category?: string | null;
+  /**
+   * Stored object key for the ingredient photo (provider-agnostic).
+   * @nullable
+   */
+  imageKey?: string | null;
+  /**
+   * Time-limited URL for fetching the photo. Re-fetch the ingredient when it expires.
+   * @nullable
+   */
+  imageUrl?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

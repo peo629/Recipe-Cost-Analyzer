@@ -15,6 +15,8 @@ tags:
     description: Recipe management
   - name: openai
     description: AI-assisted generation
+  - name: Auth
+    description: Credential and Google OAuth authentication endpoints.
 paths:
   /healthz:
     get:
@@ -283,7 +285,231 @@ paths:
               schema:
                 $ref: "#/components/schemas/GenerateRecipeResponse"
 
+  /auth/user:
+    get:
+      tags: [Auth]
+      operationId: getCurrentAuthUser
+      summary: Get the currently authenticated user
+      parameters:
+        - $ref: "#/components/parameters/SessionCookie"
+      responses:
+        "200":
+          description: Auth status resolved successfully.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthUserEnvelope"
+
+  /auth/signup:
+    post:
+      tags: [Auth]
+      operationId: signup
+      summary: Create a new credential-backed user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupBody"
+      responses:
+        "201":
+          description: Account created and a session cookie was issued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccessResponse"
+        "400":
+          description: Validation error or password policy failure.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: An account with that email already exists.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      summary: Sign in with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginBody"
+      responses:
+        "200":
+          description: Authenticated; a session cookie was issued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccessResponse"
+        "400":
+          description: Validation error.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "401":
+          description: Invalid email or password.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /auth/set-password:
+    post:
+      tags: [Auth]
+      operationId: setPassword
+      summary: Set the initial password for an invited employee
+      description: |
+        First-login / invite flow for users that were created from the
+        business fixture (e.g. payroll import) and have no password
+        yet. Looks up the user by `linkingId` and sets `passwordHash`
+        if-and-only-if the row currently has no password set. Refuses
+        to overwrite an existing password (use a separate password
+        reset flow for that). On success a session cookie is issued so
+        the user is logged in immediately.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SetPasswordBody"
+      responses:
+        "200":
+          description: Password set; a session cookie was issued.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthSuccessResponse"
+        "400":
+          description: Validation error or password policy failure.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "404":
+          description: No user matches the supplied linkingId.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "409":
+          description: The user already has a password set.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "429":
+          description: Rate limit exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logout
+      summary: Sign out and clear the session cookie
+      parameters:
+        - $ref: "#/components/parameters/SessionCookie"
+      responses:
+        "200":
+          description: The session was cleared.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LogoutSuccess"
+
+  /auth/google:
+    get:
+      tags: [Auth]
+      operationId: beginGoogleLogin
+      summary: Begin the Google OIDC sign-in flow
+      parameters:
+        - name: returnTo
+          in: query
+          required: false
+          description: Relative path to redirect to after sign-in (must start with `/`). Defaults to `/`.
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to Google's authorization endpoint.
+        "503":
+          description: Google sign-in is not configured on this server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /auth/google/callback:
+    get:
+      tags: [Auth]
+      operationId: handleGoogleLoginCallback
+      summary: Complete the Google OIDC sign-in flow
+      parameters:
+        - name: code
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        "302":
+          description: Redirect to the post-login `returnTo` path on success or to `/` on failure.
+        "503":
+          description: Google sign-in is not configured on this server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+  /auth/google/available:
+    get:
+      tags: [Auth]
+      operationId: getGoogleAuthAvailability
+      summary: Returns whether Google sign-in is enabled on this server
+      responses:
+        "200":
+          description: Availability flag.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GoogleAuthAvailability"
+
 components:
+  parameters:
+    SessionCookie:
+      name: sid
+      in: cookie
+      required: false
+      description: Browser session cookie.
+      schema:
+        type: string
   schemas:
     HealthStatus:
       type: object
@@ -327,6 +553,12 @@ components:
           description: "Cost per recipe unit (auto-calculated)"
         category:
           type: ["string", "null"]
+        imageKey:
+          type: ["string", "null"]
+          description: "Stored object key for the ingredient photo (provider-agnostic)."
+        imageUrl:
+          type: ["string", "null"]
+          description: "Time-limited URL for fetching the photo. Re-fetch the ingredient when it expires."
         createdAt:
           type: string
           format: date-time
@@ -517,6 +749,12 @@ components:
           $ref: "#/components/schemas/RecipeCostSummary"
         authorName:
           type: ["string", "null"]
+        imageKey:
+          type: ["string", "null"]
+          description: "Stored object key for the recipe hero photo (provider-agnostic)."
+        imageUrl:
+          type: ["string", "null"]
+          description: "Time-limited URL for fetching the photo. Re-fetch the recipe when it expires."
         createdAt:
           type: string
           format: date-time
@@ -564,6 +802,10 @@ components:
           type: number
         recommendedSalePrice:
           type: number
+        imageKey:
+          type: ["string", "null"]
+        imageUrl:
+          type: ["string", "null"]
         createdAt:
           type: string
           format: date-time
@@ -682,14 +924,20 @@ components:
       properties:
         prompt:
           type: string
+          maxLength: 1000
         servings:
           type: integer
+          minimum: 1
+          maximum: 1000
         dietaryTags:
           type: array
+          maxItems: 20
           items:
             type: string
+            maxLength: 50
         ingredients:
           type: array
+          maxItems: 50
           items:
             $ref: "#/components/schemas/GenerateRecipeIngredient"
       required:
@@ -703,10 +951,14 @@ components:
       properties:
         name:
           type: string
+          maxLength: 200
         quantity:
           type: number
+          exclusiveMinimum: true
+          maximum: 100000
         unit:
           type: string
+          maxLength: 50
       required:
         - name
         - quantity
@@ -727,3 +979,166 @@ components:
         - title
         - description
         - method
+
+    AuthUser:
+      type: object
+      required:
+        - id
+        - email
+        - firstName
+        - lastName
+        - preferredName
+        - profileImageUrl
+        - linkingId
+        - payrollId
+        - companyId
+        - companyName
+        - venueId
+        - venueName
+        - workAreaId
+        - workAreaName
+        - roleId
+        - roleName
+        - permissions
+      properties:
+        id:
+          type: string
+        email:
+          type: [string, "null"]
+          format: email
+        firstName:
+          type: [string, "null"]
+        lastName:
+          type: [string, "null"]
+        preferredName:
+          type: [string, "null"]
+        profileImageUrl:
+          type: [string, "null"]
+        linkingId:
+          type: [string, "null"]
+          description: Internal employee linking id (e.g. EMP-2976-3087-308720).
+        payrollId:
+          type: [string, "null"]
+          description: Payroll system identifier (e.g. DV-308720).
+        companyId:
+          type: [string, "null"]
+        companyName:
+          type: [string, "null"]
+        venueId:
+          type: [string, "null"]
+        venueName:
+          type: [string, "null"]
+        workAreaId:
+          type: [string, "null"]
+        workAreaName:
+          type: [string, "null"]
+        roleId:
+          type: [string, "null"]
+        roleName:
+          type: [string, "null"]
+        permissions:
+          type: array
+          items:
+            type: string
+            enum: [admin, executive, venue_manager, supervisor, staff, viewer]
+
+    AuthUserEnvelope:
+      type: object
+      required: [user]
+      properties:
+        user:
+          oneOf:
+            - $ref: "#/components/schemas/AuthUser"
+            - type: "null"
+
+    SignupBody:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 3
+          maxLength: 320
+        password:
+          type: string
+          minLength: 12
+          maxLength: 256
+          description: |
+            Must be at least 12 characters and contain an upper-case letter,
+            lower-case letter, digit and special character.
+        firstName:
+          type: [string, "null"]
+          maxLength: 100
+        lastName:
+          type: [string, "null"]
+          maxLength: 100
+
+    SetPasswordBody:
+      type: object
+      required: [linkingId, password]
+      properties:
+        linkingId:
+          type: string
+          minLength: 1
+          maxLength: 128
+          description: |
+            The employee's `linking_id` from the business fixture
+            (e.g. `EMP-2976-3087-308720`). Used to locate the user
+            row to attach the password to.
+        password:
+          type: string
+          minLength: 12
+          maxLength: 256
+          description: |
+            Must be at least 12 characters and contain an upper-case letter,
+            lower-case letter, digit and special character.
+
+    LoginBody:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 3
+          maxLength: 320
+        password:
+          type: string
+          minLength: 1
+          maxLength: 256
+
+    AuthSuccessResponse:
+      type: object
+      required: [user]
+      properties:
+        user:
+          $ref: "#/components/schemas/AuthUser"
+
+    GoogleAuthAvailability:
+      type: object
+      required: [available]
+      properties:
+        available:
+          type: boolean
+
+    LogoutSuccess:
+      type: object
+      required: [success]
+      properties:
+        success:
+          type: boolean
+          const: true
+
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+        code:
+          type: string
+        reasons:
+          type: array
+          items:
+            type: string

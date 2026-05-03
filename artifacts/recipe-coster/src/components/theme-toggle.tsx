@@ -15,7 +15,9 @@ function getInitialTheme(): Theme {
     /* localStorage may throw in restricted contexts — fall back to system preference */
   }
   try {
-    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
   } catch {
     return "light";
   }

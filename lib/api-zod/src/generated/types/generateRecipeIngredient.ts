@@ -7,7 +7,13 @@
  */
 
 export interface GenerateRecipeIngredient {
+  /** @maxLength 200 */
   name: string;
+  /**
+   * @maximum 100000
+   * @exclusiveMinimum true
+   */
   quantity: number;
+  /** @maxLength 50 */
   unit: string;
 }

@@ -1,8 +1,13 @@
 import { useState, useMemo, useEffect } from "react";
 import { useParams, useLocation } from "wouter";
-import { 
-  useGetRecipe, useCreateRecipe, useUpdateRecipe, 
-  useListIngredients, getGetRecipeQueryKey, getListRecipesQueryKey, getListIngredientsQueryKey
+import {
+  useGetRecipe,
+  useCreateRecipe,
+  useUpdateRecipe,
+  useListIngredients,
+  getGetRecipeQueryKey,
+  getListRecipesQueryKey,
+  getListIngredientsQueryKey,
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -12,17 +17,64 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2, ArrowUp, ArrowDown, Check, Loader2, Save, Tags as TagsIcon, ChefHat, Calculator, Printer, Eye, Copy, TrendingDown, Sparkles } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Plus,
+  Trash2,
+  ArrowUp,
+  ArrowDown,
+  Check,
+  Loader2,
+  Save,
+  Tags as TagsIcon,
+  ChefHat,
+  Calculator,
+  Printer,
+  Eye,
+  Copy,
+  TrendingDown,
+  Sparkles,
+} from "lucide-react";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import type { MethodBlock, MethodBlockType, RecipeIngredientInput, RecipeIngredient } from "@workspace/api-client-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type {
+  MethodBlock,
+  MethodBlockType,
+  RecipeIngredientInput,
+  RecipeIngredient,
+} from "@workspace/api-client-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
+import { formatCurrency, formatUnitCost } from "@/lib/i18n";
 
 // Known allergens
-const COMMON_ALLERGENS = ["Gluten", "Dairy", "Eggs", "Nuts", "Peanuts", "Shellfish", "Fish", "Soy", "Sesame"];
+const COMMON_ALLERGENS = [
+  "Gluten",
+  "Dairy",
+  "Eggs",
+  "Nuts",
+  "Peanuts",
+  "Shellfish",
+  "Fish",
+  "Soy",
+  "Sesame",
+];
 
 export interface BuilderIngredient extends RecipeIngredientInput {
   _tempId: string;
@@ -41,12 +93,12 @@ export default function RecipeBuilder() {
   const params = useParams();
   const [, setLocation] = useLocation();
   const queryClient = useQueryClient();
-  
+
   const isEditing = params.id && params.id !== "new";
   const recipeId = isEditing ? parseInt(params.id as string, 10) : undefined;
 
-  const { data: recipe, isLoading: isRecipeLoading } = useGetRecipe(recipeId!, { 
-    query: { enabled: !!recipeId, queryKey: getGetRecipeQueryKey(recipeId!) } 
+  const { data: recipe, isLoading: isRecipeLoading } = useGetRecipe(recipeId!, {
+    query: { enabled: !!recipeId, queryKey: getGetRecipeQueryKey(recipeId!) },
   });
 
   const createMutation = useCreateRecipe();
@@ -63,7 +115,7 @@ export default function RecipeBuilder() {
   const [allergens, setAllergens] = useState<string[]>([]);
   const [ingredients, setIngredients] = useState<BuilderIngredient[]>([]);
   const [method, setMethod] = useState<BuilderMethod[]>([]);
-  
+
   // Tag input state
   const [tagInput, setTagInput] = useState("");
 
@@ -79,24 +131,28 @@ export default function RecipeBuilder() {
       setAuthorName(recipe.authorName || "");
       setTags(recipe.tags || []);
       setAllergens(recipe.allergens || []);
-      
-      setIngredients(recipe.ingredients.map(i => ({
-        _tempId: Math.random().toString(36).substr(2, 9),
-        ingredientId: i.ingredientId,
-        quantity: i.quantity,
-        unit: i.unit,
-        name: i.ingredientName,
-        recipeUnitCost: i.recipeUnitCost,
-        purchaseCost: i.purchaseCost,
-        purchaseUnitSize: i.purchaseUnitSize,
-        purchaseUnit: i.purchaseUnit
-      })));
-      
-      setMethod(recipe.method.map(m => ({
-        _tempId: Math.random().toString(36).substr(2, 9),
-        ...m
-      })));
-      
+
+      setIngredients(
+        recipe.ingredients.map((i) => ({
+          _tempId: Math.random().toString(36).substr(2, 9),
+          ingredientId: i.ingredientId,
+          quantity: i.quantity,
+          unit: i.unit,
+          name: i.ingredientName,
+          recipeUnitCost: i.recipeUnitCost,
+          purchaseCost: i.purchaseCost,
+          purchaseUnitSize: i.purchaseUnitSize,
+          purchaseUnit: i.purchaseUnit,
+        })),
+      );
+
+      setMethod(
+        recipe.method.map((m) => ({
+          _tempId: Math.random().toString(36).substr(2, 9),
+          ...m,
+        })),
+      );
+
       initialized[1](true);
     }
   }, [recipe, initialized]);
@@ -105,17 +161,27 @@ export default function RecipeBuilder() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [ingredientSearch, setIngredientSearch] = useState("");
   const debouncedSearch = useDebounce(ingredientSearch, 300);
-  const { data: searchResults, isLoading: isSearchLoading } = useListIngredients(
-    { search: debouncedSearch },
-    { query: { enabled: searchOpen, queryKey: getListIngredientsQueryKey({ search: debouncedSearch }) } }
-  );
+  const { data: searchResults, isLoading: isSearchLoading } =
+    useListIngredients(
+      { search: debouncedSearch },
+      {
+        query: {
+          enabled: searchOpen,
+          queryKey: getListIngredientsQueryKey({ search: debouncedSearch }),
+        },
+      },
+    );
 
   // Full catalog for cross-supplier price suggestions
-  const { data: catalog } = useListIngredients({}, {
-    query: { queryKey: getListIngredientsQueryKey({}) },
-  });
+  const { data: catalog } = useListIngredients(
+    {},
+    {
+      query: { queryKey: getListIngredientsQueryKey({}) },
+    },
+  );
 
-  const normalizeName = (s: string) => s.trim().toLowerCase().replace(/\s+/g, " ");
+  const normalizeName = (s: string) =>
+    s.trim().toLowerCase().replace(/\s+/g, " ");
 
   const cheapestByName = useMemo(() => {
     const map = new Map<string, NonNullable<typeof catalog>[number]>();
@@ -141,14 +207,21 @@ export default function RecipeBuilder() {
     if (cheaper.id === ing.ingredientId) return null;
     if (cheaper.recipeUnit !== ing.unit) return null; // apples-to-apples only
     if (cheaper.recipeUnitCost >= ing.recipeUnitCost) return null;
-    const savingsPerRecipe = (ing.recipeUnitCost - cheaper.recipeUnitCost) * ing.quantity;
+    const savingsPerRecipe =
+      (ing.recipeUnitCost - cheaper.recipeUnitCost) * ing.quantity;
     if (savingsPerRecipe <= 0) return null;
     const savingsPercent =
-      ing.recipeUnitCost > 0 ? ((ing.recipeUnitCost - cheaper.recipeUnitCost) / ing.recipeUnitCost) * 100 : 0;
+      ing.recipeUnitCost > 0
+        ? ((ing.recipeUnitCost - cheaper.recipeUnitCost) / ing.recipeUnitCost) *
+          100
+        : 0;
     return { cheaper, savingsPerRecipe, savingsPercent };
   };
 
-  const switchSupplier = (tempId: string, target: NonNullable<typeof catalog>[number]) => {
+  const switchSupplier = (
+    tempId: string,
+    target: NonNullable<typeof catalog>[number],
+  ) => {
     setIngredients((prev) =>
       prev.map((i) =>
         i._tempId === tempId
@@ -199,21 +272,28 @@ export default function RecipeBuilder() {
       }),
     );
     if (applied === 0) toast.info("No supplier switches available");
-    else toast.success(`Switched ${applied} ingredient${applied === 1 ? "" : "s"} to cheaper suppliers`);
+    else
+      toast.success(
+        `Switched ${applied} ingredient${applied === 1 ? "" : "s"} to cheaper suppliers`,
+      );
   };
 
   // Calculations
   const calculatedStats = useMemo(() => {
     let totalIngredientCost = 0;
-    ingredients.forEach(i => {
+    ingredients.forEach((i) => {
       totalIngredientCost += i.quantity * i.recipeUnitCost;
     });
 
     const costPerPortion = servings > 0 ? totalIngredientCost / servings : 0;
     const wastageCost = totalIngredientCost * (wastagePercent / 100);
     const totalCostWithWastage = totalIngredientCost + wastageCost;
-    const costPerPortionWithWastage = servings > 0 ? totalCostWithWastage / servings : 0;
-    const recommendedSalePrice = foodCostPercent > 0 ? costPerPortionWithWastage / (foodCostPercent / 100) : 0;
+    const costPerPortionWithWastage =
+      servings > 0 ? totalCostWithWastage / servings : 0;
+    const recommendedSalePrice =
+      foodCostPercent > 0
+        ? costPerPortionWithWastage / (foodCostPercent / 100)
+        : 0;
 
     return {
       totalIngredientCost,
@@ -221,7 +301,7 @@ export default function RecipeBuilder() {
       wastageCost,
       totalCostWithWastage,
       costPerPortionWithWastage,
-      recommendedSalePrice
+      recommendedSalePrice,
     };
   }, [ingredients, servings, wastagePercent, foodCostPercent]);
 
@@ -231,7 +311,7 @@ export default function RecipeBuilder() {
       toast.error("Recipe title is required");
       return;
     }
-    
+
     const payload = {
       title,
       description: description || null,
@@ -241,16 +321,16 @@ export default function RecipeBuilder() {
       authorName: authorName || null,
       tags,
       allergens,
-      ingredients: ingredients.map(i => ({
+      ingredients: ingredients.map((i) => ({
         ingredientId: i.ingredientId,
         quantity: i.quantity,
-        unit: i.unit
+        unit: i.unit,
       })),
       method: method.map((m, idx) => ({
         type: m.type,
         content: m.content,
-        order: idx
-      }))
+        order: idx,
+      })),
     };
 
     if (isEditing && recipeId) {
@@ -258,67 +338,87 @@ export default function RecipeBuilder() {
         { id: recipeId, data: payload },
         {
           onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: getGetRecipeQueryKey(recipeId) });
-            queryClient.invalidateQueries({ queryKey: getListRecipesQueryKey() });
+            queryClient.invalidateQueries({
+              queryKey: getGetRecipeQueryKey(recipeId),
+            });
+            queryClient.invalidateQueries({
+              queryKey: getListRecipesQueryKey(),
+            });
             toast.success("Recipe updated");
           },
-          onError: () => toast.error("Failed to update recipe")
-        }
+          onError: () => toast.error("Failed to update recipe"),
+        },
       );
     } else {
       createMutation.mutate(
         { data: payload },
         {
           onSuccess: (data) => {
-            queryClient.invalidateQueries({ queryKey: getListRecipesQueryKey() });
+            queryClient.invalidateQueries({
+              queryKey: getListRecipesQueryKey(),
+            });
             toast.success("Recipe created");
             setLocation(`/recipes/${data.id}`);
           },
-          onError: () => toast.error("Failed to create recipe")
-        }
+          onError: () => toast.error("Failed to create recipe"),
+        },
       );
     }
   };
 
   const handleAddIngredient = (item: any) => {
-    setIngredients(prev => [...prev, {
-      _tempId: Math.random().toString(36).substr(2, 9),
-      ingredientId: item.id,
-      quantity: 1,
-      unit: item.recipeUnit,
-      name: item.name,
-      recipeUnitCost: item.recipeUnitCost,
-      purchaseCost: item.purchaseCost,
-      purchaseUnitSize: item.purchaseUnitSize,
-      purchaseUnit: item.purchaseUnit
-    }]);
+    setIngredients((prev) => [
+      ...prev,
+      {
+        _tempId: Math.random().toString(36).substr(2, 9),
+        ingredientId: item.id,
+        quantity: 1,
+        unit: item.recipeUnit,
+        name: item.name,
+        recipeUnitCost: item.recipeUnitCost,
+        purchaseCost: item.purchaseCost,
+        purchaseUnitSize: item.purchaseUnitSize,
+        purchaseUnit: item.purchaseUnit,
+      },
+    ]);
     setSearchOpen(false);
     setIngredientSearch("");
   };
 
   const removeIngredient = (tempId: string) => {
-    setIngredients(prev => prev.filter(i => i._tempId !== tempId));
+    setIngredients((prev) => prev.filter((i) => i._tempId !== tempId));
   };
 
   const updateIngredient = (tempId: string, field: string, value: any) => {
-    setIngredients(prev => prev.map(i => i._tempId === tempId ? { ...i, [field]: value } : i));
+    setIngredients((prev) =>
+      prev.map((i) => (i._tempId === tempId ? { ...i, [field]: value } : i)),
+    );
   };
 
   const addMethodBlock = () => {
-    setMethod(prev => [...prev, {
-      _tempId: Math.random().toString(36).substr(2, 9),
-      type: "text",
-      content: "",
-      order: prev.length
-    }]);
+    setMethod((prev) => [
+      ...prev,
+      {
+        _tempId: Math.random().toString(36).substr(2, 9),
+        type: "text",
+        content: "",
+        order: prev.length,
+      },
+    ]);
   };
 
-  const updateMethodBlock = (tempId: string, field: keyof MethodBlock, value: any) => {
-    setMethod(prev => prev.map(m => m._tempId === tempId ? { ...m, [field]: value } : m));
+  const updateMethodBlock = (
+    tempId: string,
+    field: keyof MethodBlock,
+    value: any,
+  ) => {
+    setMethod((prev) =>
+      prev.map((m) => (m._tempId === tempId ? { ...m, [field]: value } : m)),
+    );
   };
 
   const removeMethodBlock = (tempId: string) => {
-    setMethod(prev => prev.filter(m => m._tempId !== tempId));
+    setMethod((prev) => prev.filter((m) => m._tempId !== tempId));
   };
 
   const moveMethodBlock = (index: number, dir: 1 | -1) => {
@@ -331,13 +431,15 @@ export default function RecipeBuilder() {
   };
 
   const toggleAllergen = (allergen: string) => {
-    setAllergens(prev => 
-      prev.includes(allergen) ? prev.filter(a => a !== allergen) : [...prev, allergen]
+    setAllergens((prev) =>
+      prev.includes(allergen)
+        ? prev.filter((a) => a !== allergen)
+        : [...prev, allergen],
     );
   };
 
   const handleTagKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' || e.key === ',') {
+    if (e.key === "Enter" || e.key === ",") {
       e.preventDefault();
       const newTag = tagInput.trim().toLowerCase();
       if (newTag && !tags.includes(newTag)) {
@@ -348,11 +450,15 @@ export default function RecipeBuilder() {
   };
 
   const removeTag = (tagToRemove: string) => {
-    setTags(tags.filter(t => t !== tagToRemove));
+    setTags(tags.filter((t) => t !== tagToRemove));
   };
 
   if (isEditing && isRecipeLoading) {
-    return <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
   }
 
   const isPending = createMutation.isPending || updateMutation.isPending;
@@ -425,8 +531,12 @@ export default function RecipeBuilder() {
               <ChefHat className="h-5 w-5 text-primary" />
             </div>
             <div className="min-w-0">
-              <h1 className="font-bold text-base sm:text-lg leading-tight truncate">{isEditing ? "Edit Recipe" : "New Recipe"}</h1>
-              <p className="text-xs text-muted-foreground hidden sm:block">Kitchen precision tool</p>
+              <h1 className="font-bold text-base sm:text-lg leading-tight truncate">
+                {isEditing ? "Edit Recipe" : "New Recipe"}
+              </h1>
+              <p className="text-xs text-muted-foreground hidden sm:block">
+                Kitchen precision tool
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -466,7 +576,12 @@ export default function RecipeBuilder() {
                 <span className="hidden xs:inline">Duplicate</span>
               </Button>
             )}
-            <Button onClick={handleSave} disabled={isPending} size="sm" className="shadow-sm">
+            <Button
+              onClick={handleSave}
+              disabled={isPending}
+              size="sm"
+              className="shadow-sm"
+            >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               <Save className="mr-2 h-4 w-4" />
               <span className="hidden xs:inline">Save Recipe</span>
@@ -479,31 +594,48 @@ export default function RecipeBuilder() {
           {/* Basic Info */}
           <div className="space-y-4 bg-card p-5 rounded-xl border shadow-sm">
             <div>
-              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Recipe Title</Label>
-              <Input 
-                value={title} 
-                onChange={e => setTitle(e.target.value)} 
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+                Recipe Title
+              </Label>
+              <Input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
                 className="text-lg font-medium py-6"
-                placeholder="e.g. Classic Beef Bourguignon" 
+                placeholder="e.g. Classic Beef Bourguignon"
               />
             </div>
             <div>
-              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Description</Label>
-              <Textarea 
-                value={description} 
-                onChange={e => setDescription(e.target.value)} 
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+                Description
+              </Label>
+              <Textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 placeholder="Brief description or notes..."
                 className="resize-y"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Yield (Servings)</Label>
-                <Input type="number" min="1" value={servings} onChange={e => setServings(Number(e.target.value) || 1)} />
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+                  Yield (Servings)
+                </Label>
+                <Input
+                  type="number"
+                  min="1"
+                  value={servings}
+                  onChange={(e) => setServings(Number(e.target.value) || 1)}
+                />
               </div>
               <div>
-                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">Author (Optional)</Label>
-                <Input value={authorName} onChange={e => setAuthorName(e.target.value)} placeholder="Chef name" />
+                <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2 block">
+                  Author (Optional)
+                </Label>
+                <Input
+                  value={authorName}
+                  onChange={(e) => setAuthorName(e.target.value)}
+                  placeholder="Chef name"
+                />
               </div>
             </div>
           </div>
@@ -518,24 +650,31 @@ export default function RecipeBuilder() {
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <Label>Wastage Buffer</Label>
-                  <span className="text-sm font-bold text-accent">{wastagePercent}%</span>
+                  <span className="text-sm font-bold text-accent">
+                    {wastagePercent}%
+                  </span>
                 </div>
-                <Slider 
-                  value={[wastagePercent]} 
-                  onValueChange={v => setWastagePercent(v[0])} 
-                  max={50} step={1}
+                <Slider
+                  value={[wastagePercent]}
+                  onValueChange={(v) => setWastagePercent(v[0])}
+                  max={50}
+                  step={1}
                   className="[&_[role=slider]]:bg-accent"
                 />
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between">
                   <Label>Target Food Cost</Label>
-                  <span className="text-sm font-bold text-primary">{foodCostPercent}%</span>
+                  <span className="text-sm font-bold text-primary">
+                    {foodCostPercent}%
+                  </span>
                 </div>
-                <Slider 
-                  value={[foodCostPercent]} 
-                  onValueChange={v => setFoodCostPercent(v[0])} 
-                  min={5} max={50} step={1} 
+                <Slider
+                  value={[foodCostPercent]}
+                  onValueChange={(v) => setFoodCostPercent(v[0])}
+                  min={5}
+                  max={50}
+                  step={1}
                 />
               </div>
             </div>
@@ -544,8 +683,10 @@ export default function RecipeBuilder() {
           {/* Ingredients */}
           <div className="space-y-4">
             <div className="flex justify-between items-center">
-              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Ingredients List</Label>
-              
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Ingredients List
+              </Label>
+
               <Popover open={searchOpen} onOpenChange={setSearchOpen}>
                 <PopoverTrigger asChild>
                   <Button variant="outline" size="sm" className="h-8">
@@ -554,28 +695,35 @@ export default function RecipeBuilder() {
                 </PopoverTrigger>
                 <PopoverContent className="w-[300px] p-0" align="end">
                   <div className="p-2 border-b">
-                    <Input 
-                      placeholder="Search ingredients..." 
+                    <Input
+                      placeholder="Search ingredients..."
                       value={ingredientSearch}
-                      onChange={e => setIngredientSearch(e.target.value)}
+                      onChange={(e) => setIngredientSearch(e.target.value)}
                       autoFocus
                     />
                   </div>
                   <div className="max-h-[300px] overflow-y-auto">
                     {isSearchLoading ? (
-                      <div className="p-4 text-center text-sm text-muted-foreground">Searching...</div>
+                      <div className="p-4 text-center text-sm text-muted-foreground">
+                        Searching...
+                      </div>
                     ) : searchResults?.length === 0 ? (
-                      <div className="p-4 text-center text-sm text-muted-foreground">No ingredients found.</div>
+                      <div className="p-4 text-center text-sm text-muted-foreground">
+                        No ingredients found.
+                      </div>
                     ) : (
-                      searchResults?.map(item => (
-                        <div 
-                          key={item.id} 
+                      searchResults?.map((item) => (
+                        <div
+                          key={item.id}
                           className="px-3 py-2 hover:bg-muted cursor-pointer flex justify-between items-center"
                           onClick={() => handleAddIngredient(item)}
                         >
                           <div>
                             <p className="text-sm font-medium">{item.name}</p>
-                            <p className="text-xs text-muted-foreground">${item.recipeUnitCost.toFixed(4)} / {item.recipeUnit}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatUnitCost(item.recipeUnitCost)} /{" "}
+                              {item.recipeUnit}
+                            </p>
                           </div>
                           <Plus className="h-4 w-4 text-muted-foreground" />
                         </div>
@@ -592,7 +740,10 @@ export default function RecipeBuilder() {
                   <Sparkles className="h-4 w-4 text-success" />
                   <span className="text-success-foreground">
                     Switching suppliers could save{" "}
-                    <span className="font-bold">${totalPotentialSavings.toFixed(2)}</span> on this recipe.
+                    <span className="font-bold">
+                      {formatCurrency(totalPotentialSavings)}
+                    </span>{" "}
+                    on this recipe.
                   </span>
                 </div>
                 <Button
@@ -612,61 +763,97 @@ export default function RecipeBuilder() {
                 {ingredients.map((ing) => {
                   const suggestion = suggestionFor(ing);
                   return (
-                  <motion.div 
-                    key={ing._tempId}
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="bg-card rounded-lg border shadow-sm group"
-                  >
-                    <div className="flex gap-3 items-center p-3">
-                      <div className="w-[200px] truncate font-medium text-sm">{ing.name}</div>
-                      <div className="flex-1 flex gap-2">
-                        <Input 
-                          type="number" 
-                          min="0" step="0.01" 
-                          value={ing.quantity} 
-                          onChange={e => updateIngredient(ing._tempId, 'quantity', Number(e.target.value))}
-                          className="w-20 h-8 text-sm"
-                        />
-                        <Input 
-                          value={ing.unit} 
-                          onChange={e => updateIngredient(ing._tempId, 'unit', e.target.value)}
-                          className="w-24 h-8 text-sm"
-                        />
-                      </div>
-                      <div className="w-24 text-right text-sm font-medium tabular-nums shrink-0">
-                        ${(ing.quantity * ing.recipeUnitCost).toFixed(2)}
-                      </div>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity" onClick={() => removeIngredient(ing._tempId)}>
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                    {suggestion && (
-                      <div className="flex flex-wrap items-center justify-between gap-2 px-3 pb-3 -mt-1 no-print">
-                        <div className="flex items-center gap-2 text-xs text-success-foreground">
-                          <TrendingDown className="h-3.5 w-3.5" />
-                          <span>
-                            Switch to <span className="font-semibold">{suggestion.cheaper.supplier || "cheaper option"}</span>{" "}
-                            <span className="text-muted-foreground">
-                              (${suggestion.cheaper.recipeUnitCost.toFixed(4)}/{suggestion.cheaper.recipeUnit})
-                            </span>{" "}
-                            — save <span className="font-semibold">${suggestion.savingsPerRecipe.toFixed(2)}</span>{" "}
-                            <span className="text-muted-foreground">({suggestion.savingsPercent.toFixed(0)}% cheaper)</span>
-                          </span>
+                    <motion.div
+                      key={ing._tempId}
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="bg-card rounded-lg border shadow-sm group"
+                    >
+                      <div className="flex gap-3 items-center p-3">
+                        <div className="w-[200px] truncate font-medium text-sm">
+                          {ing.name}
+                        </div>
+                        <div className="flex-1 flex gap-2">
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={ing.quantity}
+                            onChange={(e) =>
+                              updateIngredient(
+                                ing._tempId,
+                                "quantity",
+                                Number(e.target.value),
+                              )
+                            }
+                            className="w-20 h-8 text-sm"
+                          />
+                          <Input
+                            value={ing.unit}
+                            onChange={(e) =>
+                              updateIngredient(
+                                ing._tempId,
+                                "unit",
+                                e.target.value,
+                              )
+                            }
+                            className="w-24 h-8 text-sm"
+                          />
+                        </div>
+                        <div className="w-24 text-right text-sm font-medium tabular-nums shrink-0">
+                          {formatCurrency(ing.quantity * ing.recipeUnitCost)}
                         </div>
                         <Button
-                          size="sm"
                           variant="ghost"
-                          className="h-7 text-xs text-success hover:text-success-foreground hover:bg-success/10"
-                          onClick={() => switchSupplier(ing._tempId, suggestion.cheaper)}
-                          data-testid={`button-switch-${ing._tempId}`}
+                          size="icon"
+                          className="h-8 w-8 text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => removeIngredient(ing._tempId)}
                         >
-                          Switch
+                          <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    )}
-                  </motion.div>
+                      {suggestion && (
+                        <div className="flex flex-wrap items-center justify-between gap-2 px-3 pb-3 -mt-1 no-print">
+                          <div className="flex items-center gap-2 text-xs text-success-foreground">
+                            <TrendingDown className="h-3.5 w-3.5" />
+                            <span>
+                              Switch to{" "}
+                              <span className="font-semibold">
+                                {suggestion.cheaper.supplier ||
+                                  "cheaper option"}
+                              </span>{" "}
+                              <span className="text-muted-foreground">
+                                (
+                                {formatUnitCost(
+                                  suggestion.cheaper.recipeUnitCost,
+                                )}
+                                /{suggestion.cheaper.recipeUnit})
+                              </span>{" "}
+                              — save{" "}
+                              <span className="font-semibold">
+                                {formatCurrency(suggestion.savingsPerRecipe)}
+                              </span>{" "}
+                              <span className="text-muted-foreground">
+                                ({suggestion.savingsPercent.toFixed(0)}%
+                                cheaper)
+                              </span>
+                            </span>
+                          </div>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 text-xs text-success hover:text-success-foreground hover:bg-success/10"
+                            onClick={() =>
+                              switchSupplier(ing._tempId, suggestion.cheaper)
+                            }
+                            data-testid={`button-switch-${ing._tempId}`}
+                          >
+                            Switch
+                          </Button>
+                        </div>
+                      )}
+                    </motion.div>
                   );
                 })}
               </AnimatePresence>
@@ -681,22 +868,44 @@ export default function RecipeBuilder() {
           {/* Method Editor */}
           <div className="space-y-4 pt-4 border-t border-border">
             <div className="flex justify-between items-center">
-              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">Method</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Method
+              </Label>
             </div>
-            
+
             <div className="space-y-2">
               {method.map((block, idx) => (
-                <div key={block._tempId} className="flex gap-2 items-start bg-card p-3 rounded-lg border shadow-sm">
+                <div
+                  key={block._tempId}
+                  className="flex gap-2 items-start bg-card p-3 rounded-lg border shadow-sm"
+                >
                   <div className="flex flex-col gap-1 shrink-0 mt-1">
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => moveMethodBlock(idx, -1)} disabled={idx === 0}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => moveMethodBlock(idx, -1)}
+                      disabled={idx === 0}
+                    >
                       <ArrowUp className="h-3 w-3" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => moveMethodBlock(idx, 1)} disabled={idx === method.length - 1}>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6"
+                      onClick={() => moveMethodBlock(idx, 1)}
+                      disabled={idx === method.length - 1}
+                    >
                       <ArrowDown className="h-3 w-3" />
                     </Button>
                   </div>
-                  
-                  <Select value={block.type} onValueChange={(val: MethodBlockType) => updateMethodBlock(block._tempId, 'type', val)}>
+
+                  <Select
+                    value={block.type}
+                    onValueChange={(val: MethodBlockType) =>
+                      updateMethodBlock(block._tempId, "type", val)
+                    }
+                  >
                     <SelectTrigger className="w-[140px] h-9">
                       <SelectValue />
                     </SelectTrigger>
@@ -708,19 +917,38 @@ export default function RecipeBuilder() {
                     </SelectContent>
                   </Select>
 
-                  <Input 
-                    value={block.content} 
-                    onChange={e => updateMethodBlock(block._tempId, 'content', e.target.value)}
-                    className={`flex-1 h-9 ${block.type === 'header' ? 'font-bold' : ''}`}
-                    placeholder={block.type === 'header' ? 'Section title...' : 'Instruction...'}
+                  <Input
+                    value={block.content}
+                    onChange={(e) =>
+                      updateMethodBlock(
+                        block._tempId,
+                        "content",
+                        e.target.value,
+                      )
+                    }
+                    className={`flex-1 h-9 ${block.type === "header" ? "font-bold" : ""}`}
+                    placeholder={
+                      block.type === "header"
+                        ? "Section title..."
+                        : "Instruction..."
+                    }
                   />
 
-                  <Button variant="ghost" size="icon" className="h-9 w-9 text-destructive" onClick={() => removeMethodBlock(block._tempId)}>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 text-destructive"
+                    onClick={() => removeMethodBlock(block._tempId)}
+                  >
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               ))}
-              <Button variant="outline" className="w-full border-dashed" onClick={addMethodBlock}>
+              <Button
+                variant="outline"
+                className="w-full border-dashed"
+                onClick={addMethodBlock}
+              >
                 <Plus className="mr-2 h-4 w-4" /> Add Block
               </Button>
             </div>
@@ -729,15 +957,17 @@ export default function RecipeBuilder() {
           {/* Tags & Allergens */}
           <div className="space-y-6 pt-4 border-t border-border">
             <div>
-              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 block">Allergens</Label>
+              <Label className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3 block">
+                Allergens
+              </Label>
               <div className="flex flex-wrap gap-2">
-                {COMMON_ALLERGENS.map(allergen => {
+                {COMMON_ALLERGENS.map((allergen) => {
                   const isActive = allergens.includes(allergen);
                   return (
-                    <Badge 
-                      key={allergen} 
+                    <Badge
+                      key={allergen}
                       variant={isActive ? "default" : "outline"}
-                      className={`cursor-pointer transition-colors ${isActive ? 'bg-destructive hover:bg-destructive/90 text-destructive-foreground' : ''}`}
+                      className={`cursor-pointer transition-colors ${isActive ? "bg-destructive hover:bg-destructive/90 text-destructive-foreground" : ""}`}
                       onClick={() => toggleAllergen(allergen)}
                     >
                       {isActive && <Check className="mr-1 h-3 w-3" />}
@@ -753,19 +983,26 @@ export default function RecipeBuilder() {
                 <TagsIcon className="h-3 w-3" /> Tags
               </Label>
               <div className="flex flex-wrap gap-2 mb-2">
-                {tags.map(tag => (
-                  <Badge key={tag} variant="secondary" className="pl-2 pr-1 py-1">
+                {tags.map((tag) => (
+                  <Badge
+                    key={tag}
+                    variant="secondary"
+                    className="pl-2 pr-1 py-1"
+                  >
                     {tag}
-                    <div className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5 cursor-pointer" onClick={() => removeTag(tag)}>
+                    <div
+                      className="ml-1 hover:bg-muted-foreground/20 rounded-full p-0.5 cursor-pointer"
+                      onClick={() => removeTag(tag)}
+                    >
                       <Trash2 className="h-3 w-3" />
                     </div>
                   </Badge>
                 ))}
               </div>
-              <Input 
-                placeholder="Type tag and press enter..." 
+              <Input
+                placeholder="Type tag and press enter..."
                 value={tagInput}
-                onChange={e => setTagInput(e.target.value)}
+                onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleTagKeyDown}
                 className="max-w-xs h-9"
               />
@@ -804,17 +1041,33 @@ export function PreviewContent(props: {
   onPrint: () => void;
 }) {
   const {
-    title, description, servings, ingredients, method, allergens, tags,
-    authorName, wastagePercent, foodCostPercent, calculatedStats, onPrint,
+    title,
+    description,
+    servings,
+    ingredients,
+    method,
+    allergens,
+    tags,
+    authorName,
+    wastagePercent,
+    foodCostPercent,
+    calculatedStats,
+    onPrint,
   } = props;
   return (
     <Tabs defaultValue="card" className="flex flex-col h-full w-full">
       <div className="no-print px-3 sm:px-6 pt-4 pb-0 bg-card border-b shrink-0 flex flex-wrap gap-2 justify-between items-end">
         <TabsList className="bg-transparent space-x-2">
-          <TabsTrigger value="card" className="data-[state=active]:bg-muted/50 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-3 sm:px-4 pb-2 pt-2 text-xs sm:text-sm">
+          <TabsTrigger
+            value="card"
+            className="data-[state=active]:bg-muted/50 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-3 sm:px-4 pb-2 pt-2 text-xs sm:text-sm"
+          >
             Recipe Card
           </TabsTrigger>
-          <TabsTrigger value="costing" className="data-[state=active]:bg-muted/50 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-3 sm:px-4 pb-2 pt-2 text-xs sm:text-sm">
+          <TabsTrigger
+            value="costing"
+            className="data-[state=active]:bg-muted/50 data-[state=active]:shadow-none border-b-2 border-transparent data-[state=active]:border-primary rounded-none px-3 sm:px-4 pb-2 pt-2 text-xs sm:text-sm"
+          >
             Cost Breakdown
           </TabsTrigger>
         </TabsList>
@@ -833,148 +1086,226 @@ export function PreviewContent(props: {
       <div className="flex-1 overflow-y-auto p-3 sm:p-6 print:p-0 print:overflow-visible">
         <TabsContent value="card" className="m-0 h-full print:m-0">
           <div className="printable-card bg-white text-black p-6 sm:p-8 shadow-xl max-w-2xl mx-auto rounded-md border min-h-[800px] flex flex-col print:shadow-none print:border-0 print:rounded-none print:max-w-none print:min-h-0 print:p-0">
-                <div className="border-b-2 border-black pb-4 mb-6">
-                  <h1 className="font-serif text-4xl font-bold mb-2">{title || "Untitled Recipe"}</h1>
-                  <div className="flex justify-between items-end">
-                    {description && <p className="text-ink-600 italic text-sm max-w-md">{description}</p>}
-                    <div className="text-right">
-                      <p className="text-xs uppercase tracking-widest font-bold text-ink-500">Yield</p>
-                      <p className="font-medium text-lg">{servings} Servings</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex gap-8 flex-1">
-                  {/* Ingredients Column */}
-                  <div className="w-1/3">
-                    <h3 className="font-bold uppercase tracking-widest text-xs border-b border-ink-300 pb-1 mb-3">Ingredients</h3>
-                    <ul className="space-y-2 text-sm">
-                      {ingredients.map(ing => (
-                        <li key={ing._tempId} className="flex justify-between border-b border-ink-100 pb-1">
-                          <span className="font-medium">{ing.quantity} {ing.unit}</span>
-                          <span className="text-ink-600 ml-2">{ing.name}</span>
-                        </li>
-                      ))}
-                      {ingredients.length === 0 && <li className="text-ink-400 italic">No ingredients</li>}
-                    </ul>
-                  </div>
-
-                  {/* Method Column */}
-                  <div className="w-2/3">
-                    <h3 className="font-bold uppercase tracking-widest text-xs border-b border-ink-300 pb-1 mb-3">Method</h3>
-                    <div className="space-y-3 text-sm">
-                      {method.map((m, idx) => {
-                        if (m.type === "header") {
-                          return <h4 key={m._tempId} className="font-bold text-base mt-4 border-b border-ink-200 pb-1">{m.content}</h4>;
-                        }
-                        if (m.type === "numbered") {
-                          return (
-                            <div key={m._tempId} className="flex gap-3">
-                              <span className="font-bold shrink-0">{idx + 1}.</span>
-                              <p>{m.content}</p>
-                            </div>
-                          );
-                        }
-                        if (m.type === "subinstruction") {
-                          return (
-                            <div key={m._tempId} className="flex gap-3 pl-6 text-ink-600">
-                              <span className="shrink-0">-</span>
-                              <p>{m.content}</p>
-                            </div>
-                          );
-                        }
-                        // Text note
-                        return <p key={m._tempId} className="italic text-ink-500">{m.content}</p>;
-                      })}
-                      {method.length === 0 && <p className="text-ink-400 italic">No method blocks added</p>}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-8 pt-4 border-t border-ink-200 text-xs text-ink-500 flex justify-between items-end">
-                  <div className="space-y-2">
-                    {allergens.length > 0 && (
-                      <p><span className="font-bold uppercase tracking-wider text-black">Contains:</span> {allergens.join(", ")}</p>
-                    )}
-                    {tags.length > 0 && (
-                      <p><span className="font-bold uppercase tracking-wider text-black">Tags:</span> {tags.join(", ")}</p>
-                    )}
-                  </div>
-                  {authorName && <p className="italic">Recipe by {authorName}</p>}
+            <div className="border-b-2 border-black pb-4 mb-6">
+              <h1 className="font-serif text-4xl font-bold mb-2">
+                {title || "Untitled Recipe"}
+              </h1>
+              <div className="flex justify-between items-end">
+                {description && (
+                  <p className="text-ink-600 italic text-sm max-w-md">
+                    {description}
+                  </p>
+                )}
+                <div className="text-right">
+                  <p className="text-xs uppercase tracking-widest font-bold text-ink-500">
+                    Yield
+                  </p>
+                  <p className="font-medium text-lg">{servings} Servings</p>
                 </div>
               </div>
-            </TabsContent>
+            </div>
 
-            <TabsContent value="costing" className="m-0 space-y-6">
-              {/* Summary Table */}
-              <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
-                <div className="bg-primary/5 px-4 py-3 border-b">
-                  <h3 className="font-bold text-primary flex items-center gap-2">
-                    <Calculator className="h-4 w-4" /> Cost Summary
-                  </h3>
-                </div>
-                <div className="p-4 grid grid-cols-2 gap-x-8 gap-y-4">
-                  <div className="flex justify-between items-center pb-2 border-b border-dashed">
-                    <span className="text-muted-foreground text-sm">Raw Ingredient Cost</span>
-                    <span className="font-medium tabular-nums">${calculatedStats.totalIngredientCost.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-2 border-b border-dashed">
-                    <span className="text-muted-foreground text-sm">Wastage Buffer ({wastagePercent}%)</span>
-                    <span className="font-medium tabular-nums text-destructive">+${calculatedStats.wastageCost.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-2 border-b border-dashed font-bold">
-                    <span className="text-sm">Total Cost w/ Wastage</span>
-                    <span className="tabular-nums">${calculatedStats.totalCostWithWastage.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center pb-2 border-b border-dashed font-bold">
-                    <span className="text-sm">Cost Per Portion</span>
-                    <span className="tabular-nums">${calculatedStats.costPerPortionWithWastage.toFixed(2)}</span>
-                  </div>
-                  <div className="col-span-2 mt-2 bg-primary/10 p-4 rounded-lg flex justify-between items-center border border-primary/20">
-                    <div>
-                      <span className="block text-xs font-bold uppercase tracking-wider text-primary">Recommended Price</span>
-                      <span className="text-xs text-primary/80">Based on {foodCostPercent}% target food cost</span>
-                    </div>
-                    <span className="text-2xl font-bold text-primary tabular-nums">${calculatedStats.recommendedSalePrice.toFixed(2)}</span>
-                  </div>
-                </div>
+            <div className="flex gap-8 flex-1">
+              {/* Ingredients Column */}
+              <div className="w-1/3">
+                <h3 className="font-bold uppercase tracking-widest text-xs border-b border-ink-300 pb-1 mb-3">
+                  Ingredients
+                </h3>
+                <ul className="space-y-2 text-sm">
+                  {ingredients.map((ing) => (
+                    <li
+                      key={ing._tempId}
+                      className="flex justify-between border-b border-ink-100 pb-1"
+                    >
+                      <span className="font-medium">
+                        {ing.quantity} {ing.unit}
+                      </span>
+                      <span className="text-ink-600 ml-2">{ing.name}</span>
+                    </li>
+                  ))}
+                  {ingredients.length === 0 && (
+                    <li className="text-ink-400 italic">No ingredients</li>
+                  )}
+                </ul>
               </div>
 
-              {/* Line items */}
-              <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
-                <div className="px-4 py-3 border-b bg-muted/20">
-                  <h3 className="font-bold text-sm">Ingredient Line Costs</h3>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead>
-                      <tr className="border-b bg-muted/10 text-left text-xs uppercase tracking-wider text-muted-foreground">
-                        <th className="p-3 font-medium">Ingredient</th>
-                        <th className="p-3 font-medium text-right">Qty</th>
-                        <th className="p-3 font-medium text-right">Unit Cost</th>
-                        <th className="p-3 font-medium text-right bg-primary/5">Line Cost</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y">
-                      {ingredients.map(ing => (
-                        <tr key={ing._tempId}>
-                          <td className="p-3 font-medium">{ing.name}</td>
-                          <td className="p-3 text-right">{ing.quantity} {ing.unit}</td>
-                          <td className="p-3 text-right text-muted-foreground">${ing.recipeUnitCost.toFixed(4)}</td>
-                          <td className="p-3 text-right font-medium bg-primary/5 tabular-nums">
-                            ${(ing.quantity * ing.recipeUnitCost).toFixed(2)}
-                          </td>
-                        </tr>
-                      ))}
-                      {ingredients.length === 0 && (
-                        <tr><td colSpan={4} className="p-6 text-center text-muted-foreground italic">No ingredients</td></tr>
-                      )}
-                    </tbody>
-                  </table>
+              {/* Method Column */}
+              <div className="w-2/3">
+                <h3 className="font-bold uppercase tracking-widest text-xs border-b border-ink-300 pb-1 mb-3">
+                  Method
+                </h3>
+                <div className="space-y-3 text-sm">
+                  {method.map((m, idx) => {
+                    if (m.type === "header") {
+                      return (
+                        <h4
+                          key={m._tempId}
+                          className="font-bold text-base mt-4 border-b border-ink-200 pb-1"
+                        >
+                          {m.content}
+                        </h4>
+                      );
+                    }
+                    if (m.type === "numbered") {
+                      return (
+                        <div key={m._tempId} className="flex gap-3">
+                          <span className="font-bold shrink-0">{idx + 1}.</span>
+                          <p>{m.content}</p>
+                        </div>
+                      );
+                    }
+                    if (m.type === "subinstruction") {
+                      return (
+                        <div
+                          key={m._tempId}
+                          className="flex gap-3 pl-6 text-ink-600"
+                        >
+                          <span className="shrink-0">-</span>
+                          <p>{m.content}</p>
+                        </div>
+                      );
+                    }
+                    // Text note
+                    return (
+                      <p key={m._tempId} className="italic text-ink-500">
+                        {m.content}
+                      </p>
+                    );
+                  })}
+                  {method.length === 0 && (
+                    <p className="text-ink-400 italic">
+                      No method blocks added
+                    </p>
+                  )}
                 </div>
               </div>
-            </TabsContent>
+            </div>
+
+            <div className="mt-8 pt-4 border-t border-ink-200 text-xs text-ink-500 flex justify-between items-end">
+              <div className="space-y-2">
+                {allergens.length > 0 && (
+                  <p>
+                    <span className="font-bold uppercase tracking-wider text-black">
+                      Contains:
+                    </span>{" "}
+                    {allergens.join(", ")}
+                  </p>
+                )}
+                {tags.length > 0 && (
+                  <p>
+                    <span className="font-bold uppercase tracking-wider text-black">
+                      Tags:
+                    </span>{" "}
+                    {tags.join(", ")}
+                  </p>
+                )}
+              </div>
+              {authorName && <p className="italic">Recipe by {authorName}</p>}
+            </div>
           </div>
-        </Tabs>
+        </TabsContent>
+
+        <TabsContent value="costing" className="m-0 space-y-6">
+          {/* Summary Table */}
+          <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+            <div className="bg-primary/5 px-4 py-3 border-b">
+              <h3 className="font-bold text-primary flex items-center gap-2">
+                <Calculator className="h-4 w-4" /> Cost Summary
+              </h3>
+            </div>
+            <div className="p-4 grid grid-cols-2 gap-x-8 gap-y-4">
+              <div className="flex justify-between items-center pb-2 border-b border-dashed">
+                <span className="text-muted-foreground text-sm">
+                  Raw Ingredient Cost
+                </span>
+                <span className="font-medium tabular-nums">
+                  {formatCurrency(calculatedStats.totalIngredientCost)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-dashed">
+                <span className="text-muted-foreground text-sm">
+                  Wastage Buffer ({wastagePercent}%)
+                </span>
+                <span className="font-medium tabular-nums text-destructive">
+                  +{formatCurrency(calculatedStats.wastageCost)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-dashed font-bold">
+                <span className="text-sm">Total Cost w/ Wastage</span>
+                <span className="tabular-nums">
+                  {formatCurrency(calculatedStats.totalCostWithWastage)}
+                </span>
+              </div>
+              <div className="flex justify-between items-center pb-2 border-b border-dashed font-bold">
+                <span className="text-sm">Cost Per Portion</span>
+                <span className="tabular-nums">
+                  {formatCurrency(calculatedStats.costPerPortionWithWastage)}
+                </span>
+              </div>
+              <div className="col-span-2 mt-2 bg-primary/10 p-4 rounded-lg flex justify-between items-center border border-primary/20">
+                <div>
+                  <span className="block text-xs font-bold uppercase tracking-wider text-primary">
+                    Recommended Price
+                  </span>
+                  <span className="text-xs text-primary/80">
+                    Based on {foodCostPercent}% target food cost
+                  </span>
+                </div>
+                <span className="text-2xl font-bold text-primary tabular-nums">
+                  {formatCurrency(calculatedStats.recommendedSalePrice)}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Line items */}
+          <div className="bg-card rounded-xl border shadow-sm overflow-hidden">
+            <div className="px-4 py-3 border-b bg-muted/20">
+              <h3 className="font-bold text-sm">Ingredient Line Costs</h3>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b bg-muted/10 text-left text-xs uppercase tracking-wider text-muted-foreground">
+                    <th className="p-3 font-medium">Ingredient</th>
+                    <th className="p-3 font-medium text-right">Qty</th>
+                    <th className="p-3 font-medium text-right">Unit Cost</th>
+                    <th className="p-3 font-medium text-right bg-primary/5">
+                      Line Cost
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y">
+                  {ingredients.map((ing) => (
+                    <tr key={ing._tempId}>
+                      <td className="p-3 font-medium">{ing.name}</td>
+                      <td className="p-3 text-right">
+                        {ing.quantity} {ing.unit}
+                      </td>
+                      <td className="p-3 text-right text-muted-foreground">
+                        {formatUnitCost(ing.recipeUnitCost)}
+                      </td>
+                      <td className="p-3 text-right font-medium bg-primary/5 tabular-nums">
+                        {formatCurrency(ing.quantity * ing.recipeUnitCost)}
+                      </td>
+                    </tr>
+                  ))}
+                  {ingredients.length === 0 && (
+                    <tr>
+                      <td
+                        colSpan={4}
+                        className="p-6 text-center text-muted-foreground italic"
+                      >
+                        No ingredients
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </TabsContent>
+      </div>
+    </Tabs>
   );
 }

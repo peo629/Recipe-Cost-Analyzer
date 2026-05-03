@@ -1,0 +1,312 @@
+---
+
+```jsonc
+/*
+  MongoDB Schema Validation
+  =========================
+  Database: MyCookBook
+  Collection: business_entities
+
+  Description:
+  This schema defines the structure and validation rules for business entity documents.
+  Each document represents a company, organization, or individual business entity that
+  may own or operate one or more venues (locations).
+
+  Key Features:
+  - Supports single or multi-venue business structures
+  - Defines hierarchical relationships between company, venues, and work areas
+  - Captures company registration and compliance identifiers (ACN, ABN)
+  - Stores head office contact details and administrative assignments
+  - Enables linkage to users, managers, and work areas for each venue
+
+  Usage:
+  Apply this schema validation when creating or updating the `business_entities`
+  collection to ensure consistency and enforce relationships between companies,
+  venues, and employees.
+*/
+
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "company_id",
+      "company_name",
+      "admin_user_id",
+      "head_office",
+      "venues",
+      "created_at"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "objectId",
+        "description": "Unique identifier for the business entity document"
+      },
+
+      // ───────────────────────────────
+      // Company Identification
+      // ───────────────────────────────
+      "company_id": {
+        "bsonType": "string",
+        "description": "Unique company identifier (e.g., 'CNY-2976')"
+      },
+      "company_name": {
+        "bsonType": "string",
+        "description": "Registered name of the company or trading entity"
+      },
+      "trading_name": {
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "description": "Trading or business name if different from company name"
+      },
+      "director_name": {
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "description": "Full name of the company director or managing principal"
+      },
+      "ACN": {
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "description": "Australian Company Number (ACN) — formatted as 'XXX XXX XXX'"
+      },
+      "ABN": {
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "description": "Australian Business Number (ABN) — formatted as 'XX XXX XXX XXX'"
+      },
+      "admin_user_id": {
+        "bsonType": "string",
+        "description": "Identifier of the primary administrative user for the business (links to business_users.linking_id)"
+      },
+
+      // ───────────────────────────────
+      // Head Office Information
+      // ───────────────────────────────
+      "head_office": {
+        "bsonType": "object",
+        "description": "Registered head office or main business address",
+        "required": ["address", "suburb", "state", "post_code", "contact"],
+        "properties": {
+          "address": {
+            "bsonType": "string",
+            "description": "Street address of the head office"
+          },
+          "suburb": {
+            "bsonType": "string",
+            "description": "Suburb or locality of the head office"
+          },
+          "state": {
+            "bsonType": "string",
+            "enum": [
+              "Victoria",
+              "New South Wales",
+              "Queensland",
+              "South Australia",
+              "Western Australia",
+              "Tasmania",
+              "Northern Territory",
+              "Australian Capital Territory"
+            ],
+            "description": "State or territory of the head office"
+          },
+          "post_code": {
+            "bsonType": "string",
+            "pattern": "^[0-9]{4}$",
+            "description": "4-digit Australian postal code"
+          },
+          "contact": {
+            "bsonType": "object",
+            "description": "Primary contact details for the head office",
+            "required": ["phone", "email"],
+            "properties": {
+              "phone": {
+                "bsonType": "string",
+                "description": "Head office phone number in international E.164 format"
+              },
+              "email": {
+                "bsonType": "string",
+                "pattern": "^[\\w\\.-]+@[\\w\\.-]+\\.[A-Za-z]{2,}$",
+                "description": "Head office contact email address"
+              }
+            }
+          }
+        }
+      },
+
+      // ───────────────────────────────
+      // Venue Hierarchy
+      // ───────────────────────────────
+      "venues": {
+        "bsonType": "array",
+        "description": "List of venues operated by the company (can be one or many)",
+        "minItems": 1,
+        "items": {
+          "bsonType": "object",
+          "required": ["venue_id", "venue_name", "venue_manager_id", "venue_manager_name", "workareas"],
+          "properties": {
+            "venue_id": {
+              "bsonType": "string",
+              "description": "Unique venue identifier (e.g., VEN-2976-30)"
+            },
+            "venue_name": {
+              "bsonType": "string",
+              "description": "Name of the venue or location (e.g., restaurant, bar, hotel)"
+            },
+            "venue_type": {
+              "bsonType": [
+                "string",
+                "null"
+              ],
+              "enum": [
+                "restaurant",
+                "bar",
+                "hotel",
+                "cafe",
+                "function_space",
+                "other",
+                null
+              ],
+              "description": "Type of venue or operational category"
+            },
+            "venue_manager_id": {
+              "bsonType": "string",
+              "description": "Employee linking_id of the venue manager"
+            },
+            "venue_manager_name": {
+              "bsonType": "string",
+              "description": "Full name of the venue manager"
+            },
+            "location": {
+              "bsonType": [
+                "object",
+                "null"
+              ],
+              "description": "Physical address of the venue (optional if matches head office)",
+              "properties": {
+                "address": { "bsonType": "string" },
+                "suburb": { "bsonType": "string" },
+                "state": { "bsonType": "string" },
+                "post_code": {
+                  "bsonType": "string",
+                  "pattern": "^[0-9]{4}$"
+                }
+              }
+            },
+            "contact": {
+              "bsonType": [
+                "object",
+                "null"
+              ],
+              "description": "Venue-level contact details",
+              "properties": {
+                "phone": { "bsonType": "string" },
+                "email": {
+                  "bsonType": "string",
+                  "pattern": "^[\\w\\.-]+@[\\w\\.-]+\\.[A-Za-z]{2,}$"
+                }
+              }
+            },
+            "workareas": {
+              "bsonType": "array",
+              "description": "List of operational work areas under this venue (e.g., venue, bar, kitchen)",
+              "minItems": 1,
+              "items": {
+                "bsonType": "object",
+                "required": ["work_area_name", "work_area_id"],
+                "properties": {
+                  "work_area_name": {
+                    "bsonType": "string",
+                    "description": "Name of the work area"
+                  },
+                  "work_area_id": {
+                    "bsonType": "string",
+                    "description": "Unique work area identifier (e.g., WAI-2976-3087)"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+
+      // ───────────────────────────────
+      // System Fields
+      // ───────────────────────────────
+      "entity_type": {
+        "bsonType": "string",
+        "enum": ["single_venue", "multi_venue", "parent_company"],
+        "description": "Classification of business structure"
+      },
+      "is_active": {
+        "bsonType": "bool",
+        "description": "Indicates whether the entity is currently active or operational",
+        "default": true
+      },
+      "created_at": {
+        "bsonType": "date",
+        "description": "Timestamp of entity record creation"
+      },
+      "updated_at": {
+        "bsonType": ["date", "null"],
+        "description": "Last modification timestamp"
+      },
+      "metadata": {
+        "bsonType": [
+          "object",
+          "null"
+        ],
+        "description": "Optional metadata for auditing or integration",
+        "properties": {
+          "source": {
+            "bsonType": "string",
+            "description": "Data source or system of record (e.g., CRM, ERP)"
+          },
+          "verified": {
+            "bsonType": "bool",
+            "description": "Indicates if entity record has been verified"
+          },
+          "last_verified": {
+            "bsonType": ["date", "null"],
+            "description": "Date of last verification"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+### ✅ Developer Notes
+
+* **Entity Structure:**
+
+  * `single_venue` → A business with one location only
+  * `multi_venue` → A business with multiple venues under a single company
+  * `parent_company` → A parent organization owning multiple companies/venues across regions
+
+* **Cross-Collection Links:**
+
+  * `admin_user_id` → links to `business_users.linking_id`
+  * `venue_manager_id` → links to `business_users.linking_id`
+  * `work_area_id` → used for operational mapping (e.g., rostering, payroll segmentation)
+
+* **Recommended Indexes:**
+
+  ```js
+  db.business_entities.createIndex({ company_id: 1 }, { unique: true });
+  db.business_entities.createIndex({ "venues.venue_id": 1 });
+  db.business_entities.createIndex({ entity_type: 1 });
+  ```
+
+---
+
+Would you like me to generate the **MongoEngine + Marshmallow model** for this `business_entities` schema next (i.e., `models/business_entity.py`) to maintain parity with your `business_users` structure?

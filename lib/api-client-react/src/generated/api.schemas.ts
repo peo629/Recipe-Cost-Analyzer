@@ -30,6 +30,16 @@ export interface Ingredient {
   recipeUnitCost: number;
   /** @nullable */
   category?: string | null;
+  /**
+   * Stored object key for the ingredient photo (provider-agnostic).
+   * @nullable
+   */
+  imageKey?: string | null;
+  /**
+   * Time-limited URL for fetching the photo. Re-fetch the ingredient when it expires.
+   * @nullable
+   */
+  imageUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -120,6 +130,16 @@ export interface Recipe {
   costSummary: RecipeCostSummary;
   /** @nullable */
   authorName?: string | null;
+  /**
+   * Stored object key for the recipe hero photo (provider-agnostic).
+   * @nullable
+   */
+  imageKey?: string | null;
+  /**
+   * Time-limited URL for fetching the photo. Re-fetch the recipe when it expires.
+   * @nullable
+   */
+  imageUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -135,6 +155,10 @@ export interface RecipeSummary {
   ingredientNames: string[];
   costPerPortion: number;
   recommendedSalePrice: number;
+  /** @nullable */
+  imageKey?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -178,15 +202,28 @@ export interface RecipeStats {
 }
 
 export interface GenerateRecipeIngredient {
+  /** @maxLength 200 */
   name: string;
+  /**
+   * @maximum 100000
+   * @exclusiveMinimum true
+   */
   quantity: number;
+  /** @maxLength 50 */
   unit: string;
 }
 
 export interface GenerateRecipeRequest {
+  /** @maxLength 1000 */
   prompt: string;
+  /**
+   * @minimum 1
+   * @maximum 1000
+   */
   servings: number;
+  /** @maxItems 20 */
   dietaryTags: string[];
+  /** @maxItems 50 */
   ingredients: GenerateRecipeIngredient[];
 }
 
@@ -194,6 +231,141 @@ export interface GenerateRecipeResponse {
   title: string;
   description: string;
   method: MethodBlock[];
+}
+
+export type AuthUserPermissionsItem =
+  (typeof AuthUserPermissionsItem)[keyof typeof AuthUserPermissionsItem];
+
+export const AuthUserPermissionsItem = {
+  admin: "admin",
+  executive: "executive",
+  venue_manager: "venue_manager",
+  supervisor: "supervisor",
+  staff: "staff",
+  viewer: "viewer",
+} as const;
+
+export interface AuthUser {
+  id: string;
+  /** @nullable */
+  email: string | null;
+  /** @nullable */
+  firstName: string | null;
+  /** @nullable */
+  lastName: string | null;
+  /** @nullable */
+  preferredName: string | null;
+  /** @nullable */
+  profileImageUrl: string | null;
+  /**
+   * Internal employee linking id (e.g. EMP-2976-3087-308720).
+   * @nullable
+   */
+  linkingId: string | null;
+  /**
+   * Payroll system identifier (e.g. DV-308720).
+   * @nullable
+   */
+  payrollId: string | null;
+  /** @nullable */
+  companyId: string | null;
+  /** @nullable */
+  companyName: string | null;
+  /** @nullable */
+  venueId: string | null;
+  /** @nullable */
+  venueName: string | null;
+  /** @nullable */
+  workAreaId: string | null;
+  /** @nullable */
+  workAreaName: string | null;
+  /** @nullable */
+  roleId: string | null;
+  /** @nullable */
+  roleName: string | null;
+  permissions: AuthUserPermissionsItem[];
+}
+
+export interface AuthUserEnvelope {
+  user: AuthUser | null;
+}
+
+export interface SignupBody {
+  /**
+   * @minLength 3
+   * @maxLength 320
+   */
+  email: string;
+  /**
+   * Must be at least 12 characters and contain an upper-case letter,
+lower-case letter, digit and special character.
+
+   * @minLength 12
+   * @maxLength 256
+   */
+  password: string;
+  /**
+   * @maxLength 100
+   * @nullable
+   */
+  firstName?: string | null;
+  /**
+   * @maxLength 100
+   * @nullable
+   */
+  lastName?: string | null;
+}
+
+export interface SetPasswordBody {
+  /**
+   * The employee's `linking_id` from the business fixture
+(e.g. `EMP-2976-3087-308720`). Used to locate the user
+row to attach the password to.
+
+   * @minLength 1
+   * @maxLength 128
+   */
+  linkingId: string;
+  /**
+   * Must be at least 12 characters and contain an upper-case letter,
+lower-case letter, digit and special character.
+
+   * @minLength 12
+   * @maxLength 256
+   */
+  password: string;
+}
+
+export interface LoginBody {
+  /**
+   * @minLength 3
+   * @maxLength 320
+   */
+  email: string;
+  /**
+   * @minLength 1
+   * @maxLength 256
+   */
+  password: string;
+}
+
+export interface AuthSuccessResponse {
+  user: AuthUser;
+}
+
+export interface GoogleAuthAvailability {
+  available: boolean;
+}
+
+export const LogoutSuccessValue = {
+  success: true,
+} as const;
+export type LogoutSuccess = typeof LogoutSuccessValue;
+
+export interface ErrorEnvelope {
+  error: string;
+  code?: string;
+  reasons?: string[];
 }
 
 export type ListIngredientsParams = {
@@ -216,4 +388,16 @@ export type ListRecipesParams = {
    * Filter by tag
    */
   tag?: string;
+};
+
+export type BeginGoogleLoginParams = {
+  /**
+   * Relative path to redirect to after sign-in (must start with `/`). Defaults to `/`.
+   */
+  returnTo?: string;
+};
+
+export type HandleGoogleLoginCallbackParams = {
+  code?: string;
+  state?: string;
 };

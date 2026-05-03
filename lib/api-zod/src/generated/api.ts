@@ -47,6 +47,18 @@ export const ListIngredientsResponseItem = zod.object({
     .number()
     .describe("Cost per recipe unit (auto-calculated)"),
   category: zod.string().nullish(),
+  imageKey: zod
+    .string()
+    .nullish()
+    .describe(
+      "Stored object key for the ingredient photo (provider-agnostic).",
+    ),
+  imageUrl: zod
+    .string()
+    .nullish()
+    .describe(
+      "Time-limited URL for fetching the photo. Re-fetch the ingredient when it expires.",
+    ),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -90,6 +102,18 @@ export const GetIngredientResponse = zod.object({
     .number()
     .describe("Cost per recipe unit (auto-calculated)"),
   category: zod.string().nullish(),
+  imageKey: zod
+    .string()
+    .nullish()
+    .describe(
+      "Stored object key for the ingredient photo (provider-agnostic).",
+    ),
+  imageUrl: zod
+    .string()
+    .nullish()
+    .describe(
+      "Time-limited URL for fetching the photo. Re-fetch the ingredient when it expires.",
+    ),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -129,6 +153,18 @@ export const UpdateIngredientResponse = zod.object({
     .number()
     .describe("Cost per recipe unit (auto-calculated)"),
   category: zod.string().nullish(),
+  imageKey: zod
+    .string()
+    .nullish()
+    .describe(
+      "Stored object key for the ingredient photo (provider-agnostic).",
+    ),
+  imageUrl: zod
+    .string()
+    .nullish()
+    .describe(
+      "Time-limited URL for fetching the photo. Re-fetch the ingredient when it expires.",
+    ),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -161,6 +197,8 @@ export const ListRecipesResponseItem = zod.object({
   ingredientNames: zod.array(zod.string()),
   costPerPortion: zod.number(),
   recommendedSalePrice: zod.number(),
+  imageKey: zod.string().nullish(),
+  imageUrl: zod.string().nullish(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -243,6 +281,18 @@ export const GetRecipeResponse = zod.object({
     recommendedSalePrice: zod.number(),
   }),
   authorName: zod.string().nullish(),
+  imageKey: zod
+    .string()
+    .nullish()
+    .describe(
+      "Stored object key for the recipe hero photo (provider-agnostic).",
+    ),
+  imageUrl: zod
+    .string()
+    .nullish()
+    .describe(
+      "Time-limited URL for fetching the photo. Re-fetch the recipe when it expires.",
+    ),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -325,6 +375,18 @@ export const UpdateRecipeResponse = zod.object({
     recommendedSalePrice: zod.number(),
   }),
   authorName: zod.string().nullish(),
+  imageKey: zod
+    .string()
+    .nullish()
+    .describe(
+      "Stored object key for the recipe hero photo (provider-agnostic).",
+    ),
+  imageUrl: zod
+    .string()
+    .nullish()
+    .describe(
+      "Time-limited URL for fetching the photo. Re-fetch the recipe when it expires.",
+    ),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -355,6 +417,8 @@ export const GetRecipeStatsResponse = zod.object({
       ingredientNames: zod.array(zod.string()),
       costPerPortion: zod.number(),
       recommendedSalePrice: zod.number(),
+      imageKey: zod.string().nullish(),
+      imageUrl: zod.string().nullish(),
       createdAt: zod.coerce.date(),
       updatedAt: zod.coerce.date(),
     }),
@@ -365,17 +429,39 @@ export const GetRecipeStatsResponse = zod.object({
  * Given selected ingredients, dietary tags and a prompt, produce a draft recipe (title, description, method).
  * @summary Generate a recipe using AI
  */
+export const generateRecipeBodyPromptMax = 1000;
+
+export const generateRecipeBodyServingsMax = 1000;
+
+export const generateRecipeBodyDietaryTagsItemMax = 50;
+
+export const generateRecipeBodyDietaryTagsMax = 20;
+
+export const generateRecipeBodyIngredientsItemNameMax = 200;
+
+export const generateRecipeBodyIngredientsItemQuantityMax = 100000;
+
+export const generateRecipeBodyIngredientsItemUnitMax = 50;
+
+export const generateRecipeBodyIngredientsMax = 50;
+
 export const GenerateRecipeBody = zod.object({
-  prompt: zod.string(),
-  servings: zod.number(),
-  dietaryTags: zod.array(zod.string()),
-  ingredients: zod.array(
-    zod.object({
-      name: zod.string(),
-      quantity: zod.number(),
-      unit: zod.string(),
-    }),
-  ),
+  prompt: zod.string().max(generateRecipeBodyPromptMax),
+  servings: zod.number().min(1).max(generateRecipeBodyServingsMax),
+  dietaryTags: zod
+    .array(zod.string().max(generateRecipeBodyDietaryTagsItemMax))
+    .max(generateRecipeBodyDietaryTagsMax),
+  ingredients: zod
+    .array(
+      zod.object({
+        name: zod.string().max(generateRecipeBodyIngredientsItemNameMax),
+        quantity: zod
+          .number()
+          .max(generateRecipeBodyIngredientsItemQuantityMax),
+        unit: zod.string().max(generateRecipeBodyIngredientsItemUnitMax),
+      }),
+    )
+    .max(generateRecipeBodyIngredientsMax),
 });
 
 export const GenerateRecipeResponse = zod.object({
@@ -388,4 +474,227 @@ export const GenerateRecipeResponse = zod.object({
       order: zod.number(),
     }),
   ),
+});
+
+/**
+ * @summary Get the currently authenticated user
+ */
+export const GetCurrentAuthUserResponse = zod.object({
+  user: zod.union([
+    zod.object({
+      id: zod.string(),
+      email: zod.string().email().nullable(),
+      firstName: zod.string().nullable(),
+      lastName: zod.string().nullable(),
+      preferredName: zod.string().nullable(),
+      profileImageUrl: zod.string().nullable(),
+      linkingId: zod
+        .string()
+        .nullable()
+        .describe("Internal employee linking id (e.g. EMP-2976-3087-308720)."),
+      payrollId: zod
+        .string()
+        .nullable()
+        .describe("Payroll system identifier (e.g. DV-308720)."),
+      companyId: zod.string().nullable(),
+      companyName: zod.string().nullable(),
+      venueId: zod.string().nullable(),
+      venueName: zod.string().nullable(),
+      workAreaId: zod.string().nullable(),
+      workAreaName: zod.string().nullable(),
+      roleId: zod.string().nullable(),
+      roleName: zod.string().nullable(),
+      permissions: zod.array(
+        zod.enum([
+          "admin",
+          "executive",
+          "venue_manager",
+          "supervisor",
+          "staff",
+          "viewer",
+        ]),
+      ),
+    }),
+    zod.null(),
+  ]),
+});
+
+/**
+ * @summary Create a new credential-backed user
+ */
+export const signupBodyEmailMin = 3;
+export const signupBodyEmailMax = 320;
+
+export const signupBodyPasswordMin = 12;
+export const signupBodyPasswordMax = 256;
+
+export const signupBodyFirstNameMax = 100;
+
+export const signupBodyLastNameMax = 100;
+
+export const SignupBody = zod.object({
+  email: zod.string().email().min(signupBodyEmailMin).max(signupBodyEmailMax),
+  password: zod
+    .string()
+    .min(signupBodyPasswordMin)
+    .max(signupBodyPasswordMax)
+    .describe(
+      "Must be at least 12 characters and contain an upper-case letter,\nlower-case letter, digit and special character.\n",
+    ),
+  firstName: zod.string().max(signupBodyFirstNameMax).nullish(),
+  lastName: zod.string().max(signupBodyLastNameMax).nullish(),
+});
+
+/**
+ * @summary Sign in with email and password
+ */
+export const loginBodyEmailMin = 3;
+export const loginBodyEmailMax = 320;
+
+export const loginBodyPasswordMax = 256;
+
+export const LoginBody = zod.object({
+  email: zod.string().email().min(loginBodyEmailMin).max(loginBodyEmailMax),
+  password: zod.string().min(1).max(loginBodyPasswordMax),
+});
+
+export const LoginResponse = zod.object({
+  user: zod.object({
+    id: zod.string(),
+    email: zod.string().email().nullable(),
+    firstName: zod.string().nullable(),
+    lastName: zod.string().nullable(),
+    preferredName: zod.string().nullable(),
+    profileImageUrl: zod.string().nullable(),
+    linkingId: zod
+      .string()
+      .nullable()
+      .describe("Internal employee linking id (e.g. EMP-2976-3087-308720)."),
+    payrollId: zod
+      .string()
+      .nullable()
+      .describe("Payroll system identifier (e.g. DV-308720)."),
+    companyId: zod.string().nullable(),
+    companyName: zod.string().nullable(),
+    venueId: zod.string().nullable(),
+    venueName: zod.string().nullable(),
+    workAreaId: zod.string().nullable(),
+    workAreaName: zod.string().nullable(),
+    roleId: zod.string().nullable(),
+    roleName: zod.string().nullable(),
+    permissions: zod.array(
+      zod.enum([
+        "admin",
+        "executive",
+        "venue_manager",
+        "supervisor",
+        "staff",
+        "viewer",
+      ]),
+    ),
+  }),
+});
+
+/**
+ * First-login / invite flow for users that were created from the
+business fixture (e.g. payroll import) and have no password
+yet. Looks up the user by `linkingId` and sets `passwordHash`
+if-and-only-if the row currently has no password set. Refuses
+to overwrite an existing password (use a separate password
+reset flow for that). On success a session cookie is issued so
+the user is logged in immediately.
+
+ * @summary Set the initial password for an invited employee
+ */
+export const setPasswordBodyLinkingIdMax = 128;
+
+export const setPasswordBodyPasswordMin = 12;
+export const setPasswordBodyPasswordMax = 256;
+
+export const SetPasswordBody = zod.object({
+  linkingId: zod
+    .string()
+    .min(1)
+    .max(setPasswordBodyLinkingIdMax)
+    .describe(
+      "The employee's `linking_id` from the business fixture\n(e.g. `EMP-2976-3087-308720`). Used to locate the user\nrow to attach the password to.\n",
+    ),
+  password: zod
+    .string()
+    .min(setPasswordBodyPasswordMin)
+    .max(setPasswordBodyPasswordMax)
+    .describe(
+      "Must be at least 12 characters and contain an upper-case letter,\nlower-case letter, digit and special character.\n",
+    ),
+});
+
+export const SetPasswordResponse = zod.object({
+  user: zod.object({
+    id: zod.string(),
+    email: zod.string().email().nullable(),
+    firstName: zod.string().nullable(),
+    lastName: zod.string().nullable(),
+    preferredName: zod.string().nullable(),
+    profileImageUrl: zod.string().nullable(),
+    linkingId: zod
+      .string()
+      .nullable()
+      .describe("Internal employee linking id (e.g. EMP-2976-3087-308720)."),
+    payrollId: zod
+      .string()
+      .nullable()
+      .describe("Payroll system identifier (e.g. DV-308720)."),
+    companyId: zod.string().nullable(),
+    companyName: zod.string().nullable(),
+    venueId: zod.string().nullable(),
+    venueName: zod.string().nullable(),
+    workAreaId: zod.string().nullable(),
+    workAreaName: zod.string().nullable(),
+    roleId: zod.string().nullable(),
+    roleName: zod.string().nullable(),
+    permissions: zod.array(
+      zod.enum([
+        "admin",
+        "executive",
+        "venue_manager",
+        "supervisor",
+        "staff",
+        "viewer",
+      ]),
+    ),
+  }),
+});
+
+/**
+ * @summary Sign out and clear the session cookie
+ */
+export const LogoutResponse = zod.object({
+  success: zod.boolean(),
+});
+
+/**
+ * @summary Begin the Google OIDC sign-in flow
+ */
+export const BeginGoogleLoginQueryParams = zod.object({
+  returnTo: zod.coerce
+    .string()
+    .optional()
+    .describe(
+      "Relative path to redirect to after sign-in (must start with `\/`). Defaults to `\/`.",
+    ),
+});
+
+/**
+ * @summary Complete the Google OIDC sign-in flow
+ */
+export const HandleGoogleLoginCallbackQueryParams = zod.object({
+  code: zod.coerce.string().optional(),
+  state: zod.coerce.string().optional(),
+});
+
+/**
+ * @summary Returns whether Google sign-in is enabled on this server
+ */
+export const GetGoogleAuthAvailabilityResponse = zod.object({
+  available: zod.boolean(),
 });

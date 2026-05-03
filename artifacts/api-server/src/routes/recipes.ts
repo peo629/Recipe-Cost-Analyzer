@@ -11,6 +11,7 @@ import {
 } from "@workspace/api-zod";
 import { eq } from "drizzle-orm";
 import { calcRecipeUnitCost } from "./ingredients";
+import { resolveImageUrl } from "./storage";
 
 const router: IRouter = Router();
 
@@ -26,7 +27,9 @@ interface MethodBlockInput {
   order: number;
 }
 
-async function buildRecipeIngredients(ingredientInputs: StoredIngredientInput[]) {
+async function buildRecipeIngredients(
+  ingredientInputs: StoredIngredientInput[],
+) {
   if (ingredientInputs.length === 0) return [];
 
   const ids = ingredientInputs.map((i) => i.ingredientId);
@@ -83,12 +86,19 @@ function calcCostSummary(
   wastagePercent: number,
   foodCostPercent: number,
 ) {
-  const totalIngredientCost = recipeIngredients.reduce((sum, i) => sum + i.lineCost, 0);
+  const totalIngredientCost = recipeIngredients.reduce(
+    (sum, i) => sum + i.lineCost,
+    0,
+  );
   const costPerPortion = servings > 0 ? totalIngredientCost / servings : 0;
   const wastageCost = totalIngredientCost * (wastagePercent / 100);
   const totalCostWithWastage = totalIngredientCost + wastageCost;
-  const costPerPortionWithWastage = servings > 0 ? totalCostWithWastage / servings : 0;
-  const recommendedSalePrice = foodCostPercent > 0 ? costPerPortionWithWastage / (foodCostPercent / 100) : 0;
+  const costPerPortionWithWastage =
+    servings > 0 ? totalCostWithWastage / servings : 0;
+  const recommendedSalePrice =
+    foodCostPercent > 0
+      ? costPerPortionWithWastage / (foodCostPercent / 100)
+      : 0;
 
   return {
     totalIngredientCost,
@@ -126,12 +136,14 @@ async function formatRecipe(row: typeof recipesTable.$inferSelect) {
     ingredients: recipeIngredients,
     costSummary,
     authorName: row.authorName ?? null,
+    imageKey: row.imageKey ?? null,
+    imageUrl: await resolveImageUrl(row.imageKey),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
 }
 
-function formatRecipeSummary(
+async function formatRecipeSummary(
   row: typeof recipesTable.$inferSelect,
   costPerPortion: number,
   recommendedSalePrice: number,
@@ -147,22 +159,37 @@ function formatRecipeSummary(
     ingredientNames,
     costPerPortion,
     recommendedSalePrice,
+    imageKey: row.imageKey ?? null,
+    imageUrl: await resolveImageUrl(row.imageKey),
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
   };
 }
 
 router.get("/recipes/stats/summary", async (req, res): Promise<void> => {
-  const [recipeCount] = await db.select({ count: sql<number>`count(*)::int` }).from(recipesTable);
-  const [ingredientCount] = await db.select({ count: sql<number>`count(*)::int` }).from(ingredientsTable);
+  const [recipeCount] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(recipesTable);
+  const [ingredientCount] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(ingredientsTable);
 
-  const recentRows = await db.select().from(recipesTable).orderBy(desc(recipesTable.createdAt)).limit(5);
+  const recentRows = await db
+    .select()
+    .from(recipesTable)
+    .orderBy(desc(recipesTable.createdAt))
+    .limit(5);
 
   const recentRecipes = await Promise.all(
     recentRows.map(async (row) => {
       const ingInputs = (row.ingredients as StoredIngredientInput[]) ?? [];
       const recipeIngs = await buildRecipeIngredients(ingInputs);
-      const costSummary = calcCostSummary(recipeIngs, row.servings, row.wastagePercent, row.foodCostPercent);
+      const costSummary = calcCostSummary(
+        recipeIngs,
+        row.servings,
+        row.wastagePercent,
+        row.foodCostPercent,
+      );
       return formatRecipeSummary(
         row,
         costSummary.costPerPortion,
@@ -172,12 +199,16 @@ router.get("/recipes/stats/summary", async (req, res): Promise<void> => {
     }),
   );
 
-  const avgCostPerPortion = recentRecipes.length > 0
-    ? recentRecipes.reduce((s, r) => s + r.costPerPortion, 0) / recentRecipes.length
-    : 0;
-  const avgRecommendedSalePrice = recentRecipes.length > 0
-    ? recentRecipes.reduce((s, r) => s + r.recommendedSalePrice, 0) / recentRecipes.length
-    : 0;
+  const avgCostPerPortion =
+    recentRecipes.length > 0
+      ? recentRecipes.reduce((s, r) => s + r.costPerPortion, 0) /
+        recentRecipes.length
+      : 0;
+  const avgRecommendedSalePrice =
+    recentRecipes.length > 0
+      ? recentRecipes.reduce((s, r) => s + r.recommendedSalePrice, 0) /
+        recentRecipes.length
+      : 0;
 
   res.json({
     totalRecipes: recipeCount?.count ?? 0,
@@ -200,10 +231,12 @@ router.get("/recipes", async (req, res): Promise<void> => {
     rows = await db
       .select()
       .from(recipesTable)
-      .where(or(
-        ilike(recipesTable.title, `%${query.data.search}%`),
-        ilike(recipesTable.description, `%${query.data.search}%`),
-      ))
+      .where(
+        or(
+          ilike(recipesTable.title, `%${query.data.search}%`),
+          ilike(recipesTable.description, `%${query.data.search}%`),
+        ),
+      )
       .orderBy(desc(recipesTable.updatedAt));
   } else if (query.data.tag) {
     const tag = query.data.tag;
@@ -213,14 +246,22 @@ router.get("/recipes", async (req, res): Promise<void> => {
       .where(sql`${recipesTable.tags} @> ARRAY[${tag}]::text[]`)
       .orderBy(desc(recipesTable.updatedAt));
   } else {
-    rows = await db.select().from(recipesTable).orderBy(desc(recipesTable.updatedAt));
+    rows = await db
+      .select()
+      .from(recipesTable)
+      .orderBy(desc(recipesTable.updatedAt));
   }
 
   const summaries = await Promise.all(
     rows.map(async (row) => {
       const ingInputs = (row.ingredients as StoredIngredientInput[]) ?? [];
       const recipeIngs = await buildRecipeIngredients(ingInputs);
-      const costSummary = calcCostSummary(recipeIngs, row.servings, row.wastagePercent, row.foodCostPercent);
+      const costSummary = calcCostSummary(
+        recipeIngs,
+        row.servings,
+        row.wastagePercent,
+        row.foodCostPercent,
+      );
       return formatRecipeSummary(
         row,
         costSummary.costPerPortion,
@@ -296,15 +337,23 @@ router.patch("/recipes/:id", async (req, res): Promise<void> => {
 
   const updateData: Partial<typeof recipesTable.$inferInsert> = {};
   if (parsed.data.title !== undefined) updateData.title = parsed.data.title;
-  if (parsed.data.description !== undefined) updateData.description = parsed.data.description ?? null;
-  if (parsed.data.servings !== undefined) updateData.servings = parsed.data.servings;
-  if (parsed.data.wastagePercent !== undefined) updateData.wastagePercent = parsed.data.wastagePercent;
-  if (parsed.data.foodCostPercent !== undefined) updateData.foodCostPercent = parsed.data.foodCostPercent;
+  if (parsed.data.description !== undefined)
+    updateData.description = parsed.data.description ?? null;
+  if (parsed.data.servings !== undefined)
+    updateData.servings = parsed.data.servings;
+  if (parsed.data.wastagePercent !== undefined)
+    updateData.wastagePercent = parsed.data.wastagePercent;
+  if (parsed.data.foodCostPercent !== undefined)
+    updateData.foodCostPercent = parsed.data.foodCostPercent;
   if (parsed.data.tags !== undefined) updateData.tags = parsed.data.tags;
-  if (parsed.data.allergens !== undefined) updateData.allergens = parsed.data.allergens;
-  if (parsed.data.method !== undefined) updateData.method = parsed.data.method as MethodBlockInput[];
-  if (parsed.data.ingredients !== undefined) updateData.ingredients = parsed.data.ingredients as StoredIngredientInput[];
-  if (parsed.data.authorName !== undefined) updateData.authorName = parsed.data.authorName ?? null;
+  if (parsed.data.allergens !== undefined)
+    updateData.allergens = parsed.data.allergens;
+  if (parsed.data.method !== undefined)
+    updateData.method = parsed.data.method as MethodBlockInput[];
+  if (parsed.data.ingredients !== undefined)
+    updateData.ingredients = parsed.data.ingredients as StoredIngredientInput[];
+  if (parsed.data.authorName !== undefined)
+    updateData.authorName = parsed.data.authorName ?? null;
 
   const [row] = await db
     .update(recipesTable)

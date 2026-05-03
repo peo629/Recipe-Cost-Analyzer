@@ -1,0 +1,27 @@
+# Shared Nixpacks build environment for all Railway services in this
+# monorepo. Each service overrides build/start commands via its own
+# railway.<service>.json file (set via Railway "Config File Path").
+#
+# We pin to Node 24 (matches local dev: `node -v` -> v24.x) and pnpm 10
+# (matches `package.json#packageManager` and the lockfile version).
+
+[phases.setup]
+# Use Corepack to install the exact pnpm version pinned by the workspace
+# (root pnpm-lock.yaml). This avoids drift between local dev (pnpm 10.x)
+# and the Railway builder.
+nixPkgs = ["nodejs_24"]
+
+[phases.install]
+cmds = [
+  "corepack enable",
+  "corepack prepare pnpm@10.26.1 --activate",
+  "pnpm install --frozen-lockfile=false",
+]
+
+[phases.build]
+# Per-service build command is supplied via railway.<service>.json.
+cmds = ["echo 'No default build — service railway.json must override.'"]
+
+[start]
+# Per-service start command is supplied via railway.<service>.json.
+cmd = "echo 'No default start — service railway.json must override.' && exit 1"

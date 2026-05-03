@@ -42,6 +42,7 @@ An advanced multi-agent AI system powered by OpenAI with specialized personas:
 - **Tool Calling**: Integration with business systems for agentic workflows
 
 **Key Endpoints:**
+
 ```
 POST /api/v1/maestro/chat       - Main chat interface
 GET  /api/v1/personas/list      - Available personas
@@ -61,6 +62,7 @@ Comprehensive recipe database with professional features:
 - **Dietary Tags**: Support for dietary restrictions and preferences
 
 **Models:**
+
 - Recipe: Instructions, cooking time, yield percentage, cost data, allergen/dietary tags
 - Ingredient: Name, supplier, purchase/recipe units, pricing, conversion ratios
 
@@ -77,6 +79,7 @@ Complete HR and payroll solution for hospitality businesses:
 - **Payslip Generation**: Automated payslip creation and management
 
 **Features:**
+
 - Tax-free threshold configuration
 - Award rates and Fair Work compliance
 - Multiple payment rate types per employee
@@ -92,6 +95,7 @@ Multi-venue business structure support:
 - **Employee Rosters**: Staff scheduling and shift management
 
 **Entity Types:**
+
 - Multi-venue organizations
 - Multi-outlet businesses
 - Single-venue operations
@@ -107,6 +111,7 @@ Advanced search capabilities for procurement:
 - **Category Browsing**: Organized product taxonomy
 
 **Endpoints:**
+
 ```
 GET /api/v1/product-search/search       - Product search
 GET /api/v1/product-search/suppliers    - Supplier lookup
@@ -124,6 +129,7 @@ Comprehensive allergen tracking and compliance:
 - **Compliance Documentation**: Emergency contacts and medical notes
 
 **Model Structure:**
+
 - Ingredient-based allergen tracking
 - Symptom-based classifications
 - Emergency action procedures
@@ -133,6 +139,7 @@ Comprehensive allergen tracking and compliance:
 Extensive knowledge base for hospitality operations:
 
 **Kitchen Resources:**
+
 - Butchery guides (beef, lamb, pork, game)
 - Seasonal produce guides (spring, summer, autumn, winter)
 - Prep sheets and inventory management templates
@@ -140,24 +147,28 @@ Extensive knowledge base for hospitality operations:
 - Incident reporting forms
 
 **Restaurant Resources:**
+
 - Spirits guides (whiskey, bourbon, gin, rum, tequila)
 - Wine guides (red, white, sparkling, fortified, dessert)
 - Beer and aperitif information
 - Cocktail guides
 
 **Employment Resources:**
+
 - Fair Work compliance documentation
 - Award rates and entitlements
 - Leave management guidelines
 - Payroll procedures
 
 **Compliance Resources:**
+
 - First Aid requirements
 - Food safety standards
 - Occupational Health & Safety (OHS)
 - Responsible Service of Alcohol (RSA)
 
 **Supplier Resources:**
+
 - Local suppliers directory
 - Sustainable sourcing guides
 - Kitchen and restaurant equipment suppliers
@@ -172,6 +183,7 @@ Event tracking and scheduling system:
 - **Full CRUD Operations**: Create, read, update, delete events
 
 **Endpoints:**
+
 ```
 GET    /api/v1/calendar/events        - List events
 POST   /api/v1/calendar/events        - Create event
@@ -200,6 +212,7 @@ Robust authentication system with multiple options:
 - **Secure Sessions**: Cookie-based with HTTPS-only in production
 
 **Endpoints:**
+
 ```
 POST /auth/login                - Local authentication
 POST /auth/login/google         - OAuth token exchange
@@ -265,28 +278,33 @@ GET  /auth/logout               - Session termination
 ### Setup Steps
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd MyLocalFoodie
    ```
 
 2. **Create virtual environment**
+
    ```bash
    python -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
 3. **Install Python dependencies**
+
    ```bash
    pip install -r requirements.txt
    ```
 
 4. **Install Node.js dependencies**
+
    ```bash
    npm install
    ```
 
 5. **Configure environment variables**
+
    ```bash
    cp .env.example .env
    # Edit .env with your configuration
@@ -303,16 +321,19 @@ GET  /auth/logout               - Session termination
    - `JWT_SECRET_KEY`: JWT signing key
 
 6. **Build Tailwind CSS**
+
    ```bash
    npm run build:css
    ```
 
 7. **Initialize database**
+
    ```bash
    python -m app.scripts.init_db
    ```
 
 8. **Run the application**
+
    ```bash
    # Development
    flask run
@@ -397,6 +418,7 @@ Le Repertoire uses an advanced auto-discovery pattern for maximum modularity:
 **Personas Registry**: Discovers chatbot personas from YAML/Markdown files.
 
 **Benefits:**
+
 - No manual blueprint registration required
 - Scalable, plugin-like architecture
 - Easy to add new features without modifying core code
@@ -411,6 +433,7 @@ Le Repertoire uses an advanced auto-discovery pattern for maximum modularity:
 **NoSQL Injection Prevention**: Input sanitization on MongoDB queries
 
 **Security Headers**:
+
 - X-Content-Type-Options: nosniff
 - X-Frame-Options: DENY
 - Strict-Transport-Security (HSTS)
@@ -432,81 +455,81 @@ Le Repertoire uses an advanced auto-discovery pattern for maximum modularity:
 
 ### Authentication Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/auth/` | Login page |
-| POST | `/auth/login` | Local authentication |
-| POST | `/auth/login/google` | Google OAuth token exchange |
-| GET | `/auth/google-config` | OAuth configuration |
-| GET | `/auth/dashboard` | Post-login dashboard |
-| GET | `/auth/logout` | Logout and session termination |
-| POST | `/auth/token/refresh` | JWT token refresh |
+| Method | Endpoint              | Description                    |
+| ------ | --------------------- | ------------------------------ |
+| GET    | `/auth/`              | Login page                     |
+| POST   | `/auth/login`         | Local authentication           |
+| POST   | `/auth/login/google`  | Google OAuth token exchange    |
+| GET    | `/auth/google-config` | OAuth configuration            |
+| GET    | `/auth/dashboard`     | Post-login dashboard           |
+| GET    | `/auth/logout`        | Logout and session termination |
+| POST   | `/auth/token/refresh` | JWT token refresh              |
 
 ### Maestro Chatbot Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/maestro/health` | Health check |
-| POST | `/api/v1/maestro/chat` | Main chat endpoint (JSON) |
-| POST | `/api/v1/maestro/respond` | Compatibility endpoint |
-| GET | `/api/v1/personas/list` | List available personas |
-| GET | `/api/v1/personas/<id>` | Get persona details |
+| Method | Endpoint                  | Description               |
+| ------ | ------------------------- | ------------------------- |
+| GET    | `/api/v1/maestro/health`  | Health check              |
+| POST   | `/api/v1/maestro/chat`    | Main chat endpoint (JSON) |
+| POST   | `/api/v1/maestro/respond` | Compatibility endpoint    |
+| GET    | `/api/v1/personas/list`   | List available personas   |
+| GET    | `/api/v1/personas/<id>`   | Get persona details       |
 
 ### Recipe Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/recipes/search/global` | Search global recipes |
-| GET | `/api/v1/recipes/search/mine` | Search user's recipes |
-| GET | `/api/v1/recipes/search/venue` | Search venue-specific recipes |
-| GET | `/recipes/<recipe_id>` | Get recipe details |
+| Method | Endpoint                        | Description                   |
+| ------ | ------------------------------- | ----------------------------- |
+| GET    | `/api/v1/recipes/search/global` | Search global recipes         |
+| GET    | `/api/v1/recipes/search/mine`   | Search user's recipes         |
+| GET    | `/api/v1/recipes/search/venue`  | Search venue-specific recipes |
+| GET    | `/recipes/<recipe_id>`          | Get recipe details            |
 
 ### Product Search Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/product-search/search` | Search products |
-| GET | `/api/v1/product-search/suppliers/search` | Search suppliers |
-| GET | `/api/v1/product-search/categories` | Browse categories |
-| GET | `/api/v1/product-search/bulk` | Batch product details |
+| Method | Endpoint                                  | Description           |
+| ------ | ----------------------------------------- | --------------------- |
+| GET    | `/api/v1/product-search/search`           | Search products       |
+| GET    | `/api/v1/product-search/suppliers/search` | Search suppliers      |
+| GET    | `/api/v1/product-search/categories`       | Browse categories     |
+| GET    | `/api/v1/product-search/bulk`             | Batch product details |
 
 ### Allergen Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/allergen-search/search` | Search allergens with filters |
+| Method | Endpoint                         | Description                   |
+| ------ | -------------------------------- | ----------------------------- |
+| GET    | `/api/v1/allergen-search/search` | Search allergens with filters |
 
 ### Tags Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/tags_search/suggest` | Tag auto-complete suggestions |
+| Method | Endpoint                      | Description                   |
+| ------ | ----------------------------- | ----------------------------- |
+| GET    | `/api/v1/tags_search/suggest` | Tag auto-complete suggestions |
 
 ### Calendar Endpoints
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/v1/calendar/events` | List events |
-| POST | `/api/v1/calendar/events` | Create event |
-| GET | `/api/v1/calendar/events/<id>` | Get event details |
-| PUT | `/api/v1/calendar/events/<id>` | Update event |
-| DELETE | `/api/v1/calendar/events/<id>` | Delete event |
+| Method | Endpoint                       | Description       |
+| ------ | ------------------------------ | ----------------- |
+| GET    | `/api/v1/calendar/events`      | List events       |
+| POST   | `/api/v1/calendar/events`      | Create event      |
+| GET    | `/api/v1/calendar/events/<id>` | Get event details |
+| PUT    | `/api/v1/calendar/events/<id>` | Update event      |
+| DELETE | `/api/v1/calendar/events/<id>` | Delete event      |
 
 ### Web Navigation Routes
 
-| Route | Description |
-|-------|-------------|
-| `/home` | Main dashboard |
-| `/menu-development` | Menu development tools |
-| `/recipes` | Recipe management |
-| `/rosters` | Staff rosters |
-| `/ordering` | Ordering system |
-| `/reporting` | Reports and analytics |
-| `/staff` | Staff management |
-| `/resources` | Resources and compliance center |
-| `/settings/profile` | User profile settings |
-| `/settings/preferences` | User preferences |
-| `/settings/security` | Security settings |
+| Route                   | Description                     |
+| ----------------------- | ------------------------------- |
+| `/home`                 | Main dashboard                  |
+| `/menu-development`     | Menu development tools          |
+| `/recipes`              | Recipe management               |
+| `/rosters`              | Staff rosters                   |
+| `/ordering`             | Ordering system                 |
+| `/reporting`            | Reports and analytics           |
+| `/staff`                | Staff management                |
+| `/resources`            | Resources and compliance center |
+| `/settings/profile`     | User profile settings           |
+| `/settings/preferences` | User preferences                |
+| `/settings/security`    | Security settings               |
 
 ## Use Cases
 
@@ -521,6 +544,7 @@ Le Repertoire uses an advanced auto-discovery pattern for maximum modularity:
 ### Common Workflows
 
 **Recipe Development & Costing:**
+
 1. Create recipe with ingredients and instructions
 2. Calculate recipe cost with yield percentages
 3. Tag allergens and dietary information
@@ -528,6 +552,7 @@ Le Repertoire uses an advanced auto-discovery pattern for maximum modularity:
 5. Use in menu planning and forecasting
 
 **Employee Onboarding:**
+
 1. Create employee record with personal details
 2. Assign work area and employment role
 3. Configure pay rate and tax settings
@@ -535,6 +560,7 @@ Le Repertoire uses an advanced auto-discovery pattern for maximum modularity:
 5. Generate initial payroll records
 
 **Menu Planning:**
+
 1. Browse recipes from global, personal, or venue collections
 2. Analyze recipe costs and profitability
 3. Create menu with drag-and-drop interface
@@ -542,6 +568,7 @@ Le Repertoire uses an advanced auto-discovery pattern for maximum modularity:
 5. Forecast menu performance
 
 **AI-Assisted Operations:**
+
 1. Select appropriate Maestro persona (Chef, Manager, HR, etc.)
 2. Ask questions or request assistance
 3. Upload relevant documents (PDFs, images)
@@ -549,6 +576,7 @@ Le Repertoire uses an advanced auto-discovery pattern for maximum modularity:
 5. Get actionable recommendations
 
 **Compliance Management:**
+
 1. Access resource center for regulatory information
 2. Review food safety standards
 3. Check employment law requirements
@@ -556,6 +584,7 @@ Le Repertoire uses an advanced auto-discovery pattern for maximum modularity:
 5. Track compliance events in calendar
 
 **Payroll Processing:**
+
 1. Review employee time records
 2. Calculate pay with tax deductions
 3. Generate payslips
@@ -564,16 +593,16 @@ Le Repertoire uses an advanced auto-discovery pattern for maximum modularity:
 
 ## Security Features
 
-| Feature | Implementation | Details |
-|---------|----------------|---------|
-| **CSRF Protection** | Flask-WTF | Token-based, session-based, HTTPS in production |
-| **Content Security Policy** | Custom middleware | Nonce injection for inline scripts, per-request generation |
-| **Password Security** | bcrypt | 12+ char requirement, salted hashing, secure defaults |
-| **NoSQL Injection Prevention** | Input sanitization | Query parameter escaping, MongoDB-specific filters |
-| **Session Management** | JWT + Cookie | Secure cookies, HTTPS-only in production, token refresh |
-| **Security Headers** | Custom middleware | X-Frame, X-Content-Type, HSTS, Referrer-Policy |
-| **OAuth Integration** | google-auth library | Token validation, secure redirect handling, PKCE support |
-| **Input Validation** | WTForms | Form validation, type checking, sanitization |
+| Feature                        | Implementation      | Details                                                    |
+| ------------------------------ | ------------------- | ---------------------------------------------------------- |
+| **CSRF Protection**            | Flask-WTF           | Token-based, session-based, HTTPS in production            |
+| **Content Security Policy**    | Custom middleware   | Nonce injection for inline scripts, per-request generation |
+| **Password Security**          | bcrypt              | 12+ char requirement, salted hashing, secure defaults      |
+| **NoSQL Injection Prevention** | Input sanitization  | Query parameter escaping, MongoDB-specific filters         |
+| **Session Management**         | JWT + Cookie        | Secure cookies, HTTPS-only in production, token refresh    |
+| **Security Headers**           | Custom middleware   | X-Frame, X-Content-Type, HSTS, Referrer-Policy             |
+| **OAuth Integration**          | google-auth library | Token validation, secure redirect handling, PKCE support   |
+| **Input Validation**           | WTForms             | Form validation, type checking, sanitization               |
 
 ## Configuration
 
@@ -587,39 +616,44 @@ Le Repertoire supports multiple environments with separate configurations:
 
 ### Configuration Files
 
-| File | Purpose |
-|------|---------|
-| `.env` | Environment variables (not in repo) |
-| `app/config/base_config.py` | Base configuration class |
-| `app/config/auth/google_oauth_config.py` | Google OAuth settings |
-| `app/config/mongo/mongoDB_config.py` | MongoDB connection |
-| `app/config/redis_langcache/redis_langcache_config.py` | Redis & LangCache |
-| `app/config/payroll/` | Tax configurations (VIC, NSW, etc.) |
+| File                                                   | Purpose                             |
+| ------------------------------------------------------ | ----------------------------------- |
+| `.env`                                                 | Environment variables (not in repo) |
+| `app/config/base_config.py`                            | Base configuration class            |
+| `app/config/auth/google_oauth_config.py`               | Google OAuth settings               |
+| `app/config/mongo/mongoDB_config.py`                   | MongoDB connection                  |
+| `app/config/redis_langcache/redis_langcache_config.py` | Redis & LangCache                   |
+| `app/config/payroll/`                                  | Tax configurations (VIC, NSW, etc.) |
 
 ### Key Configuration Options
 
 **Flask Settings:**
+
 - `SECRET_KEY`: Session encryption key
 - `WTF_CSRF_ENABLED`: CSRF protection toggle
 - `SESSION_COOKIE_SECURE`: HTTPS-only cookies
 - `MAX_CONTENT_LENGTH`: File upload size limit
 
 **MongoDB Settings:**
+
 - `MONGODB_URI`: Connection string with authentication
 - `MONGODB_DB`: Database name
 - `MONGODB_CONNECT`: Connection pooling settings
 
 **Redis Settings:**
+
 - `REDIS_URL`: Redis connection URL
 - `CACHE_TYPE`: Cache backend type
 - `CACHE_DEFAULT_TIMEOUT`: Default cache TTL
 
 **OpenAI Settings:**
+
 - `OPENAI_API_KEY`: API authentication key
 - `OPENAI_MODEL`: Default model (gpt-4, gpt-3.5-turbo)
 - `OPENAI_TEMPERATURE`: Response randomness (0-2)
 
 **Google OAuth Settings:**
+
 - `GOOGLE_OAUTH_CLIENT_ID`: OAuth client ID
 - `GOOGLE_OAUTH_CLIENT_SECRET`: OAuth client secret
 - `GOOGLE_OAUTH_REDIRECT_URI`: Callback URL
@@ -710,18 +744,18 @@ python rag_ingest/ingest_pdfs.py --file ./pdfs/document.pdf
 
 ## Database Collections
 
-| Collection | Purpose | Key Indexes |
-|------------|---------|-------------|
-| `business_entities` | Company and venue records | entity_id, entity_type |
-| `employees` | Employee master records | payroll_id, linking_id |
-| `recipes` | Recipe database | recipe_id, name, created_by |
-| `ingredients` | Ingredient master list | ingredient_id, name |
-| `products_list` | Product catalog | name, SUPPLIER, category |
-| `allergens` | Allergen database | ingredient (unique) |
-| `tags` | Tag system | name (text index), type |
-| `events` | Calendar events | event_date, category, venue_id |
-| `chat_sessions` | Chatbot conversations | session_id, user_id |
-| `payslips` | Payroll records | payroll_id, period_start |
+| Collection          | Purpose                   | Key Indexes                    |
+| ------------------- | ------------------------- | ------------------------------ |
+| `business_entities` | Company and venue records | entity_id, entity_type         |
+| `employees`         | Employee master records   | payroll_id, linking_id         |
+| `recipes`           | Recipe database           | recipe_id, name, created_by    |
+| `ingredients`       | Ingredient master list    | ingredient_id, name            |
+| `products_list`     | Product catalog           | name, SUPPLIER, category       |
+| `allergens`         | Allergen database         | ingredient (unique)            |
+| `tags`              | Tag system                | name (text index), type        |
+| `events`            | Calendar events           | event_date, category, venue_id |
+| `chat_sessions`     | Chatbot conversations     | session_id, user_id            |
+| `payslips`          | Payroll records           | payroll_id, period_start       |
 
 ## Performance Optimization
 
@@ -733,8 +767,6 @@ python rag_ingest/ingest_pdfs.py --file ./pdfs/document.pdf
 - **CDN Integration**: BunnyCDN for static asset delivery
 - **Lazy Loading**: Dynamic imports for feature modules
 - **Query Optimization**: MongoEngine query optimization with select_related
-
-
 
 ## Contributing
 
