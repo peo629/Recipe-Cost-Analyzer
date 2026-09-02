@@ -1,4 +1,11 @@
-import { pgTable, text, serial, timestamp, doublePrecision } from "drizzle-orm/pg-core";
+import {
+  pgTable,
+  text,
+  serial,
+  timestamp,
+  doublePrecision,
+  jsonb,
+} from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -11,15 +18,28 @@ export const ingredientsTable = pgTable("ingredients", {
   purchaseCost: doublePrecision("purchase_cost").notNull(),
   recipeUnit: text("recipe_unit").notNull(),
   category: text("category"),
-  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
+  imageKey: text("image_key"),
+  // Cached embedding vector (provider-agnostic; stored as a JSON number[]).
+  // `embeddingModel` records which provider+model produced it so we can
+  // detect stale vectors after switching `EMBEDDING_PROVIDER`.
+  embedding: jsonb("embedding").$type<number[] | null>(),
+  embeddingModel: text("embedding_model"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
 });
 
-export const insertIngredientSchema = createInsertSchema(ingredientsTable).omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
-});
+export const insertIngredientSchema = createInsertSchema(ingredientsTable).omit(
+  {
+    id: true,
+    createdAt: true,
+    updatedAt: true,
+  },
+);
 
 export type InsertIngredient = z.infer<typeof insertIngredientSchema>;
 export type Ingredient = typeof ingredientsTable.$inferSelect;

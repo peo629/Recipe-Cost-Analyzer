@@ -1,0 +1,403 @@
+/*
+  MongoDB Schema Validation
+  ========================
+  Database: lerepertoire
+  Collection: allergens
+  
+  Connection String:
+  mongodb+srv://MenuDev:O97iKcoDWuQeUMya@menudev.m5ehsth.mongodb.net/
+  
+  Description:
+  This schema defines the structure and validation rules for the allergens collection.
+  It enforces data types, required fields, and value constraints for allergens
+  used in the 'allergen search' application
+  
+  Key Features:
+  - Multi-category support (allergens can have multiple categories)
+  - Severity Matrix
+  - Comprehensive symptom descriptions
+  - emergency action plans based on severity matrix
+  - Semantic search embedding support
+  - additional Allergen information
+  
+  Usage:
+  Apply this schema validation when creating or updating the allergens collection
+  in the lerepertoire database.
+*/
+
+/*
+  MongoDB Schema Validation
+  ========================
+  Database: lerepertoire
+  Collection: allergens
+  
+  Connection String:
+  mongodb+srv://MenuDev:O97iKcoDWuQeUMya@menudev.m5ehsth.mongodb.net/
+  
+  Description:
+  This schema defines the structure and validation rules for the allergens collection.
+  It enforces data types, required fields, and value constraints for allergens
+  used in the 'allergen search' application
+  
+  Key Features:
+  - Multi-category support (allergens can have multiple categories)
+  - Severity Matrix
+  - Comprehensive symptom descriptions
+  - emergency action plans based on severity matrix
+  - Semantic search embedding support
+  - additional Allergen information
+  
+  Usage:
+  Apply this schema validation when creating or updating the allergens collection
+  in the lerepertoire database.
+*/
+
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "ingredient",
+      "reactionType",
+      "severity",
+      "symptoms",
+      "severityMatrix",
+      "additionalInformation",
+      "createdAt",
+      "updatedAt",
+      "img_url"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "objectId",
+        "description": "Unique identifier for the allergen"
+      },
+      "ingredient": {
+        "bsonType": "string",
+        "description": "Name of the allergenic ingredient",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "reactionType": {
+        "bsonType": "string",
+        "description": "Type of allergic reaction",
+        "enum": [
+          "Direct",
+          "Cross-reactive",
+          "Intolerance",
+          "Sensitivity"
+        ]
+      },
+      "severity": {
+        "bsonType": "string",
+        "description": "Overall severity classification of the allergen",
+        "enum": [
+          "Low",
+          "Medium",
+          "High"
+        ]
+      },
+      "symptoms": {
+        "bsonType": "array",
+        "description": "List of common symptoms associated with this allergen",
+        "items": {
+          "bsonType": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      },
+      "severityMatrix": {
+        "bsonType": "object",
+        "description": "Detailed severity classification and emergency response guidelines",
+        "required": [
+          "severityLevel",
+          "symptomDescription",
+          "symptomBasedClassification",
+          "emergencyActions"
+        ],
+        "properties": {
+          "severityLevel": {
+            "bsonType": "string",
+            "description": "Primary severity classification",
+            "enum": [
+              "Low",
+              "Medium",
+              "High"
+            ]
+          },
+          "symptomDescription": {
+            "bsonType": "array",
+            "description": "General description of symptom severity patterns",
+            "items": {
+              "bsonType": "string",
+              "minLength": 1,
+              "maxLength": 1000
+            },
+            "minItems": 1
+          },
+          "symptomBasedClassification": {
+            "bsonType": "object",
+            "description": "Symptoms categorized by severity level",
+            "required": [
+              "mild",
+              "moderate",
+              "severe"
+            ],
+            "properties": {
+              "mild": {
+                "bsonType": "array",
+                "description": "Mild symptoms",
+                "items": {
+                  "bsonType": "string",
+                  "minLength": 1,
+                  "maxLength": 500
+                },
+                "minItems": 1
+              },
+              "moderate": {
+                "bsonType": "array",
+                "description": "Moderate symptoms",
+                "items": {
+                  "bsonType": "string",
+                  "minLength": 1,
+                  "maxLength": 500
+                },
+                "minItems": 1
+              },
+              "severe": {
+                "bsonType": "array",
+                "description": "Severe symptoms requiring immediate medical attention",
+                "items": {
+                  "bsonType": "string",
+                  "minLength": 1,
+                  "maxLength": 500
+                },
+                "minItems": 1
+              }
+            }
+          },
+          "emergencyActions": {
+            "bsonType": "object",
+            "description": "Emergency response protocols for different symptom severities",
+            "required": [
+              "mildSymptoms",
+              "moderateSymptoms",
+              "severeSymptoms"
+            ],
+            "properties": {
+              "mildSymptoms": {
+                "bsonType": "object",
+                "description": "Actions for mild symptoms",
+                "required": [
+                  "action"
+                ],
+                "properties": {
+                  "action": {
+                    "bsonType": "array",
+                    "description": "Step-by-step actions for mild symptoms",
+                    "items": {
+                      "bsonType": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    },
+                    "minItems": 1
+                  }
+                }
+              },
+              "moderateSymptoms": {
+                "bsonType": "object",
+                "description": "Actions for moderate symptoms",
+                "required": [
+                  "action"
+                ],
+                "properties": {
+                  "action": {
+                    "bsonType": "array",
+                    "description": "Step-by-step actions for moderate symptoms",
+                    "items": {
+                      "bsonType": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    },
+                    "minItems": 1
+                  }
+                }
+              },
+              "severeSymptoms": {
+                "bsonType": "object",
+                "description": "Emergency actions for severe symptoms",
+                "required": [
+                  "action"
+                ],
+                "properties": {
+                  "action": {
+                    "bsonType": "array",
+                    "description": "Critical step-by-step actions for severe symptoms",
+                    "items": {
+                      "bsonType": "string",
+                      "minLength": 1,
+                      "maxLength": 500
+                    },
+                    "minItems": 1
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "additionalInformation": {
+        "bsonType": "object",
+        "description": "Supplementary information about the allergen",
+        "properties": {
+          "pollenRelatedAllergy": {
+            "bsonType": [
+              "string",
+              "null"
+            ],
+            "description": "Information about cross-reactivity with pollen allergies",
+            "maxLength": 1000
+          },
+          "rawVsCooked": {
+            "bsonType": [
+              "string",
+              "null"
+            ],
+            "description": "Differences in allergenicity between raw and cooked forms",
+            "maxLength": 1000
+          },
+          "crossReactivity": {
+            "bsonType": [
+              "string",
+              "null"
+            ],
+            "description": "Information about cross-reactivity with other allergens",
+            "maxLength": 1000
+          },
+          "processedFoods": {
+            "bsonType": [
+              "string",
+              "null"
+            ],
+            "description": "Common processed foods containing this allergen",
+            "maxLength": 1000
+          },
+          "heatResistance": {
+            "bsonType": [
+              "string",
+              "null"
+            ],
+            "description": "How the allergen responds to heat and cooking",
+            "maxLength": 1000
+          }
+        }
+      },
+      "embedding": {
+        "bsonType": [
+          "array",
+          "null"
+        ],
+        "description": "Vector embedding for semantic search (3072 dimensions for text-embedding-3-large)",
+        "items": {
+          "bsonType": "double"
+        }
+      },
+      "tags": {
+        "bsonType": "array",
+        "description": "Additional tags for categorization and filtering",
+        "items": {
+          "bsonType": "string",
+          "minLength": 1,
+          "maxLength": 100
+        },
+        "uniqueItems": true
+      },
+      "category": {
+        "bsonType": "array",
+        "description": "Categories of the allergen (array allows multiple categories per allergen)",
+        "items": {
+          "bsonType": "string",
+          "enum": [
+            "Tree Nuts",
+            "Peanuts",
+            "Shellfish",
+            "Fish",
+            "Dairy",
+            "Eggs",
+            "Soy",
+            "Wheat",
+            "Gluten",
+            "Sesame",
+            "Fruits",
+            "Vegetables",
+            "Grains",
+            "Legumes",
+            "Spices",
+            "Other"
+          ]
+        },
+        "uniqueItems": true
+      },
+      "aliases": {
+        "bsonType": "array",
+        "description": "Alternative names for the allergen",
+        "items": {
+          "bsonType": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "uniqueItems": true
+      },
+      "img_url": {
+        "bsonType": "string",
+        "description": "URL to image representing the allergen",
+        "minLength": 1,
+        "maxLength": 500
+      },
+      "is_active": {
+        "bsonType": "bool",
+        "description": "Whether the allergen record is active/available",
+        "default": true
+      },
+      "createdAt": {
+        "bsonType": "date",
+        "description": "Timestamp when allergen record was created"
+      },
+      "updatedAt": {
+        "bsonType": "date",
+        "description": "Timestamp when allergen record was last updated"
+      },
+      "metadata": {
+        "bsonType": "object",
+        "description": "Additional metadata about the allergen",
+        "properties": {
+          "source": {
+            "bsonType": "string",
+            "description": "Source of the allergen data (e.g., 'Medical databases / Clinical studies / Health authorities')",
+            "maxLength": 500
+          },
+          "verified": {
+            "bsonType": "bool",
+            "description": "Whether the data has been medically verified"
+          },
+          "last_verified": {
+            "bsonType": [
+              "date",
+              "null"
+            ],
+            "description": "Timestamp of last medical verification"
+          },
+          "reviewed_by": {
+            "bsonType": [
+              "string",
+              "null"
+            ],
+            "description": "Medical professional or authority who reviewed the data",
+            "maxLength": 200
+          }
+        }
+      }
+    }
+  }
+}

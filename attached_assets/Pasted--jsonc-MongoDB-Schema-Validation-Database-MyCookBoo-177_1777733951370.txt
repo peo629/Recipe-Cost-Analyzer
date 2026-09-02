@@ -1,0 +1,262 @@
+---
+
+```jsonc
+/*
+  MongoDB Schema Validation
+  =========================
+  Database: MyCookBook
+  Collection: business_venues
+
+  Description:
+  Defines the structure and validation rules for individual business venue documents.
+  Each venue belongs to a parent company (business_entity) and may include one or more
+  operational "work areas" (e.g., venue, kitchen, bar, restaurant), each with its own
+  employee roster and roles.
+
+  Key Features:
+  - Supports multi-work-area venues (venue, bar, kitchen, etc.)
+  - Defines hierarchical relationships to parent company and staff
+  - Embedded employee sub-documents per work area
+  - Enforces Australian address, contact, and structure integrity
+  - Standardized identifiers for company, venue, and work areas
+
+  Usage:
+  Apply this schema to the `business_venues` collection to ensure consistent structure
+  for venue data used in dashboards, payroll, and scheduling systems.
+*/
+
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "venue_id",
+      "venue_name",
+      "company_id",
+      "workareas",
+      "created_at"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "objectId",
+        "description": "Unique identifier for the venue document"
+      },
+
+      // ───────────────────────────────
+      // Venue Identification
+      // ───────────────────────────────
+      "venue_id": {
+        "bsonType": "string",
+        "description": "Unique venue identifier (e.g., 'VEN-2976-30')"
+      },
+      "venue_name": {
+        "bsonType": "string",
+        "description": "Display name of the venue (e.g., restaurant, bar, hotel)"
+      },
+      "company_id": {
+        "bsonType": "string",
+        "description": "Identifier of the parent company (links to business_entities.company_id)"
+      },
+      "venue_type": {
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "enum": [
+          "restaurant",
+          "bar",
+          "hotel",
+          "motel",
+          "stadium",
+          "cafe",
+          "function_space",
+          "pool_bar",
+          "other",
+          null
+        ],
+        "description": "Type of venue or operational classification"
+      },
+
+      // ───────────────────────────────
+      // Management and Administrative Roles
+      // ───────────────────────────────
+      "venue_manager_name": {
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "description": "Full name of the venue’s manager"
+      },
+      "venue_admin_id": {
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "description": "Administrator identifier for venue-level access"
+      },
+
+      // ───────────────────────────────
+      // Contact and Location Details
+      // ───────────────────────────────
+      "address": {
+        "bsonType": "string",
+        "description": "Street address of the venue"
+      },
+      "suburb": {
+        "bsonType": "string",
+        "description": "Suburb or locality where the venue is located"
+      },
+      "state": {
+        "bsonType": "string",
+        "enum": [
+          "Victoria",
+          "New South Wales",
+          "Queensland",
+          "South Australia",
+          "Western Australia",
+          "Tasmania",
+          "Northern Territory",
+          "Australian Capital Territory"
+        ],
+        "description": "Australian state or territory"
+      },
+      "post_code": {
+        "bsonType": "string",
+        "pattern": "^[0-9]{4}$",
+        "description": "Four-digit Australian postal code"
+      },
+      "phone": {
+        "bsonType": "string",
+        "description": "Venue contact phone number in E.164 format"
+      },
+      "email": {
+        "bsonType": "string",
+        "pattern": "^[\\w\\.-]+@[\\w\\.-]+\\.[A-Za-z]{2,}$",
+        "description": "Venue contact email address"
+      },
+
+      // ───────────────────────────────
+      // Work Area Hierarchy
+      // ───────────────────────────────
+      "workareas": {
+        "bsonType": "array",
+        "description": "Array of work areas within the venue (e.g., bar, kitchen, floor)",
+        "minItems": 1,
+        "items": {
+          "bsonType": "object",
+          "required": ["work_area_name", "work_area_id", "employees"],
+          "properties": {
+            "work_area_name": {
+              "bsonType": "string",
+              "description": "Name of the operational work area (e.g., 'venue', 'bar', 'kitchen')"
+            },
+            "work_area_id": {
+              "bsonType": "string",
+              "description": "Unique identifier for the work area (e.g., 'WAI-2976-3088')"
+            },
+            "employees": {
+              "bsonType": "array",
+              "description": "List of employees assigned to this work area",
+              "items": {
+                "bsonType": "object",
+                "required": ["linking_id", "payroll_id", "role_id", "role_name"],
+                "properties": {
+                  "linking_id": {
+                    "bsonType": "string",
+                    "description": "Employee linking identifier (matches business_users.linking_id)"
+                  },
+                  "payroll_id": {
+                    "bsonType": "string",
+                    "description": "Employee payroll system ID"
+                  },
+                  "role_id": {
+                    "bsonType": "string",
+                    "description": "Role identifier (e.g., FOH-EXE-306)"
+                  },
+                  "role_name": {
+                    "bsonType": "string",
+                    "description": "Employee’s job title or position name"
+                  },
+                  "preferred_name": {
+                    "bsonType": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Preferred display name for employee"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+
+      // ───────────────────────────────
+      // System Metadata
+      // ───────────────────────────────
+      "is_active": {
+        "bsonType": "bool",
+        "description": "Indicates whether the venue is active or operational",
+        "default": true
+      },
+      "created_at": {
+        "bsonType": "date",
+        "description": "Timestamp for when this venue record was created"
+      },
+      "updated_at": {
+        "bsonType": ["date", "null"],
+        "description": "Timestamp for last update (nullable)"
+      },
+      "metadata": {
+        "bsonType": [
+          "object",
+          "null"
+        ],
+        "description": "Additional metadata for integrations or audit tracking",
+        "properties": {
+          "source": {
+            "bsonType": "string",
+            "description": "System or source of this data (e.g., HR platform, CRM)"
+          },
+          "verified": {
+            "bsonType": "bool",
+            "description": "Indicates if venue record has been verified"
+          },
+          "last_verified": {
+            "bsonType": ["date", "null"],
+            "description": "Date of last verification"
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+---
+
+### ✅ Developer Notes
+
+#### **Business Context**
+
+* A venue can exist:
+
+  * As a **single-venue entity** (e.g., independent restaurant)
+  * As part of a **multi-venue parent company** (e.g., Melbourne Venue Co)
+  * As a **multi-work-area site** (e.g., hotels, stadiums)
+
+#### **Collection Relationships**
+
+* `company_id` → references `business_entities.company_id`
+* `work_area_id` → shared mapping key across venues and `business_users`
+* `employees[].linking_id` → references `business_users.linking_id`
+
+#### **Recommended Indexes**
+
+```js
+db.business_venues.createIndex({ venue_id: 1 }, { unique: true });
+db.business_venues.createIndex({ company_id: 1 });
+db.business_venues.createIndex({ "workareas.work_area_id": 1 });
+db.business_venues.createIndex({ "workareas.employees.linking_id": 1 });
+```
+
+---

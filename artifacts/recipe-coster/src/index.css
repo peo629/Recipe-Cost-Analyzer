@@ -21,39 +21,39 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --color-background:   hsl(var(--background));
-  --color-foreground:   hsl(var(--foreground));
-  --color-border:       hsl(var(--border));
-  --color-input:        hsl(var(--input));
-  --color-ring:         hsl(var(--ring));
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
 
-  --color-card:                 hsl(var(--card));
-  --color-card-foreground:      hsl(var(--card-foreground));
-  --color-card-border:          hsl(var(--card-border));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-card-border: hsl(var(--card-border));
 
-  --color-popover:              hsl(var(--popover));
-  --color-popover-foreground:   hsl(var(--popover-foreground));
-  --color-popover-border:       hsl(var(--popover-border));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-popover-border: hsl(var(--popover-border));
 
-  --color-primary:              hsl(var(--primary));
-  --color-primary-foreground:   hsl(var(--primary-foreground));
-  --color-primary-border:       var(--primary-border);
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-primary-border: var(--primary-border);
 
-  --color-secondary:            hsl(var(--secondary));
+  --color-secondary: hsl(var(--secondary));
   --color-secondary-foreground: hsl(var(--secondary-foreground));
-  --color-secondary-border:     var(--secondary-border);
+  --color-secondary-border: var(--secondary-border);
 
-  --color-muted:                hsl(var(--muted));
-  --color-muted-foreground:     hsl(var(--muted-foreground));
-  --color-muted-border:         var(--muted-border);
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-muted-border: var(--muted-border);
 
-  --color-accent:               hsl(var(--accent));
-  --color-accent-foreground:    hsl(var(--accent-foreground));
-  --color-accent-border:        var(--accent-border);
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-accent-border: var(--accent-border);
 
-  --color-destructive:          hsl(var(--destructive));
+  --color-destructive: hsl(var(--destructive));
   --color-destructive-foreground: hsl(var(--destructive-foreground));
-  --color-destructive-border:   var(--destructive-border);
+  --color-destructive-border: var(--destructive-border);
 
   --color-chart-1: hsl(var(--chart-1));
   --color-chart-2: hsl(var(--chart-2));
@@ -61,20 +61,59 @@
   --color-chart-4: hsl(var(--chart-4));
   --color-chart-5: hsl(var(--chart-5));
 
-  --color-sidebar:                      hsl(var(--sidebar));
-  --color-sidebar-foreground:           hsl(var(--sidebar-foreground));
-  --color-sidebar-border:               hsl(var(--sidebar-border));
-  --color-sidebar-primary:              hsl(var(--sidebar-primary));
-  --color-sidebar-primary-foreground:   hsl(var(--sidebar-primary-foreground));
-  --color-sidebar-primary-border:       var(--sidebar-primary-border);
-  --color-sidebar-accent:               hsl(var(--sidebar-accent));
-  --color-sidebar-accent-foreground:    hsl(var(--sidebar-accent-foreground));
-  --color-sidebar-accent-border:        var(--sidebar-accent-border);
-  --color-sidebar-ring:                 hsl(var(--sidebar-ring));
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-primary-border: var(--sidebar-primary-border);
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-accent-border: var(--sidebar-accent-border);
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
 
-  --font-sans:  var(--app-font-sans);
+  /* Status semantics — Le Répertoire */
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+  --color-info: hsl(var(--info));
+  --color-info-foreground: hsl(var(--info-foreground));
+
+  /* Le Répertoire raw palette — for niche needs (e.g. printable surfaces) */
+  --color-ink-50: var(--ink-50);
+  --color-ink-100: var(--ink-100);
+  --color-ink-200: var(--ink-200);
+  --color-ink-300: var(--ink-300);
+  --color-ink-400: var(--ink-400);
+  --color-ink-500: var(--ink-500);
+  --color-ink-600: var(--ink-600);
+  --color-ink-700: var(--ink-700);
+  --color-ink-800: var(--ink-800);
+  --color-ink-900: var(--ink-900);
+
+  --color-forest-50: var(--forest-50);
+  --color-forest-100: var(--forest-100);
+  --color-forest-200: var(--forest-200);
+  --color-forest-300: var(--forest-300);
+  --color-forest-400: var(--forest-400);
+  --color-forest-500: var(--forest-500);
+  --color-forest-600: var(--forest-600);
+  --color-forest-700: var(--forest-700);
+  --color-forest-800: var(--forest-800);
+  --color-forest-900: var(--forest-900);
+
+  --color-copper-50: var(--copper-50);
+  --color-copper-100: var(--copper-100);
+  --color-copper-200: var(--copper-200);
+  --color-copper-300: var(--copper-300);
+  --color-copper-400: var(--copper-400);
+  --color-copper-500: var(--copper-500);
+  --color-copper-600: var(--copper-600);
+
+  --font-sans: var(--app-font-sans);
   --font-serif: var(--app-font-serif);
-  --font-mono:  var(--app-font-mono);
+  --font-mono: var(--app-font-mono);
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -89,92 +128,131 @@
    ============================================================ */
 :root {
   --opaque-button-border-intensity: -8;
-  --button-outline: rgba(0,0,0,.10);
-  --badge-outline:  rgba(0,0,0,.05);
-  --elevate-1: rgba(0,0,0,.03);
-  --elevate-2: rgba(0,0,0,.08);
+  --button-outline: rgba(0, 0, 0, 0.1);
+  --badge-outline: rgba(0, 0, 0, 0.05);
+  --elevate-1: rgba(0, 0, 0, 0.03);
+  --elevate-2: rgba(0, 0, 0, 0.08);
 
   /* Base */
-  --background:    220 14% 97%;   /* ink-50  #f6f7f9 */
-  --foreground:    217 25%  9%;   /* ink-900 #11161d */
+  --background: 220 14% 97%; /* ink-50  #f6f7f9 */
+  --foreground: 217 25% 9%; /* ink-900 #11161d */
 
-  --border:  213 13% 86%;         /* ink-200 #d8dde4 */
-  --input:   213 13% 86%;
-  --ring:    145 45% 23%;         /* forest-600 */
+  --border: 213 13% 86%; /* ink-200 #d8dde4 */
+  --input: 213 13% 86%;
+  --ring: 145 45% 23%; /* forest-600 */
 
   /* Card / surface */
-  --card:              0  0% 100%;
-  --card-foreground:   217 25%  9%;
-  --card-border:       213 13% 86%;
+  --card: 0 0% 100%;
+  --card-foreground: 217 25% 9%;
+  --card-border: 213 13% 86%;
 
   /* Popover */
-  --popover:           0  0% 100%;
-  --popover-foreground: 217 25%  9%;
-  --popover-border:    213 13% 86%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 217 25% 9%;
+  --popover-border: 213 13% 86%;
 
   /* Primary — Deep Forest */
-  --primary:            145 45% 23%;   /* forest-600 #205536 */
-  --primary-foreground:   0  0% 100%;
+  --primary: 145 45% 23%; /* forest-600 #205536 */
+  --primary-foreground: 0 0% 100%;
 
   /* Secondary — ink-100 wash */
-  --secondary:           220 14% 93%;  /* ink-100 #eceef2 */
+  --secondary: 220 14% 93%; /* ink-100 #eceef2 */
   --secondary-foreground: 215 17% 21%; /* ink-700 #2e3641 */
 
   /* Muted */
-  --muted:              220 14% 93%;
-  --muted-foreground:   215 11% 41%;   /* ink-500 #5d6675 */
+  --muted: 220 14% 93%;
+  --muted-foreground: 215 11% 41%; /* ink-500 #5d6675 */
 
   /* Accent — Copper */
-  --accent:             24 51% 41%;    /* copper-500 #9c5d33 */
-  --accent-foreground:   0  0% 100%;
+  --accent: 24 51% 41%; /* copper-500 #9c5d33 */
+  --accent-foreground: 0 0% 100%;
 
   /* Destructive */
-  --destructive:         0 49% 46%;    /* danger-500 #b13d3d */
+  --destructive: 0 49% 46%; /* danger-500 #b13d3d */
   --destructive-foreground: 0 0% 100%;
 
+  /* Status — Le Répertoire (light) */
+  --success: 145 41% 29%; /* forest-500 / success-500 */
+  --success-foreground: 145 49% 18%; /* forest-700 ish */
+  --warning: 37 71% 41%; /* warning-500 #b58320 */
+  --warning-foreground: 37 76% 24%;
+  --info: 210 59% 45%; /* info-500 #2f6fb8 */
+  --info-foreground: 211 65% 32%;
+
   /* Chart palette */
-  --chart-1: 145 45% 23%;   /* forest-600 */
-  --chart-2:  24 51% 41%;   /* copper-500 */
+  --chart-1: 145 45% 23%; /* forest-600 */
+  --chart-2: 24 51% 41%; /* copper-500 */
   --chart-3: 200 40% 30%;
-  --chart-4:  45 80% 50%;
-  --chart-5:  10 65% 48%;
+  --chart-4: 45 80% 50%;
+  --chart-5: 10 65% 48%;
 
   /* Sidebar */
-  --sidebar:                   220 14% 92%;  /* ink-100 warm */
-  --sidebar-foreground:        217 25%  9%;
-  --sidebar-border:            213 13% 86%;
-  --sidebar-primary:           145 45% 23%;
-  --sidebar-primary-foreground:  0  0% 100%;
-  --sidebar-accent:             24 47% 49%;  /* copper-400 #b97443 */
-  --sidebar-accent-foreground:   0  0% 100%;
-  --sidebar-ring:              145 45% 23%;
+  --sidebar: 220 14% 92%; /* ink-100 warm */
+  --sidebar-foreground: 217 25% 9%;
+  --sidebar-border: 213 13% 86%;
+  --sidebar-primary: 145 45% 23%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 24 47% 49%; /* copper-400 #b97443 */
+  --sidebar-accent-foreground: 0 0% 100%;
+  --sidebar-ring: 145 45% 23%;
 
   /* Fonts */
-  --app-font-sans:  "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --app-font-sans:
+    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui,
+    sans-serif;
   --app-font-serif: "Source Serif 4", "Iowan Old Style", Georgia, serif;
-  --app-font-mono:  "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --app-font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* Border radius — slightly more refined */
   --radius: 0.375rem;
 
   /* Shadows — Le Répertoire refined (light) */
   --shadow-2xs: 0px 1px 0px 0px hsl(213 13% 80% / 0.5);
-  --shadow-xs:  0px 1px 2px 0px hsl(217 25% 9% / 0.06);
-  --shadow-sm:  0px 1px 3px 0px hsl(217 25% 9% / 0.08), 0px 1px 2px -1px hsl(217 25% 9% / 0.04);
-  --shadow:     0px 2px 6px -1px hsl(217 25% 9% / 0.08), 0px 1px 3px -1px hsl(217 25% 9% / 0.05);
-  --shadow-md:  0px 4px 12px -2px hsl(217 25% 9% / 0.10), 0px 2px 4px -2px hsl(217 25% 9% / 0.05);
-  --shadow-lg:  0px 12px 28px -8px hsl(217 25% 9% / 0.14), 0px 4px 8px -4px hsl(217 25% 9% / 0.06);
-  --shadow-xl:  0px 24px 48px -12px hsl(217 25% 9% / 0.22);
+  --shadow-xs: 0px 1px 2px 0px hsl(217 25% 9% / 0.06);
+  --shadow-sm:
+    0px 1px 3px 0px hsl(217 25% 9% / 0.08),
+    0px 1px 2px -1px hsl(217 25% 9% / 0.04);
+  --shadow:
+    0px 2px 6px -1px hsl(217 25% 9% / 0.08),
+    0px 1px 3px -1px hsl(217 25% 9% / 0.05);
+  --shadow-md:
+    0px 4px 12px -2px hsl(217 25% 9% / 0.1),
+    0px 2px 4px -2px hsl(217 25% 9% / 0.05);
+  --shadow-lg:
+    0px 12px 28px -8px hsl(217 25% 9% / 0.14),
+    0px 4px 8px -4px hsl(217 25% 9% / 0.06);
+  --shadow-xl: 0px 24px 48px -12px hsl(217 25% 9% / 0.22);
   --shadow-2xl: 0px 32px 64px -16px hsl(217 25% 9% / 0.28);
 
   /* Derived borders for shadcn opaque buttons */
-  --primary-border:     hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --secondary-border:   hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --muted-border:       hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --accent-border:      hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --sidebar-accent-border:  hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --primary-border: hsl(
+    from hsl(var(--primary)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+  --secondary-border: hsl(
+    from hsl(var(--secondary)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+  --muted-border: hsl(
+    from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) /
+      alpha
+  );
+  --accent-border: hsl(
+    from hsl(var(--accent)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+  --destructive-border: hsl(
+    from hsl(var(--destructive)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+  --sidebar-primary-border: hsl(
+    from hsl(var(--sidebar-primary)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
+  --sidebar-accent-border: hsl(
+    from hsl(var(--sidebar-accent)) h s
+      calc(l + var(--opaque-button-border-intensity)) / alpha
+  );
 }
 
 /* 6. Le Répertoire dark theme
@@ -183,65 +261,77 @@
    Base     = ink-900 → ink-800 surfaces
    ============================================================ */
 .dark {
-  --button-outline: rgba(255,255,255,.10);
-  --badge-outline:  rgba(255,255,255,.05);
+  --button-outline: rgba(255, 255, 255, 0.1);
+  --badge-outline: rgba(255, 255, 255, 0.05);
   --opaque-button-border-intensity: 9;
-  --elevate-1: rgba(255,255,255,.04);
-  --elevate-2: rgba(255,255,255,.09);
+  --elevate-1: rgba(255, 255, 255, 0.04);
+  --elevate-2: rgba(255, 255, 255, 0.09);
 
-  --background:    215 30%  7%;   /* #0a0e13 bg-app dark */
-  --foreground:    215 33% 96%;   /* #f0f3f7 */
+  --background: 215 30% 7%; /* #0a0e13 bg-app dark */
+  --foreground: 215 33% 96%; /* #f0f3f7 */
 
-  --border:  215 17% 21%;         /* ink-700 #2e3641 */
-  --input:   215 17% 21%;
-  --ring:    142 22% 54%;         /* forest-300 */
+  --border: 215 17% 21%; /* ink-700 #2e3641 */
+  --input: 215 17% 21%;
+  --ring: 142 22% 54%; /* forest-300 */
 
-  --card:              214 26% 12%;  /* bg-elevated #161c25 */
-  --card-foreground:   215 33% 96%;
-  --card-border:       215 17% 21%;
+  --card: 214 26% 12%; /* bg-elevated #161c25 */
+  --card-foreground: 215 33% 96%;
+  --card-border: 215 17% 21%;
 
-  --popover:           214 26% 12%;
+  --popover: 214 26% 12%;
   --popover-foreground: 215 33% 96%;
-  --popover-border:    215 17% 21%;
+  --popover-border: 215 17% 21%;
 
-  --primary:            142 22% 54%;  /* forest-300 #6ea381 */
-  --primary-foreground: 150 40%  9%;  /* forest-900 #0a2117 */
+  --primary: 142 22% 54%; /* forest-300 #6ea381 */
+  --primary-foreground: 150 40% 9%; /* forest-900 #0a2117 */
 
-  --secondary:           214 22% 18%; /* surface-3 #232b37 */
+  --secondary: 214 22% 18%; /* surface-3 #232b37 */
   --secondary-foreground: 215 33% 96%;
 
-  --muted:              215 24% 15%;  /* surface-2 #1c232d */
-  --muted-foreground:   214 11% 58%;  /* ink-400 #8a93a1 */
+  --muted: 215 24% 15%; /* surface-2 #1c232d */
+  --muted-foreground: 214 11% 58%; /* ink-400 #8a93a1 */
 
-  --accent:             24 55% 62%;   /* copper-300 #d49369 */
-  --accent-foreground:  217 25%  9%;  /* ink-900 */
+  --accent: 24 55% 62%; /* copper-300 #d49369 */
+  --accent-foreground: 217 25% 9%; /* ink-900 */
 
-  --destructive:         0 52% 38%;   /* danger-600 #952f2f */
+  --destructive: 0 52% 38%; /* danger-600 #952f2f */
   --destructive-foreground: 0 0% 100%;
 
+  /* Status — Le Répertoire (dark) */
+  --success: 142 22% 54%; /* forest-300 */
+  --success-foreground: 142 26% 71%; /* forest-200 */
+  --warning: 37 65% 55%;
+  --warning-foreground: 37 65% 78%;
+  --info: 210 60% 65%;
+  --info-foreground: 210 60% 80%;
+
   --chart-1: 142 22% 54%;
-  --chart-2:  24 55% 62%;
+  --chart-2: 24 55% 62%;
   --chart-3: 200 40% 50%;
-  --chart-4:  45 80% 60%;
-  --chart-5:  10 65% 58%;
+  --chart-4: 45 80% 60%;
+  --chart-5: 10 65% 58%;
 
-  --sidebar:                   217 25%  9%;  /* ink-900 */
-  --sidebar-foreground:        215 33% 96%;
-  --sidebar-border:            215 17% 21%;
-  --sidebar-primary:           142 22% 54%;
-  --sidebar-primary-foreground: 150 40%  9%;
-  --sidebar-accent:             24 55% 62%;
-  --sidebar-accent-foreground:  217 25%  9%;
-  --sidebar-ring:              142 22% 54%;
+  --sidebar: 217 25% 9%; /* ink-900 */
+  --sidebar-foreground: 215 33% 96%;
+  --sidebar-border: 215 17% 21%;
+  --sidebar-primary: 142 22% 54%;
+  --sidebar-primary-foreground: 150 40% 9%;
+  --sidebar-accent: 24 55% 62%;
+  --sidebar-accent-foreground: 217 25% 9%;
+  --sidebar-ring: 142 22% 54%;
 
-  --shadow-2xs: 0px 1px 0px 0px rgba(0,0,0,.5);
-  --shadow-xs:  0px 1px 2px 0px rgba(0,0,0,.6);
-  --shadow-sm:  0px 1px 3px 0px rgba(0,0,0,.65), 0px 1px 2px -1px rgba(0,0,0,.5);
-  --shadow:     0px 2px 6px -1px rgba(0,0,0,.7), 0px 1px 3px -1px rgba(0,0,0,.5);
-  --shadow-md:  0px 4px 12px -2px rgba(0,0,0,.75), 0px 2px 4px -2px rgba(0,0,0,.55);
-  --shadow-lg:  0px 12px 28px -8px rgba(0,0,0,.8), 0px 4px 8px -4px rgba(0,0,0,.6);
-  --shadow-xl:  0px 24px 48px -12px rgba(0,0,0,.9);
-  --shadow-2xl: 0px 32px 64px -16px rgba(0,0,0,.95);
+  --shadow-2xs: 0px 1px 0px 0px rgba(0, 0, 0, 0.5);
+  --shadow-xs: 0px 1px 2px 0px rgba(0, 0, 0, 0.6);
+  --shadow-sm:
+    0px 1px 3px 0px rgba(0, 0, 0, 0.65), 0px 1px 2px -1px rgba(0, 0, 0, 0.5);
+  --shadow:
+    0px 2px 6px -1px rgba(0, 0, 0, 0.7), 0px 1px 3px -1px rgba(0, 0, 0, 0.5);
+  --shadow-md:
+    0px 4px 12px -2px rgba(0, 0, 0, 0.75), 0px 2px 4px -2px rgba(0, 0, 0, 0.55);
+  --shadow-lg:
+    0px 12px 28px -8px rgba(0, 0, 0, 0.8), 0px 4px 8px -4px rgba(0, 0, 0, 0.6);
+  --shadow-xl: 0px 24px 48px -12px rgba(0, 0, 0, 0.9);
+  --shadow-2xl: 0px 32px 64px -16px rgba(0, 0, 0, 0.95);
 }
 
 /* 7. Tailwind base layer */
@@ -268,8 +358,12 @@
 }
 
 @media (min-width: 480px) {
-  .xs\:inline { display: inline; }
-  .xs\:hidden { display: none; }
+  .xs\:inline {
+    display: inline;
+  }
+  .xs\:hidden {
+    display: none;
+  }
 }
 
 /* 9. Le Répertoire typography utilities
@@ -281,14 +375,47 @@
   letter-spacing: -0.02em;
   line-height: 1.15;
 }
-.lr-h1 { font-family: var(--app-font-serif); font-size: 2.25rem;  font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
-.lr-h2 { font-family: var(--app-font-serif); font-size: 1.75rem;  font-weight: 500; letter-spacing: -0.01em; line-height: 1.15; }
-.lr-h3 { font-family: var(--app-font-sans);  font-size: 1.375rem; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
-.lr-h4 { font-family: var(--app-font-sans);  font-size: 1.125rem; font-weight: 600; line-height: 1.3; }
+.lr-h1 {
+  font-family: var(--app-font-serif);
+  font-size: 2.25rem;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.lr-h2 {
+  font-family: var(--app-font-serif);
+  font-size: 1.75rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+.lr-h3 {
+  font-family: var(--app-font-sans);
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+.lr-h4 {
+  font-family: var(--app-font-sans);
+  font-size: 1.125rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
 
-.lr-body    { font-size: 0.9375rem; line-height: 1.5; }
-.lr-body-sm { font-size: 0.8125rem; line-height: 1.5; }
-.lr-caption { font-size: 0.75rem;   line-height: 1.3; color: hsl(var(--muted-foreground)); }
+.lr-body {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+.lr-body-sm {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+.lr-caption {
+  font-size: 0.75rem;
+  line-height: 1.3;
+  color: hsl(var(--muted-foreground));
+}
 
 .lr-eyebrow {
   font-size: 0.75rem;
@@ -300,19 +427,39 @@
 
 .lr-num {
   font-family: var(--app-font-mono);
-  font-feature-settings: "tnum" 1, "zero" 1;
+  font-feature-settings:
+    "tnum" 1,
+    "zero" 1;
   letter-spacing: -0.01em;
 }
 
 /* 10. Le Répertoire status / badge helpers */
-.lr-badge--success { background: var(--success-bg, #e6efea); color: var(--success-fg, #18432b); }
-.lr-badge--warning { background: var(--warning-bg, #faf1de); color: var(--warning-fg, #6a4a10); }
-.lr-badge--danger  { background: var(--danger-bg,  #f8e8e8); color: var(--danger-fg,  #7a2828); }
-.lr-badge--info    { background: var(--info-bg,    #e8f0fa); color: var(--info-fg,    #1d4d85); }
-.lr-badge--accent  { background: var(--accent-soft, hsl(145 45% 23% / 0.1)); color: var(--accent, hsl(145 45% 23%)); }
+.lr-badge--success {
+  background: var(--success-bg, #e6efea);
+  color: var(--success-fg, #18432b);
+}
+.lr-badge--warning {
+  background: var(--warning-bg, #faf1de);
+  color: var(--warning-fg, #6a4a10);
+}
+.lr-badge--danger {
+  background: var(--danger-bg, #f8e8e8);
+  color: var(--danger-fg, #7a2828);
+}
+.lr-badge--info {
+  background: var(--info-bg, #e8f0fa);
+  color: var(--info-fg, #1d4d85);
+}
+.lr-badge--accent {
+  background: var(--accent-soft, hsl(145 45% 23% / 0.1));
+  color: var(--accent, hsl(145 45% 23%));
+}
 
 /* 11. Scrollbar — Le Répertoire refined */
-::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
 ::-webkit-scrollbar-thumb {
   background: hsl(var(--border));
   border-radius: 999px;
@@ -324,13 +471,19 @@
   background-clip: padding-box;
   border: 2px solid transparent;
 }
-::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-track {
+  background: transparent;
+}
 
 /* 12. Print */
 @media print {
-  @page { size: A4; margin: 15mm; }
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
 
-  html, body {
+  html,
+  body {
     background: #ffffff !important;
     color: #000000 !important;
   }
@@ -341,12 +494,18 @@
     display: none !important;
   }
 
-  body * { visibility: hidden; }
+  body * {
+    visibility: hidden;
+  }
   .printable-card,
-  .printable-card * { visibility: visible; }
+  .printable-card * {
+    visibility: visible;
+  }
   .printable-card {
     position: absolute !important;
-    left: 0; top: 0; width: 100%;
+    left: 0;
+    top: 0;
+    width: 100%;
     box-shadow: none !important;
     border: none !important;
     border-radius: 0 !important;

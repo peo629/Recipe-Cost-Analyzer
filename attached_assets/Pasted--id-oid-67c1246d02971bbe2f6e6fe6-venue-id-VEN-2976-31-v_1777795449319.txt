@@ -1,0 +1,148 @@
+[{
+  "_id": {
+    "$oid": "67c1246d02971bbe2f6e6fe6"
+  },
+  "venue_id": "VEN-2976-31",
+  "venue_name": "Gather & Graze",
+  "company_id": "CNY-2976",
+  "venue_manager_name": "Scooby Doo",
+  "venue_admin_id": "VEN-2976-318721",
+  "address": "12 Collins Street",
+  "suburb": "Melbourne",
+  "state": "Victoria",
+  "post_code": "3000",
+  "phone": "+61396840000",
+  "email": "gathergraze@melbournevenueco.com.au",
+  "workareas": [
+    {
+      "work_area_name": "venue",
+      "work_area_id": "WAI-2976-3187",
+      "employees": [
+        {
+          "linking_id": "EMP-2976-3187-318721",
+          "payroll_id": "DV-318721",
+          "role_id": "FOH-EXE-306",
+          "role_name": "Venue Manager",
+          "preferred_name": "Scooby"
+        }
+      ]
+    },
+    {
+      "work_area_name": "bar",
+      "work_area_id": "WAI-2976-3189",
+      "employees": [
+        {
+          "linking_id": "EMP-2976-3189-318745",
+          "payroll_id": "DB-318745",
+          "role_id": "FOH-MGT-304",
+          "role_name": "Bar Manager",
+          "preferred_name": "Velma"
+        }
+      ]
+    },
+    {
+      "work_area_name": "restaurant",
+      "work_area_id": "WAI-2976-3190",
+      "employees": [
+        {
+          "linking_id": "EMP-2976-3190-318760",
+          "payroll_id": "DR-318760",
+          "role_id": "FOH-MGT-305",
+          "role_name": "Restaurant Manager",
+          "preferred_name": "Fred"
+        }
+      ]
+    },
+    {
+      "work_area_name": "kitchen",
+      "work_area_id": "WAI-2976-3188",
+      "employees": [
+        {
+          "linking_id": "EMP-2976-3188-318780",
+          "payroll_id": "DK-318780",
+          "role_id": "BOH-EXE-207",
+          "role_name": "Head Chef",
+          "preferred_name": "Daphne"
+        },
+        {
+          "linking_id": "EMP-2976-3188-318795",
+          "payroll_id": "DK-318795",
+          "role_id": "BOH-DPM-210",
+          "role_name": "Chef De Partie",
+          "preferred_name": "Shaggy Jr"
+        },
+        {
+          "linking_id": "EMP-2976-3188-318810",
+          "payroll_id": "DK-318810",
+          "role_id": "BOH-EMP-215",
+          "role_name": "Commis Chef",
+          "preferred_name": "Scrappy"
+        }
+      ]
+    }
+  ]
+},
+{
+  "_id": {
+    "$oid": "67c1246d02971bbe2f6e6fe4"
+  },
+  "venue_id": "VEN-2976-30",
+  "venue_name": "Black Jacks Smokehouse",
+  "company_id": "CNY-2976",
+  "venue_manager_name": "Norville Rogers",
+  "venue_admin_id": "VEN-2976-308720",
+  "address": "5 Southbank Boulevard",
+  "suburb": "Southbank",
+  "state": "Victoria",
+  "post_code": "3006",
+  "phone": "+61396839999",
+  "email": "blackjacks@melbournevenueco.com.au",
+  "workareas": [
+    {
+      "work_area_name": "venue",
+      "work_area_id": "WAI-2976-3087",
+      "employees": [
+        {
+          "linking_id": "EMP-2976-3087-308720",
+          "payroll_id": "DV-308720",
+          "role_id": "FOH-EXE-306",
+          "role_name": "Venue Manager",
+          "preferred_name": "Shaggy"
+        }
+      ]
+    },
+    {
+      "work_area_name": "kitchen",
+      "work_area_id": "WAI-2976-3088",
+      "employees": [
+        {
+          "linking_id": "EMP-2976-3088-308020",
+          "payroll_id": "DK-308020",
+          "role_id": "BOH-EXE-207",
+          "role_name": "Head Chef",
+          "preferred_name": "G-Dog"
+        },
+        {
+          "linking_id": "EMP-2976-3088-308049",
+          "payroll_id": "DK-308049",
+          "role_id": "BOH-EXE-206",
+          "role_name": "chef de cuisine",
+          "preferred_name": "timjim"
+        }
+      ]
+    },
+    {
+      "work_area_name": "bar",
+      "work_area_id": "WAI-2976-3089",
+      "employees": [
+        {
+          "linking_id": "EMP-2976-3089-520242",
+          "payroll_id": "DB-520242",
+          "role_id": "FOH-MGT-304",
+          "role_name": "Bar Manager",
+          "preferred_name": "Penny"
+        }
+      ]
+    }
+  ]
+}]

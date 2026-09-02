@@ -47,3 +47,9 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Playwright runtime artifacts (test-result crash dumps, traces, screenshots)
+# Reports go to tests/tests-results/ which IS committed.
+/test-results/
+/test-results/**
+/playwright-report/

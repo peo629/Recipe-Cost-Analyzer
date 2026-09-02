@@ -20,6 +20,7 @@ import {
   X,
   ChefHat,
 } from "lucide-react";
+import { formatCurrency, formatDate } from "@/lib/i18n";
 
 type LibraryScope = "my" | "venue" | "global";
 
@@ -75,7 +76,9 @@ export default function RecipeLibrary() {
   const [dietaryFilter, onDietary, setDietary] = useUpperState("");
   const [typeFilter, onType, setType] = useUpperState("");
   const [ingredientFilter, onIngredient, setIngredient] = useUpperState("");
-  const [libraryScopes, setLibraryScopes] = useState<Record<LibraryScope, boolean>>({
+  const [libraryScopes, setLibraryScopes] = useState<
+    Record<LibraryScope, boolean>
+  >({
     my: true,
     venue: true,
     global: true,
@@ -98,7 +101,10 @@ export default function RecipeLibrary() {
   const suggestRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (suggestRef.current && !suggestRef.current.contains(e.target as Node)) {
+      if (
+        suggestRef.current &&
+        !suggestRef.current.contains(e.target as Node)
+      ) {
         setShowSuggest(false);
       }
     };
@@ -149,9 +155,10 @@ export default function RecipeLibrary() {
 
       // Dietary filter — match against tags or allergens
       if (dietaryTokens.length > 0) {
-        const ok = dietaryTokens.every((tok) =>
-          tagsLower.some((t) => t.includes(tok)) ||
-          allergensLower.some((a) => a.includes(tok)),
+        const ok = dietaryTokens.every(
+          (tok) =>
+            tagsLower.some((t) => t.includes(tok)) ||
+            allergensLower.some((a) => a.includes(tok)),
         );
         if (!ok) return false;
       }
@@ -293,7 +300,7 @@ export default function RecipeLibrary() {
                   >
                     <span className="font-medium truncate">{r.title}</span>
                     <span className="text-xs text-muted-foreground ml-2 shrink-0">
-                      ${r.costPerPortion.toFixed(2)} / portion
+                      {formatCurrency(r.costPerPortion)} / portion
                     </span>
                   </button>
                 ))}
@@ -426,7 +433,11 @@ export default function RecipeLibrary() {
                     {recipe.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {recipe.tags.slice(0, 4).map((t) => (
-                          <Badge key={t} variant="secondary" className="text-xs">
+                          <Badge
+                            key={t}
+                            variant="secondary"
+                            className="text-xs"
+                          >
                             {t}
                           </Badge>
                         ))}
@@ -440,7 +451,7 @@ export default function RecipeLibrary() {
                           Cost
                         </p>
                         <p className="font-semibold tabular-nums">
-                          ${recipe.costPerPortion.toFixed(2)}
+                          {formatCurrency(recipe.costPerPortion)}
                         </p>
                       </div>
                       <div className="text-right">
@@ -448,10 +459,16 @@ export default function RecipeLibrary() {
                           Sell At
                         </p>
                         <p className="font-bold text-primary tabular-nums">
-                          ${recipe.recommendedSalePrice.toFixed(2)}
+                          {formatCurrency(recipe.recommendedSalePrice)}
                         </p>
                       </div>
                     </div>
+                    <p
+                      className="text-[10px] text-muted-foreground/70 mt-2 tabular-nums"
+                      data-testid={`recipe-updated-${recipe.id}`}
+                    >
+                      Updated {formatDate(recipe.updatedAt)}
+                    </p>
                   </CardContent>
                 </Card>
               </Link>

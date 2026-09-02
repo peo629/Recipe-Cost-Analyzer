@@ -14,10 +14,25 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Plus,
   Trash2,
@@ -36,10 +51,36 @@ import {
 import type { MethodBlockType } from "@workspace/api-client-react";
 import { toast } from "sonner";
 import { motion, AnimatePresence } from "framer-motion";
-import { PreviewContent, type BuilderIngredient, type BuilderMethod } from "./recipe-builder";
+import {
+  PreviewContent,
+  type BuilderIngredient,
+  type BuilderMethod,
+} from "./recipe-builder";
+import { formatCurrency, formatUnitCost } from "@/lib/i18n";
 
-const COMMON_ALLERGENS = ["Gluten", "Dairy", "Eggs", "Nuts", "Peanuts", "Shellfish", "Fish", "Soy", "Sesame"];
-const DIETARY_TAGS = ["Vegetarian", "Vegan", "Gluten-Free", "Dairy-Free", "Nut-Free", "Halal", "Kosher", "Low-Carb", "Keto", "Paleo"];
+const COMMON_ALLERGENS = [
+  "Gluten",
+  "Dairy",
+  "Eggs",
+  "Nuts",
+  "Peanuts",
+  "Shellfish",
+  "Fish",
+  "Soy",
+  "Sesame",
+];
+const DIETARY_TAGS = [
+  "Vegetarian",
+  "Vegan",
+  "Gluten-Free",
+  "Dairy-Free",
+  "Nut-Free",
+  "Halal",
+  "Kosher",
+  "Low-Carb",
+  "Keto",
+  "Paleo",
+];
 
 export default function RecipeGenerator() {
   const [, setLocation] = useLocation();
@@ -69,16 +110,23 @@ export default function RecipeGenerator() {
       setTagInput("");
     }
   };
-  const removeTag = (tagToRemove: string) => setTags(tags.filter((t) => t !== tagToRemove));
+  const removeTag = (tagToRemove: string) =>
+    setTags(tags.filter((t) => t !== tagToRemove));
 
   // Ingredient search
   const [searchOpen, setSearchOpen] = useState(false);
   const [ingredientSearch, setIngredientSearch] = useState("");
   const debouncedSearch = useDebounce(ingredientSearch, 300);
-  const { data: searchResults, isLoading: isSearchLoading } = useListIngredients(
-    { search: debouncedSearch },
-    { query: { enabled: searchOpen, queryKey: getListIngredientsQueryKey({ search: debouncedSearch }) } },
-  );
+  const { data: searchResults, isLoading: isSearchLoading } =
+    useListIngredients(
+      { search: debouncedSearch },
+      {
+        query: {
+          enabled: searchOpen,
+          queryKey: getListIngredientsQueryKey({ search: debouncedSearch }),
+        },
+      },
+    );
 
   const generateMutation = useGenerateRecipe();
   const createMutation = useCreateRecipe();
@@ -103,19 +151,32 @@ export default function RecipeGenerator() {
   };
 
   const updateIngredient = (tempId: string, field: string, value: any) => {
-    setIngredients((prev) => prev.map((i) => (i._tempId === tempId ? { ...i, [field]: value } : i)));
+    setIngredients((prev) =>
+      prev.map((i) => (i._tempId === tempId ? { ...i, [field]: value } : i)),
+    );
   };
   const removeIngredient = (tempId: string) =>
     setIngredients((prev) => prev.filter((i) => i._tempId !== tempId));
 
-  const updateMethodBlock = (tempId: string, field: keyof BuilderMethod, value: any) =>
-    setMethod((prev) => prev.map((m) => (m._tempId === tempId ? { ...m, [field]: value } : m)));
+  const updateMethodBlock = (
+    tempId: string,
+    field: keyof BuilderMethod,
+    value: any,
+  ) =>
+    setMethod((prev) =>
+      prev.map((m) => (m._tempId === tempId ? { ...m, [field]: value } : m)),
+    );
   const removeMethodBlock = (tempId: string) =>
     setMethod((prev) => prev.filter((m) => m._tempId !== tempId));
   const addMethodBlock = () =>
     setMethod((prev) => [
       ...prev,
-      { _tempId: Math.random().toString(36).substr(2, 9), type: "text", content: "", order: prev.length },
+      {
+        _tempId: Math.random().toString(36).substr(2, 9),
+        type: "text",
+        content: "",
+        order: prev.length,
+      },
     ]);
   const moveMethodBlock = (index: number, dir: 1 | -1) => {
     if (index + dir < 0 || index + dir >= method.length) return;
@@ -126,16 +187,27 @@ export default function RecipeGenerator() {
     setMethod(arr);
   };
 
-  const toggle = (list: string[], value: string, setter: (v: string[]) => void) =>
-    setter(list.includes(value) ? list.filter((v) => v !== value) : [...list, value]);
+  const toggle = (
+    list: string[],
+    value: string,
+    setter: (v: string[]) => void,
+  ) =>
+    setter(
+      list.includes(value) ? list.filter((v) => v !== value) : [...list, value],
+    );
 
   // Cost calc (mirror builder)
   const calculatedStats = useMemo(() => {
-    const totalIngredientCost = ingredients.reduce((s, i) => s + i.quantity * i.recipeUnitCost, 0);
+    const totalIngredientCost = ingredients.reduce(
+      (s, i) => s + i.quantity * i.recipeUnitCost,
+      0,
+    );
     const wastageCost = totalIngredientCost * (wastagePercent / 100);
     const totalCostWithWastage = totalIngredientCost + wastageCost;
     const costPerPortion = servings ? totalIngredientCost / servings : 0;
-    const costPerPortionWithWastage = servings ? totalCostWithWastage / servings : 0;
+    const costPerPortionWithWastage = servings
+      ? totalCostWithWastage / servings
+      : 0;
     const recommendedSalePrice = foodCostPercent
       ? costPerPortionWithWastage / (foodCostPercent / 100)
       : 0;
@@ -149,12 +221,16 @@ export default function RecipeGenerator() {
     };
   }, [ingredients, wastagePercent, foodCostPercent, servings]);
 
-  const canGenerate = ingredients.length > 0 && prompt.trim().length > 0 && !generateMutation.isPending;
+  const canGenerate =
+    ingredients.length > 0 &&
+    prompt.trim().length > 0 &&
+    !generateMutation.isPending;
 
   const handleGenerate = async () => {
     if (!canGenerate) {
       if (ingredients.length === 0) toast.error("Add at least one ingredient");
-      else if (!prompt.trim()) toast.error("Describe what you want to make in the prompt");
+      else if (!prompt.trim())
+        toast.error("Describe what you want to make in the prompt");
       return;
     }
     generateMutation.mutate(
@@ -163,7 +239,11 @@ export default function RecipeGenerator() {
           prompt: prompt.trim(),
           servings,
           dietaryTags: dietary,
-          ingredients: ingredients.map((i) => ({ name: i.name, quantity: i.quantity, unit: i.unit })),
+          ingredients: ingredients.map((i) => ({
+            name: i.name,
+            quantity: i.quantity,
+            unit: i.unit,
+          })),
         },
       },
       {
@@ -209,7 +289,11 @@ export default function RecipeGenerator() {
         quantity: i.quantity,
         unit: i.unit,
       })),
-      method: method.map((m, idx) => ({ type: m.type, content: m.content, order: idx })),
+      method: method.map((m, idx) => ({
+        type: m.type,
+        content: m.content,
+        order: idx,
+      })),
     };
     createMutation.mutate(
       { data: payload },
@@ -235,7 +319,8 @@ export default function RecipeGenerator() {
           <h2 className="font-semibold text-sm">AI Recipe Generator</h2>
         </div>
         <p className="text-xs text-muted-foreground">
-          Choose ingredients & dietary tags, describe the dish, then generate. Title and method unlock after AI writes the draft.
+          Choose ingredients & dietary tags, describe the dish, then generate.
+          Title and method unlock after AI writes the draft.
         </p>
         <Button
           onClick={handleGenerate}
@@ -267,7 +352,9 @@ export default function RecipeGenerator() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={!hasGenerated}
-            placeholder={hasGenerated ? "Recipe title" : "Will be written by AI"}
+            placeholder={
+              hasGenerated ? "Recipe title" : "Will be written by AI"
+            }
             data-testid="input-title"
           />
         </div>
@@ -278,7 +365,9 @@ export default function RecipeGenerator() {
           <Textarea
             value={hasGenerated ? description : prompt}
             onChange={(e) =>
-              hasGenerated ? setDescription(e.target.value) : setPrompt(e.target.value)
+              hasGenerated
+                ? setDescription(e.target.value)
+                : setPrompt(e.target.value)
             }
             placeholder={
               hasGenerated
@@ -318,7 +407,9 @@ export default function RecipeGenerator() {
           <div className="space-y-3">
             <div className="flex justify-between">
               <Label>Wastage Buffer</Label>
-              <span className="text-sm font-bold text-accent">{wastagePercent}%</span>
+              <span className="text-sm font-bold text-accent">
+                {wastagePercent}%
+              </span>
             </div>
             <Slider
               value={[wastagePercent]}
@@ -331,7 +422,9 @@ export default function RecipeGenerator() {
           <div className="space-y-3">
             <div className="flex justify-between">
               <Label>Target Food Cost</Label>
-              <span className="text-sm font-bold text-primary">{foodCostPercent}%</span>
+              <span className="text-sm font-bold text-primary">
+                {foodCostPercent}%
+              </span>
             </div>
             <Slider
               value={[foodCostPercent]}
@@ -352,7 +445,12 @@ export default function RecipeGenerator() {
           </Label>
           <Popover open={searchOpen} onOpenChange={setSearchOpen}>
             <PopoverTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8" data-testid="button-add-ingredient">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8"
+                data-testid="button-add-ingredient"
+              >
                 <Plus className="mr-2 h-3 w-3" /> Add Ingredient
               </Button>
             </PopoverTrigger>
@@ -367,7 +465,9 @@ export default function RecipeGenerator() {
               </div>
               <div className="max-h-[300px] overflow-y-auto">
                 {isSearchLoading ? (
-                  <div className="p-4 text-center text-sm text-muted-foreground">Searching...</div>
+                  <div className="p-4 text-center text-sm text-muted-foreground">
+                    Searching...
+                  </div>
                 ) : (searchResults ?? []).length === 0 ? (
                   <div className="p-4 text-center text-sm text-muted-foreground">
                     No ingredients found.
@@ -382,7 +482,8 @@ export default function RecipeGenerator() {
                       <div>
                         <p className="text-sm font-medium">{item.name}</p>
                         <p className="text-xs text-muted-foreground">
-                          ${Number(item.recipeUnitCost).toFixed(4)} / {item.recipeUnit}
+                          {formatUnitCost(Number(item.recipeUnitCost))} /{" "}
+                          {item.recipeUnit}
                         </p>
                       </div>
                       <Plus className="h-4 w-4 text-muted-foreground" />
@@ -405,7 +506,9 @@ export default function RecipeGenerator() {
                 className="bg-card rounded-lg border shadow-sm group"
               >
                 <div className="flex gap-3 items-center p-3">
-                  <div className="w-[200px] truncate font-medium text-sm">{ing.name}</div>
+                  <div className="w-[200px] truncate font-medium text-sm">
+                    {ing.name}
+                  </div>
                   <div className="flex-1 flex gap-2">
                     <Input
                       type="number"
@@ -413,18 +516,24 @@ export default function RecipeGenerator() {
                       step="0.01"
                       value={ing.quantity}
                       onChange={(e) =>
-                        updateIngredient(ing._tempId, "quantity", Number(e.target.value))
+                        updateIngredient(
+                          ing._tempId,
+                          "quantity",
+                          Number(e.target.value),
+                        )
                       }
                       className="w-20 h-8 text-sm"
                     />
                     <Input
                       value={ing.unit}
-                      onChange={(e) => updateIngredient(ing._tempId, "unit", e.target.value)}
+                      onChange={(e) =>
+                        updateIngredient(ing._tempId, "unit", e.target.value)
+                      }
                       className="w-24 h-8 text-sm"
                     />
                   </div>
                   <div className="w-24 text-right text-sm font-medium tabular-nums shrink-0">
-                    ${(ing.quantity * ing.recipeUnitCost).toFixed(2)}
+                    {formatCurrency(ing.quantity * ing.recipeUnitCost)}
                   </div>
                   <Button
                     variant="ghost"
@@ -454,7 +563,12 @@ export default function RecipeGenerator() {
             {!hasGenerated && <Lock className="h-3 w-3" />}
           </Label>
           {hasGenerated && (
-            <Button variant="outline" size="sm" className="h-8" onClick={addMethodBlock}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-8"
+              onClick={addMethodBlock}
+            >
               <Plus className="mr-2 h-3 w-3" /> Add Block
             </Button>
           )}
@@ -513,9 +627,15 @@ export default function RecipeGenerator() {
 
                 <Input
                   value={block.content}
-                  onChange={(e) => updateMethodBlock(block._tempId, "content", e.target.value)}
+                  onChange={(e) =>
+                    updateMethodBlock(block._tempId, "content", e.target.value)
+                  }
                   className={`flex-1 h-9 ${block.type === "header" ? "font-bold" : ""}`}
-                  placeholder={block.type === "header" ? "Section title..." : "Instruction..."}
+                  placeholder={
+                    block.type === "header"
+                      ? "Section title..."
+                      : "Instruction..."
+                  }
                 />
 
                 <Button
@@ -572,7 +692,9 @@ export default function RecipeGenerator() {
                   key={d}
                   variant={isActive ? "default" : "outline"}
                   className={`cursor-pointer transition-colors ${
-                    isActive ? "bg-primary hover:bg-primary/90 text-primary-foreground" : ""
+                    isActive
+                      ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+                      : ""
                   }`}
                   onClick={() => toggle(dietary, d, setDietary)}
                   data-testid={`chip-dietary-${d.toLowerCase().replace(/\s+/g, "-")}`}
@@ -646,7 +768,10 @@ export default function RecipeGenerator() {
               <Eye className="h-4 w-4 mr-1" /> Preview
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-full sm:max-w-2xl p-0 overflow-y-auto">
+          <SheetContent
+            side="right"
+            className="w-full sm:max-w-2xl p-0 overflow-y-auto"
+          >
             <SheetTitle className="sr-only">Recipe preview</SheetTitle>
             <PreviewContent
               title={title}

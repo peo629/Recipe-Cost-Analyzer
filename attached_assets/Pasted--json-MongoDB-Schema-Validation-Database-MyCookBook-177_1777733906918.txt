@@ -1,0 +1,300 @@
+---
+
+```json
+/*
+  MongoDB Schema Validation
+  =========================
+  Database: MyCookBook
+  Collection: business_users
+
+  Description:
+  This schema defines the structure, validation rules, and documentation for the
+  `business_users` collection. It represents business-linked user accounts such as
+  venue managers, staff, and executives under a company or group structure.
+
+  Key Features:
+  - Hierarchical linking via company_id, venue_id, and work_area_id
+  - Employment and payroll metadata
+  - Leave and entitlement tracking
+  - Tax, salary, and accrual calculations
+  - Embedded address and next-of-kin contact subdocuments
+  - Permission-based role system
+
+  Usage:
+  Apply this schema during collection creation or update operations to enforce 
+  consistency and integrity across user records.
+*/
+
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "linking_id",
+      "company_id",
+      "company_name",
+      "first_name",
+      "last_name",
+      "work_email",
+      "permissions",
+      "employment_details",
+      "created_at"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "objectId",
+        "description": "Unique identifier for the business user document"
+      },
+
+      // ───────────────────────────────
+      // Linking and Identification Data
+      // ───────────────────────────────
+      "linking_id": {
+        "bsonType": "string",
+        "description": "Unique internal link ID connecting the user to company/venue structure (e.g., EMP-2976-3087-308720)"
+      },
+      "payroll_id": {
+        "bsonType": "string",
+        "description": "Payroll system identifier (e.g., DV-308720)"
+      },
+      "company_id": {
+        "bsonType": "string",
+        "description": "Unique company identifier (e.g., CNY-2976)"
+      },
+      "company_name": {
+        "bsonType": "string",
+        "description": "Registered name of the company"
+      },
+      "venue_id": {
+        "bsonType": "string",
+        "description": "Venue identifier under the company"
+      },
+      "venue_name": {
+        "bsonType": "string",
+        "description": "Name of the venue or business location"
+      },
+      "work_area_id": {
+        "bsonType": "string",
+        "description": "Identifier for department or work area (e.g., WAI-2976-3087)"
+      },
+      "work_area_name": {
+        "bsonType": "string",
+        "description": "Name of the department or work area (e.g., 'venue', 'kitchen', 'admin')"
+      },
+      "role_id": {
+        "bsonType": "string",
+        "description": "Role identifier within company structure (e.g., FOH-EXE-306)"
+      },
+      "role_name": {
+        "bsonType": "string",
+        "description": "Human-readable role name (e.g., 'Venue Manager')"
+      },
+
+      // ───────────────────────────────
+      // Personal and Contact Details
+      // ───────────────────────────────
+      "first_name": {
+        "bsonType": "string",
+        "description": "User’s legal first name"
+      },
+      "last_name": {
+        "bsonType": "string",
+        "description": "User’s legal last name"
+      },
+      "preferred_name": {
+        "bsonType": [
+          "string",
+          "null"
+        ],
+        "description": "Preferred display name if different from legal name"
+      },
+      "date_of_birth": {
+        "bsonType": "date",
+        "description": "Date of birth (UTC date object)"
+      },
+      "address": {
+        "bsonType": "object",
+        "description": "Residential address details",
+        "properties": {
+          "street": {
+            "bsonType": "string",
+            "description": "Street address and number"
+          },
+          "suburb": {
+            "bsonType": "string",
+            "description": "Suburb or locality"
+          },
+          "state": {
+            "bsonType": "string",
+            "description": "Australian state or territory"
+          },
+          "post_code": {
+            "bsonType": "string",
+            "description": "Postal code (4-digit Australian format)",
+            "pattern": "^[0-9]{4}$"
+          }
+        }
+      },
+      "personal_contact": {
+        "bsonType": "string",
+        "description": "Personal phone number (E.164 international format)"
+      },
+      "next_of_kin": {
+        "bsonType": "object",
+        "description": "Emergency contact or next-of-kin details",
+        "properties": {
+          "name": {
+            "bsonType": "string",
+            "description": "Full name of next of kin"
+          },
+          "relationship": {
+            "bsonType": "string",
+            "description": "Relationship to employee (e.g., spouse, parent, sibling)"
+          },
+          "contact": {
+            "bsonType": "string",
+            "description": "Phone number in E.164 format"
+          }
+        }
+      },
+
+      // ───────────────────────────────
+      // Authentication and Permissions
+      // ───────────────────────────────
+      "work_email": {
+        "bsonType": "string",
+        "description": "Official work email address",
+        "pattern": "^[\\w\\.-]+@[\\w\\.-]+\\.[A-Za-z]{2,}$"
+      },
+      "password": {
+        "bsonType": "string",
+        "description": "BCrypt-hashed password string"
+      },
+      "permissions": {
+        "bsonType": "array",
+        "description": "Role-based access control tags (can be empty array for new users)",
+        "items": {
+          "bsonType": "string",
+          "enum": [
+            "admin",
+            "executive",
+            "venue_manager",
+            "supervisor",
+            "staff",
+            "viewer"
+          ]
+        },
+        "uniqueItems": true
+      },
+
+      // ───────────────────────────────
+      // Employment and Payroll Details
+      // ───────────────────────────────
+      "employment_details": {
+        "bsonType": "object",
+        "description": "Employment type and pay configuration",
+        "required": ["hired_date", "employment_type"],
+        "properties": {
+          "hired_date": {
+            "bsonType": "date",
+            "description": "Date of commencement of employment"
+          },
+          "employment_type": {
+            "bsonType": "string",
+            "enum": ["full time", "part time", "casual", "contract"],
+            "description": "Employment classification"
+          },
+          "pay_type": {
+            "bsonType": "string",
+            "enum": ["salary", "hourly", "commission", "stipend"],
+            "description": "Type of remuneration"
+          },
+          "pay_rate": {
+            "bsonType": "object",
+            "description": "Pay rate breakdown by pay cycle",
+            "properties": {
+              "fortnight_rate": {
+                "bsonType": "double",
+                "description": "Amount earned per fortnight in AUD"
+              },
+              "monthly_rate": {
+                "bsonType": "double",
+                "description": "Monthly rate in AUD"
+              },
+              "per_annum_rate": {
+                "bsonType": "double",
+                "description": "Annual salary in AUD"
+              }
+            }
+          }
+        }
+      },
+
+      // ───────────────────────────────
+      // Leave and Entitlement Tracking
+      // ───────────────────────────────
+      "leave_entitlements": {
+        "bsonType": "object",
+        "description": "Accrued and taken leave entitlements",
+        "properties": {
+          "holiday_accrued": { "bsonType": "double", "minimum": 0 },
+          "holiday_taken": { "bsonType": "double", "minimum": 0 },
+          "sick_accrued": { "bsonType": "double", "minimum": 0 },
+          "sick_taken": { "bsonType": "double", "minimum": 0 },
+          "carers_accrued": { "bsonType": "double", "minimum": 0 },
+          "carers_taken": { "bsonType": "double", "minimum": 0 },
+          "bereavement_accrued": { "bsonType": "double", "minimum": 0 },
+          "bereavement_taken": { "bsonType": "double", "minimum": 0 },
+          "maternity_entitlement": { "bsonType": "double", "minimum": 0 },
+          "maternity_taken": { "bsonType": "double", "minimum": 0 },
+          "unpaid_leave_taken": { "bsonType": "double", "minimum": 0 }
+        }
+      },
+
+      // ───────────────────────────────
+      // Employment Accrual and Tax Data
+      // ───────────────────────────────
+      "accrued_employment": {
+        "bsonType": "object",
+        "description": "Accrued time and salary/tax summary for current employment",
+        "properties": {
+          "days_employed": { "bsonType": "int", "minimum": 0 },
+          "unpaid_leave": { "bsonType": "double", "minimum": 0 },
+          "tax_withheld": { "bsonType": "double", "minimum": 0 },
+          "salary_ytd": { "bsonType": "double", "minimum": 0 },
+          "tax_withheld_ytd": { "bsonType": "double", "minimum": 0 }
+        }
+      },
+
+      // ───────────────────────────────
+      // System Timestamps
+      // ───────────────────────────────
+      "created_at": {
+        "bsonType": "date",
+        "description": "Timestamp of user creation"
+      },
+      "updated_at": {
+        "bsonType": ["date", "null"],
+        "description": "Last modification timestamp (nullable)"
+      }
+    }
+  }
+}
+```
+
+---
+
+### ✅ Notes for Developers
+
+* **Indexing Recommendations:**
+
+  * `{ company_id: 1, venue_id: 1, role_id: 1 }` → for role/venue lookup
+  * `{ work_email: 1 }` (unique) → for authentication
+  * `{ permissions: 1 }` → for fast RBAC filtering
+
+* **Password Handling:**
+  Always store `password` as a **bcrypt hash**. Never log or transmit plaintext credentials.
+
+* **Date Fields:**
+  Use `datetime.datetime.now(datetime.UTC)` for UTC-aware timestamps to avoid deprecation warnings (see your recent diagnostic logs).
+
+---

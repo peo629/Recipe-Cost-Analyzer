@@ -1,0 +1,459 @@
+/*
+  MongoDB Schema Validation
+  ========================
+  Database: MyCookBook
+  Collection: products
+  
+  Connection String:
+  mongodb+srv://MenuDev:O97iKcoDWuQeUMya@menudev.m5ehsth.mongodb.net/
+  
+  Description:
+  This schema defines the structure and validation rules for the products collection.
+  It enforces data types, required fields, and value constraints for ingredient products
+  used in the recipe generator application.
+  
+  Key Features:
+  - Multi-category support (products can have multiple categories)
+  - Costing structure with Purchase Units (PU), Sales Units (SU), and Recipe Units (RU)
+  - Comprehensive nutritional information
+  - Supplier and pricing data
+  - Semantic search embedding support
+  - Seasonal availability tracking
+  
+  Usage:
+  Apply this schema validation when creating or updating the products collection
+  in the recipe_generator database.
+*/
+
+{
+  "$jsonSchema": {
+    "bsonType": "object",
+    "required": [
+      "name",
+      "category",
+      "INGREDIENT",
+      "SUPPLIER",
+      "common_units",
+      "PU",
+      "SU",
+      "SUC",
+      "RU",
+      "RUC",
+      "currency",
+      "created_at",
+      "updated_at"
+    ],
+    "properties": {
+      "_id": {
+        "bsonType": "objectId",
+        "description": "Unique identifier for the product"
+      },
+      "name": {
+        "bsonType": "string",
+        "description": "Name of the product (brand name as suffix if applicable)",
+        "minLength": 1,
+        "maxLength": 300
+      },
+      "category": {
+        "bsonType": "array",
+        "description": "Categories of the product (array allows multiple categories per product)",
+        "items": {
+          "bsonType": "string",
+          "enum": [
+            "Protein",
+            "Poultry",
+            "Game",
+            "Meat",
+            "Seafood",
+            "Fish",
+            "Vegetables",
+            "Fruits",
+            "Grains",
+            "Dairy",
+            "Oils",
+            "Herbs & Spices",
+            "Condiments",
+            "Nuts & Seeds",
+            "Legumes",
+            "Beverages",
+            "Baking",
+            "Other"
+          ]
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      },
+      "aliases": {
+        "bsonType": "array",
+        "description": "Alternative names for the product",
+        "items": {
+          "bsonType": "string"
+        },
+        "uniqueItems": true
+      },
+      "description": {
+        "bsonType": "string",
+        "description": "Detailed description of the product",
+        "maxLength": 2000
+      },
+      "INGREDIENT": {
+        "bsonType": "string",
+        "description": "Canonical ingredient name",
+        "minLength": 1,
+        "maxLength": 200
+      },
+      "SUPPLIER": {
+        "bsonType": "string",
+        "description": "Name of the supplier (e.g., Woolworths, Macro, Coles, Ingham's)",
+        "minLength": 1,
+        "maxLength": 100
+      },
+      "common_units": {
+        "bsonType": "array",
+        "description": "Common units of measurement for this product",
+        "items": {
+          "bsonType": "string",
+          "enum": [
+            "g",
+            "kg",
+            "mg",
+            "lb",
+            "oz",
+            "ml",
+            "l",
+            "ltr",
+            "cup",
+            "tbsp",
+            "tsp",
+            "EA",
+            "piece",
+            "dozen",
+            "fl oz",
+            "pack"
+          ]
+        },
+        "minItems": 1,
+        "uniqueItems": true
+      },
+      "PU": {
+        "bsonType": "string",
+        "description": "Purchase Unit - the packaged/sold quantity (e.g., '500g', '1.5kg', '1EA', '2 pack')",
+        "minLength": 1,
+        "maxLength": 50
+      },
+      "SU": {
+        "bsonType": "string",
+        "description": "Sales Unit - standardized unit used for pricing (e.g., 'kg', 'g', 'EA', 'ltr', 'ml')",
+        "minLength": 1,
+        "maxLength": 20
+      },
+      "SUC": {
+        "bsonType": [
+          "double",
+          "null"
+        ],
+        "description": "Sales Unit Cost - price per sales unit (null if not available)",
+        "minimum": 0
+      },
+      "RU": {
+        "bsonType": "string",
+        "description": "Recipe Unit - subdivision of Sales Unit for recipe costing (e.g., 'g' for kg, 'ml' for ltr, 'EA' for EA)",
+        "minLength": 1,
+        "maxLength": 20
+      },
+      "RUC": {
+        "bsonType": [
+          "double",
+          "null"
+        ],
+        "description": "Recipe Unit Cost - cost per recipe unit (SUC ÷ conversion factor)",
+        "minimum": 0
+      },
+      "currency": {
+        "bsonType": "string",
+        "description": "Currency code (e.g., 'AUD', 'USD')",
+        "pattern": "^[A-Z]{3}$",
+        "minLength": 3,
+        "maxLength": 3
+      },
+      "last_updated": {
+        "bsonType": "date",
+        "description": "When the price/data was last updated"
+      },
+      "seasonal_availability": {
+        "bsonType": "string",
+        "enum": [
+          "in_season",
+          "out_of_season",
+          "limited",
+          "imported",
+          "not_avavilble"
+        ],
+        "description": "Seasonal availability status"
+      },
+      "nutritional_info": {
+        "bsonType": "object",
+        "description": "Nutritional information per 100g",
+        "properties": {
+          "serving_size": {
+            "bsonType": "string",
+            "description": "Standard serving size (e.g., '100 g')"
+          },
+          "calories": {
+            "bsonType": "double",
+            "description": "Calories in kcal",
+            "minimum": 0
+          },
+          "protein": {
+            "bsonType": "double",
+            "description": "Protein in grams",
+            "minimum": 0
+          },
+          "carbohydrates": {
+            "bsonType": "double",
+            "description": "Carbohydrates in grams",
+            "minimum": 0
+          },
+          "fat": {
+            "bsonType": "double",
+            "description": "Total fat in grams",
+            "minimum": 0
+          },
+          "fiber": {
+            "bsonType": "double",
+            "description": "Dietary fiber in grams",
+            "minimum": 0
+          },
+          "sugar": {
+            "bsonType": "double",
+            "description": "Sugar in grams",
+            "minimum": 0
+          },
+          "sodium": {
+            "bsonType": "double",
+            "description": "Sodium in milligrams",
+            "minimum": 0
+          },
+          "cholesterol": {
+            "bsonType": "double",
+            "description": "Cholesterol in milligrams",
+            "minimum": 0
+          },
+          "saturated_fat": {
+            "bsonType": "double",
+            "description": "Saturated fat in grams",
+            "minimum": 0
+          },
+          "trans_fat": {
+            "bsonType": "double",
+            "description": "Trans fat in grams",
+            "minimum": 0
+          },
+          "vitamins": {
+            "bsonType": "object",
+            "description": "Vitamin content",
+            "properties": {
+              "vitamin_a": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Vitamin A in IU or μg"
+              },
+              "vitamin_c": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Vitamin C in mg"
+              },
+              "vitamin_d": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Vitamin D in μg or IU"
+              },
+              "vitamin_e": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Vitamin E in mg"
+              },
+              "vitamin_k": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Vitamin K in μg"
+              },
+              "vitamin_b6": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Vitamin B6 in mg"
+              },
+              "vitamin_b12": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Vitamin B12 in μg"
+              }
+            }
+          },
+          "minerals": {
+            "bsonType": "object",
+            "description": "Mineral content",
+            "properties": {
+              "calcium": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Calcium in mg"
+              },
+              "iron": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Iron in mg"
+              },
+              "magnesium": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Magnesium in mg"
+              },
+              "potassium": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Potassium in mg"
+              },
+              "zinc": {
+                "bsonType": [
+                  "double",
+                  "null"
+                ],
+                "description": "Zinc in mg"
+              }
+            }
+          }
+        }
+      },
+      "allergens": {
+        "bsonType": "array",
+        "description": "List of allergens present",
+        "items": {
+          "bsonType": "string",
+          "enum": [
+            "milk",
+            "eggs",
+            "fish",
+            "shellfish",
+            "tree nuts",
+            "peanuts",
+            "wheat",
+            "soybeans",
+            "sesame",
+            "gluten",
+            "none"
+          ]
+        },
+        "uniqueItems": true
+      },
+      "storage_info": {
+        "bsonType": "string",
+        "description": "Storage instructions and food safety guidelines",
+        "maxLength": 2000
+      },
+      "embedding": {
+        "bsonType": [
+          "array",
+          "null"
+        ],
+        "description": "Vector embedding for semantic search (3072 dimensions for text-embedding-3-large)",
+        "items": {
+          "bsonType": "double"
+        }
+      },
+      "tags": {
+        "bsonType": "array",
+        "description": "Additional tags for categorization and filtering",
+        "items": {
+          "bsonType": "string"
+        }
+      },
+      "seasonal": {
+        "bsonType": "object",
+        "description": "Seasonal availability information",
+        "properties": {
+          "is_seasonal": {
+            "bsonType": "bool",
+            "description": "Whether the product is seasonal, where it originates from when in season locally, where it originates from when imported"
+          },
+          "peak_months": {
+            "bsonType": "array",
+            "description": "Months of peak availability (1-12)",
+            "items": {
+              "bsonType": "int",
+              "minimum": 1,
+              "maximum": 12
+            }
+          }
+        }
+      },
+      "origin": {
+        "bsonType": "string",
+        "description": "Country or region of origin",
+        "maxLength": 100
+      },
+      "organic": {
+        "bsonType": "bool",
+        "description": "Whether the product is certified organic",
+        "default": false
+      },
+      "is_active": {
+        "bsonType": "bool",
+        "description": "Whether the product is active/available",
+        "default": true
+      },
+      "created_at": {
+        "bsonType": "date",
+        "description": "Timestamp when product was created"
+      },
+      "updated_at": {
+        "bsonType": "date",
+        "description": "Timestamp when product was last updated"
+      },
+      "metadata": {
+        "bsonType": "object",
+        "description": "Additional metadata about the product",
+        "properties": {
+          "source": {
+            "bsonType": "string",
+            "description": "Source of the product data (e.g., 'Woolworths Australia / USDA / Nutrition databases')",
+            "maxLength": 500
+          },
+          "verified": {
+            "bsonType": "bool",
+            "description": "Whether the data has been verified"
+          },
+          "last_verified": {
+            "bsonType": [
+              "date",
+              "null"
+            ],
+            "description": "Timestamp of last verification"
+          }
+        }
+      }
+    }
+  }
+}

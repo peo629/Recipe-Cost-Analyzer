@@ -24,6 +24,16 @@ export interface Recipe {
   costSummary: RecipeCostSummary;
   /** @nullable */
   authorName?: string | null;
+  /**
+   * Stored object key for the recipe hero photo (provider-agnostic).
+   * @nullable
+   */
+  imageKey?: string | null;
+  /**
+   * Time-limited URL for fetching the photo. Re-fetch the recipe when it expires.
+   * @nullable
+   */
+  imageUrl?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

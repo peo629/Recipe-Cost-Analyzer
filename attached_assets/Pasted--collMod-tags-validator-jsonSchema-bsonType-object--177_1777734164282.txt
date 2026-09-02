@@ -1,0 +1,72 @@
+{
+  "collMod": "tags",
+  "validator": {
+    "$jsonSchema": {
+      "bsonType": "object",
+      "title": "Tags Collection Schema",
+      "description": "Canonical schema for MyCookBook / Le Repertoire tags (dietary, cuisine, cookery method, supplier, etc.)",
+      "required": [
+        "name",
+        "slug",
+        "type",
+        "created_at",
+        "updated_at"
+      ],
+      "properties": {
+        "_id": {
+          "bsonType": "objectId",
+          "description": "Unique identifier for the tag"
+        },
+        "name": {
+          "bsonType": "string",
+          "description": "Human-readable tag label shown in the UI (freely editable)",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "slug": {
+          "bsonType": "string",
+          "description": "Stable, machine-friendly identifier used in URLs and lookups (lowercase, hyphen-separated)",
+          "minLength": 1,
+          "maxLength": 200,
+          "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        },
+        "type": {
+          "bsonType": "string",
+          "description": "Tag category controlling grouping and filtering logic",
+          "enum": [
+            "Dietary",
+            "Cuisine",
+            "Cookery Method",
+            "Supplier"
+          ]
+        },
+        "aliases": {
+          "bsonType": "array",
+          "description": "Optional alternative labels for search and matching",
+          "items": {
+            "bsonType": "string"
+          }
+        },
+        "description": {
+          "bsonType": "string",
+          "description": "Optional human-readable explanation of the tag’s intended use",
+          "maxLength": 1000
+        },
+        "created_at": {
+          "bsonType": "date",
+          "description": "Timestamp when the tag document was created"
+        },
+        "updated_at": {
+          "bsonType": "date",
+          "description": "Timestamp of the last update to this tag document"
+        },
+        "last_updated": {
+          "bsonType": "date",
+          "description": "Optional system-maintained timestamp used by ETL/seed scripts (can mirror updated_at)"
+        }
+      }
+    }
+  },
+  "validationLevel": "moderate",
+  "validationAction": "error"
+}

@@ -30,5 +30,7 @@ export function StubPage({ title, group, description }: StubPageProps) {
   );
 }
 
-export const makeStub = (title: string, group?: string, description?: string) =>
-  () => <StubPage title={title} group={group} description={description} />;
+export const makeStub =
+  (title: string, group?: string, description?: string) => () => (
+    <StubPage title={title} group={group} description={description} />
+  );

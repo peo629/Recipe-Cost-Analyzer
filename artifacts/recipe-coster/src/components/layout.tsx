@@ -10,7 +10,12 @@ import {
   Menu,
   ChevronDown,
 } from "lucide-react";
-import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -18,10 +23,20 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type Leaf = { href: string; label: string };
-type Group = { id: string; label: string; icon: React.ComponentType<{ className?: string }>; children: Leaf[] };
-type TopLink = { href: string; label: string; icon: React.ComponentType<{ className?: string }> };
+type Group = {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  children: Leaf[];
+};
+type TopLink = {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
 type NavEntry = TopLink | Group;
 
 const isGroup = (e: NavEntry): e is Group => "children" in e;
@@ -216,8 +231,14 @@ export function Layout({ children }: { children: ReactNode }) {
             aria-hidden
             className="h-5 w-5 shrink-0 rounded-sm border border-dashed border-border"
           />
-          <span className="font-bold tracking-tight truncate">Le Repertoire</span>
+          <span className="font-bold tracking-tight truncate">
+            Le Repertoire
+          </span>
         </Link>
+
+        <div className="ml-auto flex items-center gap-1">
+          <ThemeToggle />
+        </div>
       </header>
 
       <main className="flex-1 overflow-auto bg-background">{children}</main>

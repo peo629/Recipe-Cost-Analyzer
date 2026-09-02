@@ -8,8 +8,15 @@
 import type { GenerateRecipeIngredient } from "./generateRecipeIngredient";
 
 export interface GenerateRecipeRequest {
+  /** @maxLength 1000 */
   prompt: string;
+  /**
+   * @minimum 1
+   * @maximum 1000
+   */
   servings: number;
+  /** @maxItems 20 */
   dietaryTags: string[];
+  /** @maxItems 50 */
   ingredients: GenerateRecipeIngredient[];
 }

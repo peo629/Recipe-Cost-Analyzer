@@ -17,6 +17,10 @@ export interface RecipeSummary {
   ingredientNames: string[];
   costPerPortion: number;
   recommendedSalePrice: number;
+  /** @nullable */
+  imageKey?: string | null;
+  /** @nullable */
+  imageUrl?: string | null;
   createdAt: Date;
   updatedAt: Date;
 }
